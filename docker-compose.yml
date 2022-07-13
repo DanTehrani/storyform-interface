@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  story-1:
+    build: .
+    tty: true
+    volumes:
+      - ./:/root
+    ports:
+      - 3000:3000
