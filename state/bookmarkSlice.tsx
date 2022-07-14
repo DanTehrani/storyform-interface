@@ -25,11 +25,13 @@ export const addBookmark = createAsyncThunk(
 type IInitialState = {
   bookmarks: Bookmark[];
   gettingBookmarks: boolean;
+  addingBookmark: boolean;
 };
 
 const initialState: IInitialState = {
   bookmarks: [],
-  gettingBookmarks: false
+  gettingBookmarks: false,
+  addingBookmark: false
 };
 
 export const bookmarkSlice = createSlice({
@@ -45,6 +47,14 @@ export const bookmarkSlice = createSlice({
     builder.addCase(getBookmarks.fulfilled, (state, action) => {
       state.bookmarks = action.payload;
       state.gettingBookmarks = false;
+    });
+
+    builder.addCase(addBookmark.pending, (state, action) => {
+      state.addingBookmark = true;
+    });
+
+    builder.addCase(addBookmark.fulfilled, (state, action) => {
+      state.addingBookmark = false;
     });
   }
 });

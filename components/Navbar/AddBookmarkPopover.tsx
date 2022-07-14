@@ -12,8 +12,8 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import { SmallCloseIcon } from "@chakra-ui/icons";
-import { useAppDispatch } from "../../hooks";
-import { addBookmark } from "../../state/bookmarkSlice";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { addBookmark, getBookmarks } from "../../state/bookmarkSlice";
 import { useWeb3React } from "@web3-react/core";
 
 const AddBookmarkPopover = () => {
@@ -21,10 +21,12 @@ const AddBookmarkPopover = () => {
   const dispatch = useAppDispatch();
   const [url, setUrl] = useState<string>("");
   const { account } = useWeb3React();
+  const addingBookmark = useAppSelector(state => state.bookmark.addingBookmark);
 
-  const handleAddClick = () => {
+  const handleAddClick = async () => {
     if (account) {
-      dispatch(addBookmark({ account, bookmarkInput: { url } }));
+      await dispatch(addBookmark({ account, bookmarkInput: { url } }));
+      dispatch(getBookmarks());
       onToggle();
     }
   };
@@ -48,7 +50,9 @@ const AddBookmarkPopover = () => {
               type="text"
               onChange={handleInputChange}
             ></Input>
-            <Button onClick={handleAddClick}>Add</Button>
+            <Button onClick={handleAddClick} isLoading={addingBookmark}>
+              Add
+            </Button>
           </HStack>
         </PopoverBody>
       </PopoverContent>

@@ -1,7 +1,7 @@
-version: '3'
+version: "3"
 
 services:
-  story-1:
+  story-interface:
     build: .
     tty: true
     volumes:

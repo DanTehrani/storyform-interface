@@ -8,7 +8,8 @@ import { Bookmark, BookmarkInput, LocalStorageTransaction } from "../types";
 import arweave from "./arweve";
 import {
   saveTransactionToLocalStorage,
-  getTransactionsFromLocalStorage
+  getTransactionsFromLocalStorage,
+  removeTransactionsFromLocalStorage
 } from "./localStorage";
 
 /**
@@ -129,10 +130,28 @@ const getBookmarksFromLocalStorage = async (): Promise<Bookmark[]> => {
 };
 
 export const getBookmarks = async (): Promise<Bookmark[]> => {
-  const bookmarks: Bookmark[] = [
+  // All bookmarks including duplicate
+  const allBookmarks: Bookmark[] = [
     ...(await getBookmarksFromLocalStorage()),
     ...(await getBookmarksFromArweave())
   ];
+
+  // Remove the confirmed transactions from local storage
+
+  const duplicatedTransactionIds = allBookmarks
+    .filter(
+      (bookmark, i) =>
+        allBookmarks.findIndex(b => b.arweveTxId === bookmark.arweveTxId) !== i
+    )
+    .map(tx => tx.arweveTxId);
+
+  removeTransactionsFromLocalStorage(duplicatedTransactionIds);
+
+  // Duplicate removed bookmarks
+  const bookmarks = allBookmarks.filter(
+    (bookmark, i) =>
+      allBookmarks.findIndex(b => b.arweveTxId === bookmark.arweveTxId) === i
+  );
 
   return bookmarks;
 };
