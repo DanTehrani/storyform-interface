@@ -1,20 +1,28 @@
-import Image from "next/image";
 import {
-  Box,
   Center,
   Heading,
-  Text,
   Stack,
-  Avatar,
   useColorModeValue,
   LinkBox,
-  LinkOverlay
+  LinkOverlay,
+  Button,
+  Text,
+  Link
 } from "@chakra-ui/react";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { Bookmark } from "../types";
 
 type Props = {
-  title: string;
-  url: string;
+  bookmark: Bookmark;
 };
+
+const shortenTxId = (txId: string) => txId;
+
+// TODO: Move this to utils file
+const getTxArweaveExplorerUrl = (txId: string) =>
+  `https://viewblock.io/arweave/tx/${txId}`;
+
+const getDomainFromUrl = (url: string) => new URL(url).hostname;
 
 const Card = (props: Props) => {
   return (
@@ -30,20 +38,31 @@ const Card = (props: Props) => {
         overflow={"hidden"}
       >
         <Stack>
-          <LinkOverlay href={props.url} isExternal>
+          <LinkOverlay href={props.bookmark.url} isExternal>
             <Heading
               color={useColorModeValue("gray.700", "white")}
               fontSize={"xl"}
               fontFamily={"body"}
             >
-              {props.title}
+              {props.bookmark.title}
             </Heading>
           </LinkOverlay>
         </Stack>
         <Stack mt={6} direction={"row"} spacing={4} align={"center"}>
-          <Stack direction={"column"} spacing={0} fontSize={"sm"}>
-            <Text fontWeight={600}>Achim Rolle</Text>
-            <Text color={"gray.500"}>Feb 08, 2021 · 6min read</Text>
+          <Stack direction={"column"} spacing={2} fontSize={"sm"}>
+            <Link href={props.bookmark.url} isExternal>
+              {getDomainFromUrl(props.bookmark.url)}
+            </Link>
+            <LinkOverlay
+              href={getTxArweaveExplorerUrl(props.bookmark.arweveTxId)}
+              isExternal={true}
+            >
+              <Button rightIcon={<ExternalLinkIcon></ExternalLinkIcon>}>
+                <Text opacity={0.5}>
+                  Arweave: {shortenTxId(props.bookmark.arweveTxId)}
+                </Text>
+              </Button>
+            </LinkOverlay>
           </Stack>
         </Stack>
       </LinkBox>

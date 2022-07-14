@@ -1,6 +1,7 @@
 export type BookmarkPreview = {};
 
 export type Bookmark = {
+  arweveTxId: string;
   title: string;
   url: string;
 };
@@ -19,5 +20,5 @@ export type OrgSettingsInput = {
 
 export type LocalStorageTransaction = {
   id: string;
-  bookmark: Bookmark;
+  url: string;
 };

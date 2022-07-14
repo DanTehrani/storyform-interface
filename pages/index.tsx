@@ -26,7 +26,7 @@ const Home: NextPage = () => {
   return (
     <>
       {bookmarks.map((bookmark: Bookmark, i) => (
-        <Card title={bookmark.title} url={bookmark.url} key={i}></Card>
+        <Card bookmark={bookmark} key={i}></Card>
       ))}
     </>
   );

@@ -4,15 +4,12 @@ import { LocalStorageTransaction } from "../types";
 
 // export const getSignature = (): string | null => {};
 
-export const getTransactionDataFromLocalStorage = (txId: string): string => {
-  const transactions = window.localStorage.getItem("transactions");
-  const data =
-    transactions &&
-    JSON.parse(transactions).find(
-      (tx: LocalStorageTransaction) => tx.id === txId
-    )?.bookmark;
-  return data;
-};
+export const getTransactionsFromLocalStorage =
+  (): LocalStorageTransaction[] => {
+    const transactions = window.localStorage.getItem("transactions");
+
+    return transactions ? JSON.parse(transactions) : [];
+  };
 
 export const getTransactionIdsFromLocalStorage = (): string[] => {
   const transactions = window.localStorage.getItem("transactions");

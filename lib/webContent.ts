@@ -8,7 +8,8 @@ export const getWebsiteTitle = async (url: string): Promise<string> => {
       }
     })
     .catch(err => {
-      // console.error(err);
+      // eslint-disable-next-line no-console
+      console.error(err);
     });
 
   const result = res?.data?.match(/<title[^>]*>(.*?)<\/title>/g);

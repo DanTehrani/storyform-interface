@@ -4,12 +4,11 @@ import axios from "./axios";
 import { gql } from "@apollo/client";
 import arweaveGraphQl from "./arweaveGraphQl";
 import { getWebsiteTitle } from "./webContent";
-import { Bookmark, BookmarkInput } from "../types";
+import { Bookmark, BookmarkInput, LocalStorageTransaction } from "../types";
 import arweave from "./arweve";
 import {
   saveTransactionToLocalStorage,
-  getTransactionDataFromLocalStorage,
-  getTransactionIdsFromLocalStorage
+  getTransactionsFromLocalStorage
 } from "./localStorage";
 
 /**
@@ -36,19 +35,16 @@ export const addBookmark = async (
   // const bookmarkId = getBookmarkId(account, signature);
   const res = await axios.post(`/users/${account}/bookmarks`, bookmarkInput);
 
-  const title = await getWebsiteTitle(bookmarkInput.url);
   saveTransactionToLocalStorage({
     id: res.data,
-    bookmark: {
-      url: bookmarkInput.url,
-      title
-    }
+    url: bookmarkInput.url
   });
 
   // Save it to local storage
 };
 
-export const getBookmarks = async (): Promise<Bookmark[]> => {
+const getBookmarksFromArweave = async () => {
+  // Get list of transaction ids from Arweave
   const result = await arweaveGraphQl.query({
     query: gql`
       query transactions($first: Int!, $after: String, $owners: [String!]) {
@@ -71,14 +67,11 @@ export const getBookmarks = async (): Promise<Bookmark[]> => {
     }
   });
 
-  const bookmarkTransactionIds: string[] = [
-    ...new Set([
-      ...getTransactionIdsFromLocalStorage(),
-      ...result.data.transactions.edges.map(({ node }) => node.id)
-    ])
-  ];
+  const bookmarkTransactionIds: string[] = result.data.transactions.edges.map(
+    ({ node }) => node.id
+  );
 
-  // move this to utils
+  // TODO: Move this to utils file
   function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
     if (value === null || value === undefined) return false;
     return true;
@@ -88,7 +81,7 @@ export const getBookmarks = async (): Promise<Bookmark[]> => {
     await Promise.all(
       bookmarkTransactionIds.map((txId: string) =>
         (async (): Promise<Bookmark | null> => {
-          let data: string;
+          let data: string | null;
           try {
             data = (
               await arweave.transactions.getData(txId, {
@@ -97,7 +90,9 @@ export const getBookmarks = async (): Promise<Bookmark[]> => {
               })
             ).toString();
           } catch (err) {
-            data = JSON.parse(getTransactionDataFromLocalStorage(txId));
+            // eslint-disable-next-line no-console
+            console.error(err);
+            data = null;
           }
 
           if (!data) {
@@ -107,6 +102,7 @@ export const getBookmarks = async (): Promise<Bookmark[]> => {
           const url = JSON.parse(data).url;
 
           return {
+            arweveTxId: txId,
             url,
             title: await getWebsiteTitle(url)
           };
@@ -114,6 +110,29 @@ export const getBookmarks = async (): Promise<Bookmark[]> => {
       )
     )
   ).filter(notEmpty);
+
+  return bookmarks;
+};
+
+const getBookmarksFromLocalStorage = async (): Promise<Bookmark[]> => {
+  const bookmarks = await Promise.all(
+    getTransactionsFromLocalStorage().map(
+      async (tx: LocalStorageTransaction) => ({
+        arweveTxId: tx.id,
+        url: tx.url,
+        title: await getWebsiteTitle(tx.url)
+      })
+    )
+  );
+
+  return bookmarks;
+};
+
+export const getBookmarks = async (): Promise<Bookmark[]> => {
+  const bookmarks: Bookmark[] = [
+    ...(await getBookmarksFromLocalStorage()),
+    ...(await getBookmarksFromArweave())
+  ];
 
   return bookmarks;
 };

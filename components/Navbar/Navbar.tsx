@@ -1,150 +1,31 @@
 import {
   Box,
   Flex,
-  Text,
   IconButton,
-  Stack,
   Collapse,
-  Icon,
   Link,
-  Popover,
-  PopoverTrigger,
   Button,
   useColorModeValue,
-  useBreakpointValue,
   useDisclosure
 } from "@chakra-ui/react";
-import {
-  HamburgerIcon,
-  CloseIcon,
-  ChevronDownIcon,
-  ChevronRightIcon
-} from "@chakra-ui/icons";
-import AddBookmark from "./AddBookmark";
+import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
+import AddBookmarkPopover from "./AddBookmarkPopover";
 import { injected } from "../../lib/wallet";
 import { useWeb3React } from "@web3-react/core";
-
-type NavItem = {
-  label: string;
-  subLabel?: string;
-  href?: string;
-};
-
-const NAV_ITEMS: Array<NavItem> = [
-  {
-    label: "My List",
-    href: "#"
-  },
-  {
-    label: "About",
-    href: "#"
-  }
-];
 
 const getShortenAddress = (account: string) =>
   `${account.slice(0, 6)}...${account.slice(7, 11)}`;
 
-const DesktopNav = () => {
+const Navbar = () => {
+  const { isOpen, onToggle } = useDisclosure();
   const linkColor = useColorModeValue("gray.600", "gray.200");
   const linkHoverColor = useColorModeValue("gray.800", "white");
+
   const { activate, active, account, deactivate } = useWeb3React();
 
   const connect = async () => {
     await activate(injected);
   };
-
-  return (
-    <Stack direction="row" justify="space-between">
-      <Box>
-        <Stack direction="row" spacing={4} align="center">
-          {NAV_ITEMS.map(navItem => (
-            <Box key={navItem.label}>
-              <Popover trigger={"hover"} placement={"bottom-start"}>
-                <PopoverTrigger>
-                  <Link
-                    p={2}
-                    href={navItem.href ?? "#"}
-                    fontSize={"sm"}
-                    fontWeight={500}
-                    color={linkColor}
-                    _hover={{
-                      textDecoration: "none",
-                      color: linkHoverColor
-                    }}
-                  >
-                    {navItem.label}
-                  </Link>
-                </PopoverTrigger>
-              </Popover>
-            </Box>
-          ))}
-          {active ? <AddBookmark></AddBookmark> : <Box></Box>}
-        </Stack>
-      </Box>
-      <Box>
-        {active ? (
-          <Button onClick={deactivate}>
-            {account && getShortenAddress(account)}
-          </Button>
-        ) : (
-          <Button bgColor={"orange"} onClick={connect}>
-            Connect
-          </Button>
-        )}
-      </Box>
-    </Stack>
-  );
-};
-
-const MobileNav = () => {
-  return (
-    <Stack
-      bg={useColorModeValue("white", "gray.800")}
-      p={4}
-      display={{ md: "none" }}
-    >
-      {NAV_ITEMS.map(navItem => (
-        <MobileNavItem key={navItem.label} {...navItem} />
-      ))}
-    </Stack>
-  );
-};
-
-const MobileNavItem = ({ label, href }: NavItem) => {
-  const { isOpen } = useDisclosure();
-
-  return (
-    <Stack spacing={4}>
-      <Flex
-        py={2}
-        as={Link}
-        href={href ?? "#"}
-        justify={"space-between"}
-        align={"center"}
-        _hover={{
-          textDecoration: "none"
-        }}
-      >
-        <Text
-          fontWeight={600}
-          color={useColorModeValue("gray.600", "gray.200")}
-        >
-          {label}
-        </Text>
-        <Icon
-          as={ChevronDownIcon}
-          transition={"all .25s ease-in-out"}
-          transform={isOpen ? "rotate(180deg)" : ""}
-          w={6}
-          h={6}
-        />
-      </Flex>
-    </Stack>
-  );
-};
-
-const Navbar = () => {
-  const { isOpen, onToggle } = useDisclosure();
 
   return (
     <Box>
@@ -158,6 +39,7 @@ const Navbar = () => {
         borderStyle={"solid"}
         borderColor={useColorModeValue("gray.200", "gray.900")}
         align={"center"}
+        justify="space-between"
       >
         <Flex
           flex={{ base: 1, md: "auto" }}
@@ -173,27 +55,53 @@ const Navbar = () => {
             aria-label={"Toggle Navigation"}
           />
         </Flex>
-        <Flex
-          flex={{ base: 1 }}
-          justify={{ base: "center", md: "start" }}
-          align="center"
-        >
-          <Text
-            textAlign={useBreakpointValue({ base: "center", md: "left" })}
-            fontFamily={"heading"}
-            color={useColorModeValue("gray.800", "white")}
-          >
-            Logo
-          </Text>
-
-          <Flex display={{ base: "none", md: "flex" }} ml={10}>
-            <DesktopNav />
-          </Flex>
+        <Flex justify={{ base: "center", md: "start" }} align="center">
+          <Box display={{ base: "none", md: "flex" }}>
+            <Link
+              p={2}
+              href="https://github.com/DanTehrani/story-interface"
+              isExternal
+              fontSize={"sm"}
+              fontWeight={500}
+              color={linkColor}
+              _hover={{
+                textDecoration: "none",
+                color: linkHoverColor
+              }}
+            >
+              GitHub
+            </Link>
+          </Box>
+        </Flex>
+        <Flex>
+          <Box mr={3}>
+            {active ? <AddBookmarkPopover></AddBookmarkPopover> : <Box></Box>}
+          </Box>
+          <Box>
+            {active ? (
+              <Button onClick={deactivate}>
+                {account && getShortenAddress(account)}
+              </Button>
+            ) : (
+              <Button bgColor={"orange"} onClick={connect}>
+                Connect
+              </Button>
+            )}
+          </Box>
         </Flex>
       </Flex>
 
       <Collapse in={isOpen} animateOpacity>
-        <MobileNav />
+        <Box p={4} display={{ md: "none" }}>
+          <Link
+            fontWeight={600}
+            color={useColorModeValue("gray.600", "gray.200")}
+            href="https://github.com/DanTehrani/story-interface"
+            isExternal
+          >
+            GitHub
+          </Link>
+        </Box>
       </Collapse>
     </Box>
   );
