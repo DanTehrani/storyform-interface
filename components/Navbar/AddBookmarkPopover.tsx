@@ -17,7 +17,7 @@ import { addBookmark } from "../../state/bookmarkSlice";
 import { useWeb3React } from "@web3-react/core";
 
 const AddBookmarkPopover = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onToggle } = useDisclosure();
   const dispatch = useAppDispatch();
   const [url, setUrl] = useState<string>("");
   const { account } = useWeb3React();
@@ -25,7 +25,7 @@ const AddBookmarkPopover = () => {
   const handleAddClick = () => {
     if (account) {
       dispatch(addBookmark({ account, bookmarkInput: { url } }));
-      onClose();
+      onToggle();
     }
   };
 
@@ -34,7 +34,7 @@ const AddBookmarkPopover = () => {
   };
 
   return (
-    <Popover isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
+    <Popover isOpen={isOpen} onOpen={onToggle} onClose={onToggle}>
       <PopoverTrigger>
         <Button> {isOpen ? <SmallCloseIcon></SmallCloseIcon> : "Add"}</Button>
       </PopoverTrigger>
