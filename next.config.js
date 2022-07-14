@@ -4,7 +4,10 @@ const nextConfig = {
   swcMinify: true,
   images: {
     domains: ["images.unsplash.com"]
-  }
+  },
+  assetPrefix:
+    // eslint-disable-next-line no-undef
+    process.env.NODE_ENV === "production" ? "/story-interface/" : ""
 };
 
 module.exports = nextConfig;
