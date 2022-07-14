@@ -5,8 +5,6 @@ import {
   useColorModeValue,
   LinkBox,
   LinkOverlay,
-  Button,
-  Text,
   Link
 } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
@@ -16,7 +14,8 @@ type Props = {
   bookmark: Bookmark;
 };
 
-const shortenTxId = (txId: string) => txId;
+const shortenTxId = (txId: string) =>
+  `${txId.slice(0, 7)}...${txId.slice(txId.length - 7, txId.length)}`;
 
 // TODO: Move this to utils file
 const getTxArweaveExplorerUrl = (txId: string) =>
@@ -53,16 +52,14 @@ const Card = (props: Props) => {
             <Link href={props.bookmark.url} isExternal>
               {getDomainFromUrl(props.bookmark.url)}
             </Link>
-            <LinkOverlay
+            <Link
+              opacity={0.5}
               href={getTxArweaveExplorerUrl(props.bookmark.arweveTxId)}
-              isExternal={true}
+              isExternal
             >
-              <Button rightIcon={<ExternalLinkIcon></ExternalLinkIcon>}>
-                <Text opacity={0.5}>
-                  Arweave: {shortenTxId(props.bookmark.arweveTxId)}
-                </Text>
-              </Button>
-            </LinkOverlay>
+              Arweave: {shortenTxId(props.bookmark.arweveTxId)}
+              <ExternalLinkIcon mx="2px" />
+            </Link>
           </Stack>
         </Stack>
       </LinkBox>
