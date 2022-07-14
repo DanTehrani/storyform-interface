@@ -17,6 +17,8 @@ jobs:
         run: yarn
       - name: Build
         run: yarn build
+        env:
+          GATEWAY_URL: https://story-gateway-74zr6opnjq-an.a.run.app
       - name: deploy
         uses: peaceiris/actions-gh-pages@v3.7.3
         with:
