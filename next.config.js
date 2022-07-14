@@ -10,4 +10,5 @@ const nextConfig = {
     process.env.NODE_ENV === "production" ? "/story-interface/" : ""
 };
 
+// eslint-disable-next-line no-undef
 module.exports = nextConfig;

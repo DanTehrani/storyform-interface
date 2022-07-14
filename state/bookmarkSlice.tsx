@@ -40,7 +40,7 @@ export const bookmarkSlice = createSlice({
   reducers: {},
 
   extraReducers: builder => {
-    builder.addCase(getBookmarks.pending, (state, action) => {
+    builder.addCase(getBookmarks.pending, state => {
       state.gettingBookmarks = true;
     });
 
@@ -49,11 +49,11 @@ export const bookmarkSlice = createSlice({
       state.gettingBookmarks = false;
     });
 
-    builder.addCase(addBookmark.pending, (state, action) => {
+    builder.addCase(addBookmark.pending, state => {
       state.addingBookmark = true;
     });
 
-    builder.addCase(addBookmark.fulfilled, (state, action) => {
+    builder.addCase(addBookmark.fulfilled, state => {
       state.addingBookmark = false;
     });
   }

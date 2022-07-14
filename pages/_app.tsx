@@ -7,10 +7,6 @@ import { providers } from "ethers";
 import store from "../store";
 import { Provider } from "react-redux";
 
-type props = {
-  children: React.ReactNode;
-};
-
 const getWeb3Library = (provider: any): providers.Web3Provider =>
   // Can be switched to web3js in the future
   new providers.Web3Provider(provider);

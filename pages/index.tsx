@@ -1,8 +1,6 @@
-import { Text } from "@chakra-ui/react";
 import { useEffect } from "react";
 import type { NextPage } from "next";
 import Card from "../components/Card";
-import { Link, Container, Grid, GridItem } from "@chakra-ui/react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { getBookmarks } from "../state/bookmarkSlice";
 import { Bookmark } from "../types";
@@ -17,7 +15,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     dispatch(getBookmarks());
-  }, []);
+  }, [dispatch]);
 
   if (gettingBookmarks) {
     return <IndexPageSkeleton></IndexPageSkeleton>;

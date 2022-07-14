@@ -1,5 +1,3 @@
-export type BookmarkPreview = {};
-
 export type Bookmark = {
   arweveTxId: string;
   title: string;
@@ -8,14 +6,6 @@ export type Bookmark = {
 
 export type BookmarkInput = {
   url: string;
-};
-
-export type OrgSettings = {};
-
-export type OrgSettingsInput = {
-  name: string;
-  users: string[];
-  colorCode: string;
 };
 
 export type LocalStorageTransaction = {
