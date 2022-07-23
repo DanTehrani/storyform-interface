@@ -3,13 +3,11 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { Container } from "@chakra-ui/react";
 import Navbar from "../components/Navbar";
 import { Web3ReactProvider } from "@web3-react/core";
-import { providers } from "ethers";
 import store from "../store";
 import { Provider } from "react-redux";
+import Web3 from "web3";
 
-const getWeb3Library = (provider: any): providers.Web3Provider =>
-  // Can be switched to web3js in the future
-  new providers.Web3Provider(provider);
+const getWeb3Library = (provider: any) => new Web3(provider);
 
 const MyApp = ({ Component, pageProps }) => {
   return (
