@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import bookmarkReduce from "./state/bookmarkSlice";
-import formReducer from "./state/formAnswersSlice";
+import formAnswersReducer from "./state/formAnswersSlice";
+import formReducer from "./state/formSlice";
 
 const store = configureStore({
   reducer: {
     bookmark: bookmarkReduce,
-    formAnswers: formReducer
+    formAnswers: formAnswersReducer,
+    form: formReducer
   }
 });
 

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { FormAnswer } from "../types";
+import { FormAnswer, Form } from "../types";
 
 type IInitialState = {
   answers: FormAnswer[];

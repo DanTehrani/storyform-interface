@@ -7,49 +7,67 @@ import {
   Input,
   Text
 } from "@chakra-ui/react";
+import IndexPageSkeleton from "../components/IndexPageSkeleton";
 import { motion, useAnimationControls } from "framer-motion";
 import { FormQuestion } from "../types";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { addAnswer, submitAnswers } from "../state/formAnswersSlice";
-
-const formQuestions: FormQuestion[] = [
-  {
-    label: "hello",
-    type: "text"
-  },
-  {
-    label: "hello",
-    type: "text"
-  }
-];
+import { getForm } from "../state/formSlice";
 
 const Form = () => {
   const [formQuestionIndex, setFormQuestionIndex] = useState<number>(0);
   const [formInput, setFormInput] = useState<string | number>(""); // Text or index
 
-  const questionsComplete = formQuestionIndex >= formQuestions.length;
-  const isLastQuestion = formQuestionIndex === formQuestions.length - 1;
   const controls = useAnimationControls();
   const dispatch = useAppDispatch();
+  const gettingForm = useAppSelector(state => state.form.gettingForm);
+  const form = useAppSelector(state => state.form.form);
   const answers = useAppSelector(state => state.formAnswers.answers);
+  const questions = form.questions;
 
   useEffect(() => {
-    const formQuestionsLoaded = formQuestions.length > 0;
-    if (formQuestionsLoaded && answers.length === formQuestions.length) {
+    dispatch(
+      getForm({
+        formId: ""
+      })
+    );
+  }, [dispatch]);
+
+  useEffect(() => {
+    const formQuestionsLoaded = !questions.length;
+    if (formQuestionsLoaded && answers.length === questions.length) {
       // All answers have been added, meaning "Submit" has been clicked
       dispatch(submitAnswers());
     }
-  }, [answers, dispatch]);
+  }, [answers, dispatch, questions.length]);
+
+  if (gettingForm) {
+    return <IndexPageSkeleton></IndexPageSkeleton>;
+  }
+
+  const questionsComplete = formQuestionIndex >= questions.length;
+  const isLastQuestion = formQuestionIndex === questions.length - 1;
 
   if (questionsComplete) {
     return (
       <Box>
-        <Text>Thank you for answering our questions</Text>
+        <Text>Thank you for answering our questions. Your answers:</Text>
+        {answers.map(({ answer }) => answer)}
       </Box>
     );
   }
 
   const handleNextClick = async () => {
+    // Animate: fade out then fade in
+    await controls.start({
+      y: [0, -100],
+      opacity: 0,
+      transition: {
+        type: "spring",
+        duration: 0.5
+      }
+    });
+
     dispatch(
       addAnswer({
         questionIndex: formQuestionIndex,
@@ -63,16 +81,6 @@ const Form = () => {
     // Submit answers
 
     setFormQuestionIndex(formQuestionIndex + 1);
-
-    // Animate: fade out then fade in
-    await controls.start({
-      y: [0, -100],
-      opacity: 0,
-      transition: {
-        type: "spring",
-        duration: 0.5
-      }
-    });
 
     await controls.start({
       transition: {
@@ -89,7 +97,7 @@ const Form = () => {
   };
 
   // eslint-disable-next-line security/detect-object-injection
-  const currentFormQuestion = formQuestions[formQuestionIndex];
+  const currentFormQuestion = questions[formQuestionIndex];
 
   return (
     <Box

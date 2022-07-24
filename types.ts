@@ -13,10 +13,24 @@ export type LocalStorageTransaction = {
   url: string;
 };
 
-export type FormQuestion = {
+export type FormCustomAttribute = {
+  key: string;
+  value: string;
+};
+
+export interface FormQuestion {
   label: string;
-  type: "text" | "select" | "radio";
+  type: string;
+  customerAttributes: FormCustomAttribute[];
   required?: boolean;
+}
+
+export type Form = {
+  id: string;
+  title: string;
+  version: string;
+  questions: FormQuestion[];
+  owner: string;
 };
 
 export type FormAnswer = {
