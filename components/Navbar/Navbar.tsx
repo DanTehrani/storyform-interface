@@ -9,7 +9,6 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
-import AddBookmarkPopover from "./AddBookmarkPopover";
 import { injected } from "../../lib/wallet";
 import { useWeb3React } from "@web3-react/core";
 
@@ -74,9 +73,6 @@ const Navbar = () => {
           </Box>
         </Flex>
         <Flex>
-          <Box mr={3}>
-            {active ? <AddBookmarkPopover></AddBookmarkPopover> : <Box></Box>}
-          </Box>
           <Box>
             {active ? (
               <Button onClick={deactivate}>
