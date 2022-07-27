@@ -38,3 +38,8 @@ export type FormAnswer = {
   questionIndex: number;
   answer: string | number;
 };
+
+export type Submission = {
+  answers: string[];
+  surveyId: string[];
+};

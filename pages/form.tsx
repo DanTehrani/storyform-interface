@@ -226,7 +226,7 @@ const Form = () => {
             )}
           </FormControl>
           <Button mt={4} onClick={handleNextClick}>
-            {isLastQuestion ? "Submit" : "Next"}
+            {isLastQuestion ? "Sign and submit" : "Next"}
           </Button>
         </Box>
       </Box>
