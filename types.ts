@@ -23,6 +23,7 @@ export interface FormQuestion {
   type: string;
   customerAttributes: FormCustomAttribute[];
   required?: boolean;
+  options?: string[];
 }
 
 export type Form = {

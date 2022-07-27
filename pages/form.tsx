@@ -6,7 +6,9 @@ import {
   Button,
   Input,
   Text,
-  HStack
+  HStack,
+  Select,
+  FormHelperText
 } from "@chakra-ui/react";
 import { IconButton } from "@chakra-ui/react";
 import { ChevronUpIcon, ChevronDownIcon } from "@chakra-ui/icons";
@@ -56,6 +58,8 @@ const animateBottomToCenter = {
 const Form = () => {
   const [formQuestionIndex, setFormQuestionIndex] = useState<number>(0);
   const [formInput, setFormInput] = useState<string | number>(""); // Text or index
+  const [displayPleaseFillWarning, setDisplayPleaseFillWarning] =
+    useState<boolean>(false);
 
   const controls = useAnimationControls();
   const dispatch = useAppDispatch();
@@ -84,7 +88,17 @@ const Form = () => {
     return <IndexPageSkeleton></IndexPageSkeleton>;
   }
 
-  const questionsComplete = formQuestionIndex >= questions.length;
+  const emptyRequiredFields = questions.map(({ required }, i) => ({
+    questionIndex: i,
+    empty: !answers.find(({ questionIndex }) => questionIndex === i) && required
+  }));
+
+  const nonAnsweredFieldsExist = emptyRequiredFields.filter(
+    ({ empty }) => empty
+  );
+
+  const questionsComplete =
+    !nonAnsweredFieldsExist && formQuestionIndex >= questions.length;
   const isFirstQuestion = formQuestionIndex === 0;
   const isLastQuestion = formQuestionIndex === questions.length - 1;
 
@@ -98,23 +112,32 @@ const Form = () => {
   }
 
   const handleNextClick = async () => {
-    await controls.start(animateCenterToTop);
+    if (isLastQuestion && nonAnsweredFieldsExist) {
+      setFormQuestionIndex(
+        // @ts-ignore At least one is empty
+        emptyRequiredFields.find(({ empty }) => empty)?.questionIndex
+      );
+      setDisplayPleaseFillWarning(true);
+    } else {
+      setDisplayPleaseFillWarning(false);
+      await controls.start(animateCenterToTop);
 
-    dispatch(
-      addAnswer({
-        questionIndex: formQuestionIndex,
-        answer: formInput
-      })
-    );
+      dispatch(
+        addAnswer({
+          questionIndex: formQuestionIndex,
+          answer: formInput
+        })
+      );
 
-    // Clear form input
-    setFormInput("");
+      // Clear form input
+      setFormInput("");
 
-    // Submit answers
+      // Submit answers
 
-    setFormQuestionIndex(formQuestionIndex + 1);
+      setFormQuestionIndex(formQuestionIndex + 1);
 
-    await controls.start(animateBottomToCenter);
+      await controls.start(animateBottomToCenter);
+    }
   };
 
   const handleInputChange = async e => {
@@ -141,48 +164,79 @@ const Form = () => {
   const currentFormQuestion = questions[formQuestionIndex];
 
   return (
-    <Box
-      width="100%"
-      height="50vh"
-      display={"flex"}
-      flexDirection="row"
-      justifyContent="center"
-      alignItems="center"
-    >
+    <>
+      <HStack width="100%" justify="flex-end">
+        <Text fontSize="xl" as="i">
+          {formQuestionIndex + 1 + "/" + questions.length}
+        </Text>
+      </HStack>
       <Box
-        as={motion.div}
-        initial={{
-          x: 0
-        }}
-        animate={controls}
-        width="80%"
+        width="100%"
+        height="50vh"
+        display={"flex"}
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
       >
-        <FormControl id={formQuestionIndex.toString()}>
-          <FormLabel>
-            {currentFormQuestion.label}
-            {currentFormQuestion.required ? " *" : ""}
-          </FormLabel>
-          <Input
-            borderWidth={"0px 0px 2px 0px"}
-            borderRadius={0}
-            padding={"0px 0px 8px"}
-            variant="unstyled"
-            value={formInput}
-            onChange={handleInputChange}
-            required={currentFormQuestion.required}
-          ></Input>
-        </FormControl>
-        <Button mt={4} onClick={handleNextClick}>
-          {isLastQuestion ? "Submit" : "Next"}
-        </Button>
+        <Box
+          as={motion.div}
+          initial={{
+            x: 0
+          }}
+          animate={controls}
+          width="60%"
+        >
+          <FormControl id={formQuestionIndex.toString()}>
+            <FormLabel fontSize="xl" mb={3}>
+              {currentFormQuestion.label}
+              {currentFormQuestion.required ? " *" : ""}
+            </FormLabel>
+            {currentFormQuestion.type === "text" ? (
+              <Input
+                borderWidth={"0px 0px 2px 0px"}
+                borderRadius={0}
+                padding={"0px 0px 8px"}
+                variant="unstyled"
+                value={formInput}
+                onChange={handleInputChange}
+                required={currentFormQuestion.required}
+              ></Input>
+            ) : currentFormQuestion.type === "select" ? (
+              <Select
+                placeholder={currentFormQuestion.label}
+                size="lg"
+                variant="outline"
+                // @ts-ignore
+                value={currentFormQuestion.options[0]}
+              >
+                {currentFormQuestion.options?.map(option => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </Select>
+            ) : (
+              <></>
+            )}
+
+            {displayPleaseFillWarning ? (
+              <FormHelperText>Please fill this field</FormHelperText>
+            ) : (
+              <></>
+            )}
+          </FormControl>
+          <Button mt={4} onClick={handleNextClick}>
+            {isLastQuestion ? "Submit" : "Next"}
+          </Button>
+        </Box>
       </Box>
       <HStack
-        position="absolute"
-        bottom={0}
+        // position="absolute"
+        // bottom={0}
         right={0}
         width="100%"
         justify="flex-end"
-        padding="0px 180px 0px 0px"
+        // padding="0px 180px 0px 0px"
       >
         <IconButton
           disabled={isFirstQuestion}
@@ -197,7 +251,7 @@ const Form = () => {
           onClick={handleNextQuestionClick}
         ></IconButton>
       </HStack>
-    </Box>
+    </>
   );
 };
 

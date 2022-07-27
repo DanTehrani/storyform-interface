@@ -30,14 +30,15 @@ export const getForm = createAsyncThunk(
       questions: [
         {
           label: "first question",
-          type: "text",
-          required: false,
+          type: "select",
+          options: ["hello", "world"],
+          required: true,
           customerAttributes: []
         },
         {
           label: "second question",
           type: "text",
-          required: false,
+          required: true,
           customerAttributes: []
         }
       ]

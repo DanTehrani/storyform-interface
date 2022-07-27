@@ -15,7 +15,7 @@ const MyApp = ({ Component, pageProps }) => {
       <Provider store={store}>
         <ChakraProvider>
           <Navbar></Navbar>
-          <Container maxW="1228px" p={10}>
+          <Container maxW="1400px" p={10}>
             <Component {...pageProps} />
           </Container>
         </ChakraProvider>
