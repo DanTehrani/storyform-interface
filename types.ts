@@ -43,3 +43,8 @@ export type Submission = {
   answers: string[];
   surveyId: string[];
 };
+
+export type Proof = {
+  proof: any;
+  publicSignals: any;
+};
