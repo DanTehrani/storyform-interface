@@ -2,45 +2,17 @@ import { Button } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import { useWeb3React } from "@web3-react/core";
 import { uploadForm } from "../lib/form";
+import { useSignTypedDataV4 } from "../hooks";
 import { EIP721TypedMessage } from "../types";
-
-const SIGNATURE_DOMAIN = {
-  chainId: "4",
-  name: "StoryForm-dev",
-  version: "1",
-  verifyingContract: "0x00"
-};
-
-const SIGNATURE_DATA_TYPES = {
-  EIP712Domain: [
-    { name: "name", type: "string" },
-    { name: "version", type: "string" },
-    { name: "chainId", type: "uint256" },
-    { name: "verifyingContract", type: "address" }
-  ],
-  Form: [
-    { name: "owner", type: "string" },
-    {
-      name: "title",
-      type: "string"
-    },
-    {
-      name: "version",
-      type: "int8"
-    },
-    {
-      name: "questions",
-      type: "string"
-    }
-  ]
-};
+import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN } from "../config";
 
 const PRIMARY_TYPE = "Form";
 
 const Create: NextPage = () => {
-  const { account, library: web3 } = useWeb3React();
+  const { account } = useWeb3React();
+  const signTypedDataV4 = useSignTypedDataV4();
 
-  const handleCreateClick = () => {
+  const handleCreateClick = async () => {
     // Construct the message object here
     if (account) {
       const form = {
@@ -68,23 +40,12 @@ const Create: NextPage = () => {
         primaryType: PRIMARY_TYPE,
         message: form
       };
-      const msg = JSON.stringify(eip712TypedMessage);
+      const message = JSON.stringify(eip712TypedMessage);
+
+      const signature = await signTypedDataV4(account, message);
+      uploadForm(signature, eip712TypedMessage);
 
       // Turn this in to an async function
-      web3.currentProvider.send(
-        {
-          method: "eth_signTypedData_v4",
-          params: [account, msg],
-          from: account
-        },
-        (err, sig) => {
-          uploadForm(sig.result, eip712TypedMessage);
-          if (err) {
-            /* eslint-disable no-console */
-            console.error(err);
-          }
-        }
-      );
     }
   };
 
