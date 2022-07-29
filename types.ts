@@ -56,3 +56,12 @@ export type FormInput = {
   signature: string;
   eip721TypedMessage: EIP721TypedMessage;
 };
+
+export type FormSubmission = {
+  formId: string;
+  answers: string;
+  hash: string;
+  proof: string;
+  submissionId: string;
+  signature: string;
+};

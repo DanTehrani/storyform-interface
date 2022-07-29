@@ -1,16 +1,22 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { FormAnswer, Form } from "../types";
-import { ConstructSubmissionArweaveTransaction } from "../lib/gateway";
+import { FormAnswer } from "../types";
+import { submitAnswer } from "../lib/gateway";
 
 type IInitialState = {
   answers: FormAnswer[];
   submittingAnswers: boolean;
+  proof: string | null;
+  submissionId: string | null;
+  formId: string | null;
 };
 
 const initialState: IInitialState = {
   answers: [],
-  submittingAnswers: false
+  submittingAnswers: false,
+  proof: null,
+  submissionId: null,
+  formId: null
 };
 
 export const submitAnswers = createAsyncThunk(
@@ -19,7 +25,19 @@ export const submitAnswers = createAsyncThunk(
     const state = getState();
     // @ts-ignore
     const answers = state.answers.map(({ answer }) => answer);
-    await ConstructSubmissionArweaveTransaction(answers);
+    // @ts-ignore
+    const { proof, formId, submissionId, signature, hash } = state;
+
+    const formSubmission = {
+      answers,
+      proof,
+      formId,
+      submissionId,
+      signature,
+      hash
+    };
+
+    await submitAnswer(formSubmission);
     /**
      * Create signature
      * Create Arweave tx (upload answers)
