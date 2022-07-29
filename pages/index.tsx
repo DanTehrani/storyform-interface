@@ -18,6 +18,7 @@ import { motion, useAnimationControls } from "framer-motion";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { addAnswer, submitAnswers } from "../state/formAnswersSlice";
 import { getForm } from "../state/formSlice";
+import { useRouter } from "next/router";
 
 const animationType = "tween";
 const animateTopToCenter = {
@@ -57,6 +58,7 @@ const animateBottomToCenter = {
 };
 
 const Home: NextPage = () => {
+  const { query } = useRouter();
   const [formQuestionIndex, setFormQuestionIndex] = useState<number>(0);
   const [formInput, setFormInput] = useState<string | number>(""); // Text or index
   const [displayPleaseFillWarning, setDisplayPleaseFillWarning] =
@@ -68,14 +70,17 @@ const Home: NextPage = () => {
   const form = useAppSelector(state => state.form.form);
   const answers = useAppSelector(state => state.formAnswers.answers);
   const questions = form.questions;
+  const formId = query.f?.toString();
 
   useEffect(() => {
-    dispatch(
-      getForm({
-        formId: ""
-      })
-    );
-  }, [dispatch]);
+    if (formId) {
+      dispatch(
+        getForm({
+          formId
+        })
+      );
+    }
+  }, [dispatch, formId]);
 
   useEffect(() => {
     const formQuestionsLoaded = !questions.length;

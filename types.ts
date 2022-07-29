@@ -12,7 +12,7 @@ export interface FormQuestion {
 }
 
 export type Form = {
-  id: string;
+  id?: string;
   title: string;
   version: string;
   questions: FormQuestion[];
@@ -26,10 +26,33 @@ export type FormAnswer = {
 
 export type Submission = {
   answers: string[];
-  surveyId: string[];
+  formId: string[];
 };
 
 export type Proof = {
   proof: any;
   publicSignals: any;
+};
+
+export type EIP721TypedMessage = {
+  domain: {
+    [additionalProperties: string]: string;
+  };
+  types: {
+    EIP712Domain: {
+      name: string;
+      type: string;
+    }[];
+    [additionalProperties: string]: {
+      name: string;
+      type: string;
+    }[];
+  };
+  primaryType: string;
+  message: Form;
+};
+
+export type FormInput = {
+  signature: string;
+  eip721TypedMessage: EIP721TypedMessage;
 };

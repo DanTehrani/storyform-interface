@@ -1,9 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit/";
+import { getForm as _getForm } from "../lib/form";
+
 import { Form } from "../types";
 
 type IInitialState = {
   gettingForm: boolean;
   form: Form;
+  formNotFound: boolean;
 };
 
 const initialState: IInitialState = {
@@ -14,35 +17,18 @@ const initialState: IInitialState = {
     version: "",
     questions: [],
     id: ""
-  }
+  },
+  formNotFound: false
 };
 
 export const getForm = createAsyncThunk(
   "form/get",
-  async ({ formId }: { formId: string }): Promise<Form> => {
+  async ({ formId }: { formId: string }): Promise<Form | null> => {
     // Fetch form information from Arweave.
+    // Check the signature of the form
+    // If not valid, tell the user that the form is not valid.
+    const form = await _getForm(formId);
 
-    const form = {
-      id: formId,
-      title: "My form",
-      version: "1",
-      owner: "0x0000",
-      questions: [
-        {
-          label: "first question",
-          type: "select",
-          options: ["hello", "world"],
-          required: true,
-          customerAttributes: []
-        },
-        {
-          label: "second question",
-          type: "text",
-          required: true,
-          customerAttributes: []
-        }
-      ]
-    };
     return form;
   }
 );
@@ -59,7 +45,8 @@ const formSlice = createSlice({
 
     builder.addCase(getForm.fulfilled, (state, action) => ({
       ...state,
-      form: action.payload,
+      form: action.payload || state.form,
+      formNotFound: state.form === null,
       gettingForm: false
     }));
   }
