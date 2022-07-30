@@ -62,8 +62,15 @@ export type FormInput = {
 export type FormSubmission = {
   formId: string;
   answers: string[];
-  proof: string;
   submissionId: string;
+  txId: string;
+};
+
+export type FormSubmissionInput = {
+  formId: string;
+  answers: string[];
+  submissionId: string;
+  proof: string;
 };
 
 export type ProofInputs = {

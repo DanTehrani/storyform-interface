@@ -3,8 +3,7 @@ import { Form, FormInput, EIP721TypedMessage } from "../types";
 import arweaveGraphQl from "../lib/arweaveGraphQl";
 import arweave from "./arweave";
 import { gql } from "@apollo/client";
-
-const APP_ID = "StoryForm-dev";
+import { APP_ID } from "../config";
 
 export const uploadForm = async (
   signature: string,

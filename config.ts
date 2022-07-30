@@ -1,3 +1,5 @@
+export const APP_ID = "StoryForm-dev";
+
 export const SIGNATURE_DOMAIN = {
   chainId: "4",
   name: "StoryForm-dev",
@@ -5,6 +7,7 @@ export const SIGNATURE_DOMAIN = {
   verifyingContract: "0x00"
 };
 
+// TODO: move this out of config
 export const SIGNATURE_DATA_TYPES = {
   EIP712Domain: [
     { name: "name", type: "string" },

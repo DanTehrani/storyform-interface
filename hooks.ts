@@ -1,6 +1,8 @@
 import { useWeb3React } from "@web3-react/core";
+import { useEffect } from "react";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "./store";
+import { getSubmissions } from "./lib/formSubmission";
 
 // Reference: https://react-redux.js.org/using-react-redux/usage-with-typescript
 export const useAppDispatch: () => AppDispatch = useDispatch;
