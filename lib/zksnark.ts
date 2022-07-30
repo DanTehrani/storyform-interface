@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Proof } from "../types";
+import { Proof, ProofInputs } from "../types";
 const snarkJs = require("snarkjs");
 
 /*
@@ -10,19 +10,19 @@ const input = {
     };
  */
 
-export const generateProof = async input => {
+export const groth16Prove = async (inputs: ProofInputs) => {
   const proof: Proof = await snarkJs.groth16.fullProve(
-    input,
-    "pedersen.wasm",
-    "pedersen_1.zkey"
+    inputs,
+    "prove/prove.wasm",
+    "prove/prove_1.zkey"
   );
 
   return proof;
 };
 
-export const verifyProof = async (proof: Proof) => {
+export const groth16VerifyProof = async (proof: Proof) => {
   const { data: vkey } = await axios.get(
-    "http://localhost:3000/verification_key.json"
+    "http://localhost:3000/prove/verification_key.json"
   );
 
   const result = await snarkJs.groth16.verify(

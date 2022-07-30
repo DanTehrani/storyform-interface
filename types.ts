@@ -1,3 +1,5 @@
+import type { MerkleProof } from "@zk-kit/incremental-merkle-tree";
+
 export type FormCustomAttribute = {
   key: string;
   value: string;
@@ -59,9 +61,16 @@ export type FormInput = {
 
 export type FormSubmission = {
   formId: string;
-  answers: string;
-  hash: string;
+  answers: string[];
   proof: string;
   submissionId: string;
-  signature: string;
+};
+
+export type ProofInputs = {
+  secret: bigint;
+  formId: bigint;
+  submissionId: bigint;
+  treePathIndices: number[];
+  treeSiblings: any[];
+  merkleRoot: bigint;
 };

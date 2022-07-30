@@ -37,7 +37,7 @@ export const getForm = async (formId: string): Promise<Form | null> => {
       }
     `,
     variables: {
-      first: 5,
+      first: 1,
       tags: [
         {
           name: "App-Id",
@@ -46,7 +46,7 @@ export const getForm = async (formId: string): Promise<Form | null> => {
         },
 
         {
-          name: "Form-Id",
+          name: "Survey-Id",
           values: [formId],
           op: "EQ"
         }
