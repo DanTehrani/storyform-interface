@@ -7,8 +7,10 @@ import {
   Th,
   Tr,
   Tbody,
-  Td
+  Td,
+  Icon
 } from "@chakra-ui/react";
+import { CheckCircleIcon } from "@chakra-ui/icons";
 import type { NextPage } from "next";
 import { useAppDispatch, useAppSelector } from "../../../hooks";
 import { getSubmissions } from "../../../state/formAnswersSlice";
@@ -21,6 +23,9 @@ const getShortenId = (id: string) => `${id.slice(0, 3)}...${id.slice(6, 9)}`;
 
 const getTxArweaveExplorerUrl = (txId: string) =>
   `https://viewblock.io/arweave/tx/${txId}`;
+
+const etherscanLogPageUrl = (txId: string) =>
+  `https://etherscan.io/tx/${txId}#eventlog`;
 
 const Submission: NextPage = () => {
   const dispatch = useAppDispatch();
@@ -69,6 +74,8 @@ const Submission: NextPage = () => {
                 <Th key={i}>{question.label}</Th>
               ))}
               <Th>ID</Th>
+              <Th>Verified</Th>
+              <Th>Verification Log</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -89,6 +96,10 @@ const Submission: NextPage = () => {
                     {getShortenId(submission.txId)}
                   </Link>
                 </Td>
+                <Td textAlign="center">
+                  <Icon as={CheckCircleIcon} color="green"></Icon>
+                </Td>
+                <Td>{/* etherscanLogPageUrl() */}</Td>
               </Tr>
             ))}
           </Tbody>
