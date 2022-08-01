@@ -24,8 +24,12 @@ import { useRouter } from "next/router";
 import { SIGNATURE_DOMAIN } from "../../config";
 import { useWeb3React } from "@web3-react/core";
 import { poseidon } from "circomlibjs";
-import { IncrementalMerkleTree } from "@zk-kit/incremental-merkle-tree";
-import { groth16Prove } from "../../lib/zksnark";
+import { groth16Prove as generateDataSubmissionProof } from "../../lib/zksnark";
+import { Identity } from "@semaphore-protocol/identity";
+const {
+  generateProof: generateSemaphoreMembershipProof
+} = require("@semaphore-protocol/proof");
+import { Group } from "@semaphore-protocol/group";
 
 const PRIMARY_TYPE = "Submission";
 
@@ -109,25 +113,35 @@ const Form: NextPage = () => {
           }
         };
 
-        const secret = poseidon([
-          await signTypedDataV4(account, JSON.stringify(message))
-        ]);
+        const secret = await signTypedDataV4(account, JSON.stringify(message));
+        const semaphoreIdentity = new Identity(secret);
+
+        // Reference: https://github.com/semaphore-protocol/boilerplate/blob/450248d33406a31b16f987c655cbe07a2ee9873d/apps/web-app/src/components/ProofStep.tsx#L48
+        const externalNullifier = BigInt(0);
+        const signal = "signal membership";
+        // Re-construct group from on-chain data.
+
+        const members = [semaphoreIdentity.generateCommitment()];
+        const group = new Group();
+
+        group.addMembers(members.map(m => m));
+
+        const membershipFullProof = await generateSemaphoreMembershipProof(
+          semaphoreIdentity,
+          group,
+          externalNullifier,
+          signal
+        );
+
         const secretBI = BigInt(secret);
         const formIdBI = BigInt(`0x${formId}`);
-        const identity = poseidon([secretBI]);
         const submissionId = poseidon([secretBI, formIdBI]);
 
-        const tree = new IncrementalMerkleTree(poseidon, 3, BigInt(0), 2);
-        tree.insert(identity);
-        const merkleProof = tree.createProof(0);
-
-        const proof = await groth16Prove({
+        // Generate proof of knowledge of the pre image.
+        const dataSubmissionFullProof = await generateDataSubmissionProof({
           secret: secretBI,
           formId: formIdBI,
-          submissionId,
-          treePathIndices: merkleProof.pathIndices,
-          treeSiblings: merkleProof.siblings.map(s => s[0]),
-          merkleRoot: BigInt(tree.root)
+          submissionId
         });
 
         dispatch(
@@ -135,7 +149,12 @@ const Form: NextPage = () => {
             //@ts-ignore
             formId,
             submissionId: submissionId.toString(),
-            proof: JSON.stringify(proof, null, 0),
+            membershipProof: JSON.stringify(membershipFullProof),
+            dataSubmissionProof: JSON.stringify(
+              dataSubmissionFullProof,
+              null,
+              0
+            ),
             answers
           })
         );

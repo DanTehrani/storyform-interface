@@ -16,6 +16,8 @@
     "@emotion/styled": "^11",
     "@metamask/eth-sig-util": "^4.0.1",
     "@reduxjs/toolkit": "^1.8.3",
+    "@semaphore-protocol/identity": "^2.0.0",
+    "@semaphore-protocol/proof": "^2.2.0",
     "@web3-react/core": "^6.1.9",
     "@web3-react/injected-connector": "^6.0.7",
     "@zk-kit/incremental-merkle-tree": "^0.4.3",

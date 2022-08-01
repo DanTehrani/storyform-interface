@@ -70,14 +70,12 @@ export type FormSubmissionInput = {
   formId: string;
   answers: string[];
   submissionId: string;
-  proof: string;
+  membershipProof: string;
+  dataSubmissionProof: string;
 };
 
 export type ProofInputs = {
   secret: bigint;
   formId: bigint;
   submissionId: bigint;
-  treePathIndices: number[];
-  treeSiblings: any[];
-  merkleRoot: bigint;
 };
