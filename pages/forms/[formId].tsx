@@ -1,24 +1,31 @@
 import { useEffect, useState } from "react";
 import type { NextPage } from "next";
 import {
+  Heading,
   Box,
   FormControl,
   FormLabel,
   Button,
   Input,
   Text,
-  Select
+  Select,
+  Center,
+  Container
 } from "@chakra-ui/react";
-import IndexPageSkeleton from "../components/IndexPageSkeleton";
-import { useAppDispatch, useAppSelector, useSignTypedDataV4 } from "../hooks";
-import { submitAnswers } from "../state/formAnswersSlice";
-import { getForm } from "../state/formSlice";
+import IndexPageSkeleton from "../../components/IndexPageSkeleton";
+import {
+  useAppDispatch,
+  useAppSelector,
+  useSignTypedDataV4
+} from "../../hooks";
+import { submitAnswers } from "../../state/formAnswersSlice";
+import { getForm } from "../../state/formSlice";
 import { useRouter } from "next/router";
-import { SIGNATURE_DOMAIN } from "../config";
+import { SIGNATURE_DOMAIN } from "../../config";
 import { useWeb3React } from "@web3-react/core";
 import { poseidon } from "circomlibjs";
 import { IncrementalMerkleTree } from "@zk-kit/incremental-merkle-tree";
-import { groth16Prove } from "../lib/zksnark";
+import { groth16Prove } from "../../lib/zksnark";
 
 const PRIMARY_TYPE = "Submission";
 
@@ -37,7 +44,7 @@ const Form: NextPage = () => {
   const form = useAppSelector(state => state.form.form);
   const [answers, setAnswers] = useState<string[]>([]);
   const questions = form.questions;
-  const formId = query.f?.toString();
+  const formId = query.formId?.toString();
 
   useEffect(() => {
     if (formId) {
@@ -141,65 +148,74 @@ const Form: NextPage = () => {
   };
 
   return (
-    <>
-      <Box
-        width="100%"
-        height="50vh"
-        display={"flex"}
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-      >
-        <Box width="60%">
-          <FormControl>
-            {questions.map((question, i) => (
-              <Box key={i} padding={4}>
-                <FormLabel>
-                  {question.label}
-                  {question.required ? " *" : ""}
-                </FormLabel>
-                {question.type === "text" ? (
-                  <Input
-                    borderWidth={"0px 0px 2px 0px"}
-                    borderRadius={0}
-                    padding={"0px 0px 8px"}
-                    variant="unstyled"
-                    value={answers[i]}
-                    onChange={e => {
-                      handleInputChange(e.target.value, i);
-                    }}
-                    required={question.required}
-                  ></Input>
-                ) : question.type === "select" ? (
-                  <Select
-                    placeholder={question.label}
-                    size="lg"
-                    variant="outline"
-                    // @ts-ignore
-                    defaultValue={question.options[0]}
-                    value={answers[i]}
-                    onChange={e => {
-                      handleInputChange(e.target.value, i);
-                    }}
-                  >
-                    {question.options?.map(option => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </Select>
-                ) : (
-                  <></>
-                )}
-              </Box>
-            ))}
-          </FormControl>
-          <Button mt={4} onClick={handleSubmitClick}>
-            Sign and submit
-          </Button>
-        </Box>
-      </Box>
-    </>
+    <Center
+      width="100%"
+      display={"flex"}
+      flexDirection="column"
+      bgColor="#f2ddc1"
+      p={3}
+    >
+      <Container maxW={640}>
+        <Heading size="md" mb={3}>
+          {form.title}
+        </Heading>
+        <FormControl>
+          {questions.map((question, i) => (
+            <Box
+              key={i}
+              padding="24px"
+              borderWidth={1}
+              borderRadius={10}
+              mb={3}
+              bgColor="white"
+              borderColor="lightgrey"
+            >
+              <FormLabel mb={4}>
+                {question.label}
+                {question.required ? " *" : ""}
+              </FormLabel>
+              {question.type === "text" ? (
+                <Input
+                  borderWidth={"0px 0px 1px 0px"}
+                  borderRadius={0}
+                  padding={"0px 0px 8px"}
+                  variant="unstyled"
+                  value={answers[i]}
+                  onChange={e => {
+                    handleInputChange(e.target.value, i);
+                  }}
+                  required={question.required}
+                  placeholder="Enter here"
+                ></Input>
+              ) : question.type === "select" ? (
+                <Select
+                  placeholder={question.label}
+                  size="lg"
+                  variant="outline"
+                  // @ts-ignore
+                  defaultValue={question.options[0]}
+                  value={answers[i]}
+                  onChange={e => {
+                    handleInputChange(e.target.value, i);
+                  }}
+                >
+                  {question.options?.map(option => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Select>
+              ) : (
+                <></>
+              )}
+            </Box>
+          ))}
+        </FormControl>
+        <Button mt={4} onClick={handleSubmitClick}>
+          Sign and submit
+        </Button>
+      </Container>
+    </Center>
   );
 };
 

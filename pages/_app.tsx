@@ -1,6 +1,5 @@
 // pages/_app.js
 import { ChakraProvider } from "@chakra-ui/react";
-import { Container } from "@chakra-ui/react";
 import Navbar from "../components/Navbar";
 import { Web3ReactProvider } from "@web3-react/core";
 import store from "../store";
@@ -15,9 +14,7 @@ const MyApp = ({ Component, pageProps }) => {
       <Provider store={store}>
         <ChakraProvider>
           <Navbar></Navbar>
-          <Container maxW="1400px" p={10}>
-            <Component {...pageProps} />
-          </Container>
+          <Component {...pageProps} />
         </ChakraProvider>
       </Provider>
     </Web3ReactProvider>
