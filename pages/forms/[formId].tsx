@@ -113,12 +113,15 @@ const Form: NextPage = () => {
           }
         };
 
-        const secret = await signTypedDataV4(account, JSON.stringify(message));
-        const semaphoreIdentity = new Identity(secret);
+        const secret = poseidon([
+          await signTypedDataV4(account, JSON.stringify(message))
+        ]);
+        const semaphoreIdentity = new Identity(secret.toString());
 
         // Reference: https://github.com/semaphore-protocol/boilerplate/blob/450248d33406a31b16f987c655cbe07a2ee9873d/apps/web-app/src/components/ProofStep.tsx#L48
         const externalNullifier = BigInt(0);
         const signal = "signal membership";
+
         // Re-construct group from on-chain data.
 
         const members = [semaphoreIdentity.generateCommitment()];
@@ -134,7 +137,7 @@ const Form: NextPage = () => {
         );
 
         const secretBI = BigInt(secret);
-        const formIdBI = BigInt(`0x${formId}`);
+        const formIdBI = BigInt(`0x${formId.slice(2)}`);
         const submissionId = poseidon([secretBI, formIdBI]);
 
         // Generate proof of knowledge of the pre image.
