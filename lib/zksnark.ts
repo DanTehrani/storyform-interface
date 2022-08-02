@@ -13,8 +13,8 @@ const input = {
 export const groth16Prove = async (inputs: ProofInputs) => {
   const proof: Proof = await snarkJs.groth16.fullProve(
     inputs,
-    "prove/prove.wasm",
-    "prove/prove_1.zkey"
+    "/prove/prove.wasm",
+    "/prove/prove_1.zkey"
   );
 
   return proof;
