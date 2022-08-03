@@ -41,17 +41,17 @@ export type EIP721TypedMessage = {
     [additionalProperties: string]: string;
   };
   types: {
-    EIP712Domain: {
-      name: string;
-      type: string;
-    }[];
     [additionalProperties: string]: {
       name: string;
       type: string;
     }[];
   };
-  primaryType: string;
-  message: Form;
+  value: {
+    title: string;
+    version: number;
+    questions: string;
+    owner: string;
+  };
 };
 
 export type FormInput = {

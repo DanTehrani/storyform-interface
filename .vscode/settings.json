@@ -9,5 +9,13 @@
   "editor.quickSuggestions": {
     "strings": true
   },
-  "cSpell.words": ["Arweave", "arweve", "Chakra", "groth", "Merkle", "snarkjs"]
+  "cSpell.words": [
+    "Arweave",
+    "arweve",
+    "Chakra",
+    "groth",
+    "Merkle",
+    "snarkjs",
+    "Wagmi"
+  ]
 }

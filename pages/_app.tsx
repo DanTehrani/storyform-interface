@@ -1,23 +1,27 @@
 // pages/_app.js
 import { ChakraProvider } from "@chakra-ui/react";
 import Navbar from "../components/Navbar";
-import { Web3ReactProvider } from "@web3-react/core";
 import store from "../store";
 import { Provider } from "react-redux";
-import Web3 from "web3";
+import { WagmiConfig, createClient } from "wagmi";
+import { getDefaultProvider } from "ethers";
 
-const getWeb3Library = (provider: any) => new Web3(provider);
+const client = createClient({
+  autoConnect: false,
+
+  provider: getDefaultProvider()
+});
 
 const MyApp = ({ Component, pageProps }) => {
   return (
-    <Web3ReactProvider getLibrary={getWeb3Library}>
+    <WagmiConfig client={client}>
       <Provider store={store}>
         <ChakraProvider>
           <Navbar></Navbar>
           <Component {...pageProps} />
         </ChakraProvider>
       </Provider>
-    </Web3ReactProvider>
+    </WagmiConfig>
   );
 };
 

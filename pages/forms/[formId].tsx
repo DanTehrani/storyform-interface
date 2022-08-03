@@ -16,27 +16,27 @@ import IndexPageSkeleton from "../../components/IndexPageSkeleton";
 import {
   useAppDispatch,
   useAppSelector,
-  useSignTypedDataV4
+  useGetIdentitySecret,
+  useGroup
 } from "../../hooks";
 import { submitAnswers } from "../../state/formAnswersSlice";
 import { getForm } from "../../state/formSlice";
 import { useRouter } from "next/router";
-import { SIGNATURE_DOMAIN } from "../../config";
-import { useWeb3React } from "@web3-react/core";
+import { SEMAPHORE_GROUP_ID } from "../../config";
 import { poseidon } from "circomlibjs";
 import { groth16Prove as generateDataSubmissionProof } from "../../lib/zksnark";
 import { Identity } from "@semaphore-protocol/identity";
 const {
   generateProof: generateSemaphoreMembershipProof
 } = require("@semaphore-protocol/proof");
-import { Group } from "@semaphore-protocol/group";
-
-const PRIMARY_TYPE = "Submission";
+import { useAccount } from "wagmi";
 
 const Form: NextPage = () => {
   const { query } = useRouter();
-  const signTypedDataV4 = useSignTypedDataV4();
-  const { account } = useWeb3React();
+  const getIdentitySecret = useGetIdentitySecret();
+
+  const { address } = useAccount();
+
   const [displayPleaseFillWarning, setDisplayPleaseFillWarning] =
     useState<boolean>(false);
 
@@ -47,6 +47,7 @@ const Form: NextPage = () => {
   );
   const form = useAppSelector(state => state.form.form);
   const [answers, setAnswers] = useState<string[]>([]);
+  const { group } = useGroup(SEMAPHORE_GROUP_ID);
   const questions = form.questions;
   const formId = query.formId?.toString();
 
@@ -89,33 +90,9 @@ const Form: NextPage = () => {
     if (!nonAnsweredFieldsExist) {
       setDisplayPleaseFillWarning(true);
     } else {
-      if (account) {
-        // Check local storage for the signature
-        const message = {
-          domain: SIGNATURE_DOMAIN,
-          types: {
-            EIP712Domain: [
-              { name: "name", type: "string" },
-              { name: "version", type: "string" },
-              { name: "chainId", type: "uint256" },
-              { name: "verifyingContract", type: "address" }
-            ],
-            Submission: [
-              {
-                name: "message",
-                type: "string"
-              }
-            ]
-          },
-          primaryType: PRIMARY_TYPE,
-          message: {
-            message: "Keep the signature safe! - StoryForm"
-          }
-        };
-
-        const secret = poseidon([
-          await signTypedDataV4(account, JSON.stringify(message))
-        ]);
+      if (address) {
+        // const secret = poseidon([await signTypedData()]);
+        const secret = await getIdentitySecret();
         const semaphoreIdentity = new Identity(secret.toString());
 
         // Reference: https://github.com/semaphore-protocol/boilerplate/blob/450248d33406a31b16f987c655cbe07a2ee9873d/apps/web-app/src/components/ProofStep.tsx#L48
@@ -123,12 +100,6 @@ const Form: NextPage = () => {
         const signal = "signal membership";
 
         // Re-construct group from on-chain data.
-
-        const members = [semaphoreIdentity.generateCommitment()];
-        const group = new Group();
-
-        group.addMembers(members.map(m => m));
-
         const membershipFullProof = await generateSemaphoreMembershipProof(
           semaphoreIdentity,
           group,
@@ -233,7 +204,7 @@ const Form: NextPage = () => {
             </Box>
           ))}
         </FormControl>
-        <Button mt={4} onClick={handleSubmitClick}>
+        <Button mt={4} disabled={!group} onClick={handleSubmitClick}>
           Sign and submit
         </Button>
       </Container>

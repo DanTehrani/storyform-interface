@@ -1,7 +1,6 @@
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import Navbar from "../components/Navbar";
 const ALPHA_FORM_ID =
   "bc7d1b4356f163b717582de5c3e309f880ab97c8132ef38c1630ea11a595513d";
 

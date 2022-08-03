@@ -9,8 +9,8 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
-import { injected } from "../../lib/wallet";
-import { useWeb3React } from "@web3-react/core";
+import { useConnect, useAccount, useDisconnect } from "wagmi";
+import { InjectedConnector } from "wagmi/connectors/injected";
 
 const getShortenAddress = (account: string) =>
   `${account.slice(0, 6)}...${account.slice(7, 11)}`;
@@ -20,11 +20,11 @@ const Navbar = () => {
   const linkColor = useColorModeValue("gray.600", "gray.200");
   const linkHoverColor = useColorModeValue("gray.800", "white");
 
-  const { activate, active, account, deactivate } = useWeb3React();
-
-  const connect = async () => {
-    await activate(injected);
-  };
+  const { connect } = useConnect({
+    connector: new InjectedConnector()
+  });
+  const { isConnected, address } = useAccount();
+  const { disconnect } = useDisconnect();
 
   return (
     <Box>
@@ -74,12 +74,21 @@ const Navbar = () => {
         </Flex>
         <Flex>
           <Box>
-            {active ? (
-              <Button onClick={deactivate}>
-                {account && getShortenAddress(account)}
+            {isConnected ? (
+              <Button
+                onClick={() => {
+                  disconnect();
+                }}
+              >
+                {address && getShortenAddress(address)}
               </Button>
             ) : (
-              <Button bgColor={"orange"} onClick={connect}>
+              <Button
+                bgColor={"orange"}
+                onClick={() => {
+                  connect();
+                }}
+              >
                 Connect
               </Button>
             )}

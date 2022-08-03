@@ -1,26 +1,23 @@
 import { Button, Heading, Center } from "@chakra-ui/react";
 import type { NextPage } from "next";
-import { useWeb3React } from "@web3-react/core";
 import { uploadForm } from "../lib/form";
-import { useSignTypedDataV4 } from "../hooks";
+import { useSignTypedData } from "wagmi";
 import { EIP721TypedMessage } from "../types";
 import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN } from "../config";
+import { useAccount } from "wagmi";
 
-const PRIMARY_TYPE = "Form";
-
-const underConstruction = true;
+const underConstruction = false;
 const Create: NextPage = () => {
-  const { account } = useWeb3React();
-  const signTypedDataV4 = useSignTypedDataV4();
+  const { address } = useAccount();
+  const { signTypedDataAsync } = useSignTypedData();
 
   const handleCreateClick = async () => {
-    // Construct the message object here
-    if (account) {
+    if (address) {
       const form = {
-        owner: account,
+        owner: address,
         title: "My first form",
-        version: "1",
-        questions: [
+        version: 1,
+        questions: JSON.stringify([
           {
             label: "What's your name?",
             type: "text",
@@ -38,18 +35,16 @@ const Create: NextPage = () => {
             options: ["Japan", "Iran", "Canada"],
             customerAttributes: []
           }
-        ]
+        ])
       };
 
       const eip712TypedMessage: EIP721TypedMessage = {
         domain: SIGNATURE_DOMAIN,
         types: SIGNATURE_DATA_TYPES,
-        primaryType: PRIMARY_TYPE,
-        message: form
+        value: form
       };
-      const message = JSON.stringify(eip712TypedMessage);
 
-      const signature = await signTypedDataV4(account, message);
+      const signature = await signTypedDataAsync(eip712TypedMessage);
       uploadForm(signature, eip712TypedMessage);
 
       // Turn this in to an async function
