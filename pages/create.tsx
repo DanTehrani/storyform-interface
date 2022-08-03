@@ -15,24 +15,26 @@ const Create: NextPage = () => {
     if (address) {
       const form = {
         owner: address,
-        title: "My first form",
+        title: "「匿名回答アンケート」についての調査",
         version: 1,
         questions: JSON.stringify([
           {
-            label: "What's your name?",
+            label:
+              "匿名回答の社内・プロジェクト内アンケートに回答したことはありますか？",
+            type: "select",
+            options: ["はい", "いいえ"],
+            customerAttributes: []
+          },
+          {
+            label:
+              "上記で「はい」と回答された方：それは、何に関するアンケートでしたか？",
             type: "text",
             customerAttributes: []
           },
           {
-            label: "Where do you live?",
-            type: "select",
-            options: ["Japan", "Iran", "Canada"],
-            customerAttributes: []
-          },
-          {
-            label: "Where do you live?",
-            type: "select",
-            options: ["Japan", "Iran", "Canada"],
+            label:
+              "「匿名で回答ができる」という要素は、どのような場面で重要だと思いますか？",
+            type: "text",
             customerAttributes: []
           }
         ])
