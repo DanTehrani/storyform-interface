@@ -16,10 +16,21 @@ import { Group } from "@semaphore-protocol/group";
 import { poseidon } from "circomlibjs";
 import { Identity } from "@semaphore-protocol/identity";
 import { ethers } from "ethers";
+import { FormSubmission } from "./types";
 
 // Reference: https://react-redux.js.org/using-react-redux/usage-with-typescript
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+
+const useStoryForm = () => {
+  const contract = useContract({
+    addressOrName: CONTRACT_ADDRESS.STORY_FORM.local,
+    contractInterface: StormFormABI.abi,
+    signerOrProvider: ethers.getDefaultProvider()
+  });
+
+  return contract;
+};
 
 export const useGroup = (groupId: number) => {
   const [group, setGroup] = useState<Group | null>();
@@ -78,4 +89,27 @@ export const useAddMember = () => {
     functionName: "addMembers"
   });
   return useContractWrite(config);
+};
+
+// formAnswersSlice alternative
+export const useSubmissions = () => {
+  const [submissions, setSubmissions] = useState<FormSubmission[]>([]);
+  const storyForm = useStoryForm();
+
+  useEffect(() => {
+    (async () => {
+      const _submissions = await getSubmissions({ first: 10 });
+
+      const submissionsWithVerificationLogs = _submissions.map(submission => ({
+        verificationLog: storyForm.queryFilter(
+          storyForm.filters.ProofVerified(submission.submissionId, null)
+        ),
+        ...submission
+      }));
+
+      setSubmissions(submissionsWithVerificationLogs);
+    })();
+  }, []);
+
+  return submissions;
 };
