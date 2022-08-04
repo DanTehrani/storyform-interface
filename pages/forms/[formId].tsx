@@ -123,7 +123,7 @@ const Form: NextPage = () => {
             //@ts-ignore
             formId,
             submissionId: submissionId.toString(),
-            membershipProof: JSON.stringify(membershipFullProof),
+            membershipProof: JSON.stringify(membershipFullProof, null, 0),
             dataSubmissionProof: JSON.stringify(
               dataSubmissionFullProof,
               null,

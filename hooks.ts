@@ -7,7 +7,8 @@ import {
   useContract,
   useContractWrite,
   useSignMessage,
-  usePrepareContractWrite
+  usePrepareContractWrite,
+  useProvider
 } from "wagmi";
 import { CONTRACT_ADDRESS, SIGNATURE_DOMAIN } from "./config";
 import StormFormABI from "./abi/StoryForm.json";
@@ -34,22 +35,24 @@ const useStoryForm = () => {
 
 export const useGroup = (groupId: number) => {
   const [group, setGroup] = useState<Group | null>();
+  const provider = useProvider();
 
   const contract = useContract({
-    addressOrName: CONTRACT_ADDRESS.SEMAPHORE.local,
-    contractInterface: SemaphoreABI.abi,
-    signerOrProvider: ethers.getDefaultProvider()
+    addressOrName: CONTRACT_ADDRESS.STORY_FORM.local,
+    contractInterface: StormFormABI.abi,
+    signerOrProvider: provider
   });
 
   useEffect(() => {
     (async () => {
       if (contract) {
         const events = await contract.queryFilter(
-          contract.filters.MemberAdded()
+          contract.filters.MemberAdded(groupId, null, null)
         );
 
+        const members = events.map(({ args }) => args.identityCommitment);
         const _group = new Group();
-        //        _group.addMembers(members.map(m => m));
+        _group.addMembers(members);
         setGroup(_group);
       }
     })();
@@ -64,7 +67,7 @@ export const useGetIdentitySecret = () => {
   });
 
   const getIdentitySecret = async () => {
-    return await signMessageAsync();
+    return poseidon([await signMessageAsync()]);
   };
 
   return getIdentitySecret;

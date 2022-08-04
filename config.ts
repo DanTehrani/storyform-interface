@@ -2,8 +2,8 @@ export const APP_ID = "StoryForm-dev";
 
 export const CONTRACT_ADDRESS = {
   STORY_FORM: {
-    goerli: "0xd3aAA70197b22116c6732a964edC09C853AaC941",
-    local: "0xd3aAA70197b22116c6732a964edC09C853AaC941"
+    goerli: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+    local: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
   },
   SEMAPHORE: {
     goerli: "0x99aAb52e60f40AAC0BFE53e003De847bBDbC9611",
