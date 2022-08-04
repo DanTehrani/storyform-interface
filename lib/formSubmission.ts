@@ -75,6 +75,8 @@ export const getSubmissions = async ({
             data = null;
           }
 
+          const transactionStatus = await arweave.transactions.getStatus(tx.id);
+
           if (!data) {
             return null;
           }
@@ -86,7 +88,8 @@ export const getSubmissions = async ({
             formId: tx.tags.find(tag => tag.name === "Form-Id").value,
             answers: answers || [],
             submissionId: tx.tags.find(tag => tag.name === "Submission-Id")
-              .value
+              .value,
+            arweaveTxStatus: transactionStatus.status
           };
         })().catch(err => err)
       )

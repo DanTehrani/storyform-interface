@@ -64,6 +64,7 @@ export type FormSubmission = {
   answers: string[];
   submissionId: string;
   txId: string;
+  arweaveTxStatus: number;
 };
 
 export type FormSubmissionInput = {

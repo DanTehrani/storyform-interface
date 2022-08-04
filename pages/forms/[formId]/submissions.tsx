@@ -95,6 +95,7 @@ const Submission: NextPage = () => {
                   >
                     {getShortenId(submission.txId)}
                   </Link>
+                  &nbsp; ({submission.arweaveTxStatus === 202 ? "Pending" : ""})
                 </Td>
                 <Td textAlign="center">
                   <Icon as={CheckCircleIcon} color="green"></Icon>
