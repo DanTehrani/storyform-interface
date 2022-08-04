@@ -40,11 +40,11 @@ export const useGroup = (groupId: number) => {
     (async () => {
       if (contract) {
         const events = await contract.queryFilter(
-          contract.filters.MemberAdded(groupId, null, null)
+          contract.filters.MemberAdded(groupId)
         );
 
-        const members = events.map(({ args }) => args.identityCommitment);
-        const _group = new Group();
+        const members = events.map(({ args }) => args[1].toString());
+        const _group = new Group(16);
         _group.addMembers(members);
         setGroup(_group);
       }
