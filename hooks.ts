@@ -3,16 +3,9 @@ import { useEffect } from "react";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "./store";
 import { getSubmissions } from "./lib/formSubmission";
-import {
-  useContract,
-  useContractWrite,
-  useSignMessage,
-  usePrepareContractWrite,
-  useProvider
-} from "wagmi";
-import { CONTRACT_ADDRESS, SIGNATURE_DOMAIN } from "./config";
+import { useContract, useSignMessage, useProvider } from "wagmi";
+import { CONTRACT_ADDRESS } from "./config";
 import StormFormABI from "./abi/StoryForm.json";
-import SemaphoreABI from "./abi/Semaphore.json";
 import { Group } from "@semaphore-protocol/group";
 import { poseidon } from "circomlibjs";
 import { Identity } from "@semaphore-protocol/identity";
@@ -85,14 +78,7 @@ export const useGetIdentity = () => {
   return getIdentity;
 };
 
-export const useAddMember = () => {
-  const { config } = usePrepareContractWrite({
-    addressOrName: CONTRACT_ADDRESS.SEMAPHORE.local,
-    contractInterface: SemaphoreABI.abi,
-    functionName: "addMembers"
-  });
-  return useContractWrite(config);
-};
+export const useAddMember = () => {};
 
 // formAnswersSlice alternative
 export const useSubmissions = () => {
