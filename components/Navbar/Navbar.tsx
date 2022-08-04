@@ -1,4 +1,5 @@
 import {
+  chakra,
   Box,
   Flex,
   IconButton,
@@ -12,13 +13,26 @@ import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { useConnect, useAccount, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 
+const StyledLink = props => {
+  const linkHoverColor = useColorModeValue("gray.800", "white");
+
+  return (
+    <Link
+      {...props}
+      _hover=""
+      fontSize={"sm"}
+      fontWeight={500}
+      p={2}
+      color={useColorModeValue("gray.600", "gray.200")}
+    ></Link>
+  );
+};
+
 const getShortenAddress = (account: string) =>
   `${account.slice(0, 6)}...${account.slice(7, 11)}`;
 
 const Navbar = () => {
   const { isOpen, onToggle } = useDisclosure();
-  const linkColor = useColorModeValue("gray.600", "gray.200");
-  const linkHoverColor = useColorModeValue("gray.800", "white");
 
   const { connect } = useConnect({
     connector: new InjectedConnector()
@@ -29,14 +43,10 @@ const Navbar = () => {
   return (
     <Box>
       <Flex
-        bg={useColorModeValue("white", "gray.800")}
-        color={useColorModeValue("gray.600", "white")}
         minH={"60px"}
         py={{ base: 2 }}
         px={{ base: 4 }}
         borderBottom={1}
-        borderStyle={"solid"}
-        borderColor={useColorModeValue("gray.200", "gray.900")}
         align={"center"}
         justify="space-between"
       >
@@ -56,20 +66,13 @@ const Navbar = () => {
         </Flex>
         <Flex justify={{ base: "center", md: "start" }} align="center">
           <Box display={{ base: "none", md: "flex" }}>
-            <Link
-              p={2}
+            <StyledLink
               href="https://github.com/DanTehrani/story-interface"
               isExternal
-              fontSize={"sm"}
-              fontWeight={500}
-              color={linkColor}
-              _hover={{
-                textDecoration: "none",
-                color: linkHoverColor
-              }}
             >
               GitHub
-            </Link>
+            </StyledLink>
+            <StyledLink href="/forms">Forms</StyledLink>
           </Box>
         </Flex>
         <Flex>
@@ -98,14 +101,15 @@ const Navbar = () => {
 
       <Collapse in={isOpen} animateOpacity>
         <Box p={4} display={{ md: "none" }}>
-          <Link
-            fontWeight={600}
-            color={useColorModeValue("gray.600", "gray.200")}
+          <StyledLink
             href="https://github.com/DanTehrani/story-interface"
             isExternal
           >
             GitHub
-          </Link>
+          </StyledLink>
+        </Box>
+        <Box p={4} display={{ md: "none" }}>
+          <StyledLink href="/forms">Forms</StyledLink>
         </Box>
       </Collapse>
     </Box>
