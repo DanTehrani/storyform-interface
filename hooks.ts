@@ -3,14 +3,21 @@ import { useEffect } from "react";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "./store";
 import { getSubmissions } from "./lib/formSubmission";
-import { useContract, useSignMessage, useProvider } from "wagmi";
+import {
+  useContract,
+  useSignMessage,
+  useProvider,
+  useSignTypedData
+} from "wagmi";
 import { CONTRACT_ADDRESS } from "./config";
 import StormFormABI from "./abi/StoryForm.json";
 import { Group } from "@semaphore-protocol/group";
 import { poseidon } from "circomlibjs";
 import { Identity } from "@semaphore-protocol/identity";
 import { ethers } from "ethers";
-import { FormSubmission } from "./types";
+import { FormInput, FormSubmission, EIP721TypedMessage } from "./types";
+import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN } from "./config";
+import axios from "./lib/axios";
 
 // Reference: https://react-redux.js.org/using-react-redux/usage-with-typescript
 export const useAppDispatch: () => AppDispatch = useDispatch;
@@ -101,4 +108,27 @@ export const useSubmissions = () => {
   }, []);
 
   return submissions;
+};
+
+export const useUploadForm = () => {
+  const { signTypedDataAsync } = useSignTypedData();
+
+  const uploadForm = async form => {
+    const eip712TypedMessage: EIP721TypedMessage = {
+      domain: SIGNATURE_DOMAIN,
+      types: SIGNATURE_DATA_TYPES,
+      value: form
+    };
+
+    const signature = await signTypedDataAsync(eip712TypedMessage);
+
+    const formInput: FormInput = {
+      signature,
+      eip712TypedMessage
+    };
+
+    await axios.post("/forms", formInput);
+  };
+
+  return uploadForm;
 };

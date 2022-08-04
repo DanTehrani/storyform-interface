@@ -56,7 +56,7 @@ export type EIP721TypedMessage = {
 
 export type FormInput = {
   signature: string;
-  eip721TypedMessage: EIP721TypedMessage;
+  eip712TypedMessage: EIP721TypedMessage;
 };
 
 export type FormSubmission = {

@@ -1,22 +1,8 @@
-import axios from "./axios";
-import { Form, FormInput, EIP721TypedMessage } from "../types";
+import { Form } from "../types";
 import arweaveGraphQl from "../lib/arweaveGraphQl";
 import arweave from "./arweave";
 import { gql } from "@apollo/client";
 import { APP_ID } from "../config";
-
-export const uploadForm = async (
-  signature: string,
-  eip721TypedMessage: EIP721TypedMessage
-) => {
-  // story-gateway will check the signature before uploading to Arweave. Hence the body structure.
-  const formInput: FormInput = {
-    signature,
-    eip721TypedMessage
-  };
-
-  await axios.post("/forms", formInput);
-};
 
 export const getForm = async (formId: string): Promise<Form | null> => {
   const result = await arweaveGraphQl.query({

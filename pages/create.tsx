@@ -1,17 +1,14 @@
-import { Button, Heading, Center } from "@chakra-ui/react";
+import { Button, Heading, Center, useUpdateEffect } from "@chakra-ui/react";
 import type { NextPage } from "next";
-import { uploadForm } from "../lib/form";
-import { useSignTypedData } from "wagmi";
-import { EIP721TypedMessage } from "../types";
-import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN } from "../config";
 import { useAccount } from "wagmi";
+import { useUploadForm } from "../hooks";
 
 const underConstruction = false;
 const Create: NextPage = () => {
   const { address } = useAccount();
-  const { signTypedDataAsync } = useSignTypedData();
+  const uploadForm = useUploadForm();
 
-  const handleCreateClick = async () => {
+  const handleCreateClick = () => {
     if (address) {
       const form = {
         owner: address,
@@ -40,16 +37,7 @@ const Create: NextPage = () => {
         ])
       };
 
-      const eip712TypedMessage: EIP721TypedMessage = {
-        domain: SIGNATURE_DOMAIN,
-        types: SIGNATURE_DATA_TYPES,
-        value: form
-      };
-
-      const signature = await signTypedDataAsync(eip712TypedMessage);
-      uploadForm(signature, eip712TypedMessage);
-
-      // Turn this in to an async function
+      uploadForm(form);
     }
   };
 
