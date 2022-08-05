@@ -26,6 +26,7 @@ import { SEMAPHORE_GROUP_ID } from "../../config";
 import { poseidon } from "circomlibjs";
 import { groth16Prove as generateDataSubmissionProof } from "../../lib/zksnark";
 import { Identity } from "@semaphore-protocol/identity";
+
 const {
   generateProof: generateSemaphoreMembershipProof
 } = require("@semaphore-protocol/proof");
@@ -41,7 +42,6 @@ const Form: NextPage = () => {
     useState<boolean>(false);
 
   const dispatch = useAppDispatch();
-  const gettingForm = useAppSelector(state => state.form.gettingForm);
   const submissionComplete = useAppSelector(
     state => state.formAnswers.submissionComplete
   );
@@ -61,7 +61,7 @@ const Form: NextPage = () => {
     }
   }, [dispatch, formId]);
 
-  if (gettingForm) {
+  if (!form) {
     return <IndexPageSkeleton></IndexPageSkeleton>;
   }
 
@@ -77,7 +77,7 @@ const Form: NextPage = () => {
   if (submissionComplete) {
     return (
       <Box>
-        <Text>Thank you for answering our questions. Your answers:</Text>
+        <Text>ご回答ありがとうございます。</Text>
       </Box>
     );
   }
@@ -91,27 +91,29 @@ const Form: NextPage = () => {
       setDisplayPleaseFillWarning(true);
     } else {
       if (address) {
-        // const secret = poseidon([await signTypedData()]);
         const secret = await getIdentitySecret();
         const semaphoreIdentity = new Identity(secret.toString());
 
         // Reference: https://github.com/semaphore-protocol/boilerplate/blob/450248d33406a31b16f987c655cbe07a2ee9873d/apps/web-app/src/components/ProofStep.tsx#L48
-        const externalNullifier = BigInt(0);
-        const signal = "signal membership";
+        const externalNullifier = BigInt(1); // Group Id
+        const signal = "0";
 
         // Re-construct group from on-chain data.
         const membershipFullProof = await generateSemaphoreMembershipProof(
           semaphoreIdentity,
           group,
           externalNullifier,
-          signal
+          signal,
+          {
+            wasmFilePath: "/semaphore.wasm",
+            zkeyFilePath: "/semaphore.zkey"
+          }
         );
 
         const secretBI = BigInt(secret);
         const formIdBI = BigInt(`0x${formId.slice(2)}`);
         const submissionId = poseidon([secretBI, formIdBI]);
 
-        // Generate proof of knowledge of the pre image.
         const dataSubmissionFullProof = await generateDataSubmissionProof({
           secret: secretBI,
           formId: formIdBI,

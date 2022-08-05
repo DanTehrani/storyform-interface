@@ -4,14 +4,10 @@ export const CONTRACT_ADDRESS = {
   STORY_FORM: {
     goerli: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
     local: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
-  },
-  SEMAPHORE: {
-    goerli: "0x99aAb52e60f40AAC0BFE53e003De847bBDbC9611",
-    local: "0x99aAb52e60f40AAC0BFE53e003De847bBDbC9611"
   }
 };
 
-export const SEMAPHORE_GROUP_ID = 0;
+export const SEMAPHORE_GROUP_ID = 1;
 
 export const SIGNATURE_DOMAIN = {
   chainId: "31337", // 4 = Rinkeby
