@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Link,
   TableContainer,
@@ -12,10 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { CheckCircleIcon } from "@chakra-ui/icons";
 import type { NextPage } from "next";
-import { useAppDispatch, useAppSelector } from "../../../hooks";
-import { getSubmissions } from "../../../state/formAnswersSlice";
-import { getForm } from "../../../state/formSlice";
-import { useEffect } from "react";
+import { useForm, useSubmissions } from "../../../hooks";
 import IndexPageSkeleton from "../../../components/IndexPageSkeleton";
 import { useRouter } from "next/router";
 
@@ -28,40 +26,23 @@ const etherscanLogPageUrl = (txId: string) =>
   `https://etherscan.io/tx/${txId}#eventlog`;
 
 const Submission: NextPage = () => {
-  const dispatch = useAppDispatch();
   const { query } = useRouter();
-  const gettingSubmissions = useAppSelector(
-    state => state.formAnswers.gettingSubmissions
-  );
-  const submissions = useAppSelector(
-    state => state.formAnswers.fetchedSubmission
-  );
-  const form = useAppSelector(state => state.form.form);
-  const questions = form.questions;
+  const [first, setFirst] = useState<number>(10);
+  const [after, setAfter] = useState<string | undefined>();
 
-  useEffect(() => {
-    if (getSubmissions) {
-      dispatch(
-        getSubmissions({
-          first: 10
-        })
-      );
-    }
-  }, [dispatch]);
+  const formId = query?.formId?.toString();
+  const form = useForm(formId);
 
-  useEffect(() => {
-    if (getForm && query.formId) {
-      dispatch(
-        getForm({
-          formId: query.formId.toString()
-        })
-      );
-    }
-  }, [dispatch, query.formId]);
+  const submissions = useSubmissions(formId, {
+    first,
+    after
+  });
 
-  if (gettingSubmissions) {
+  if (!form || !submissions) {
     return <IndexPageSkeleton></IndexPageSkeleton>;
   }
+
+  const questions = form.questions;
 
   return (
     <>
@@ -100,7 +81,7 @@ const Submission: NextPage = () => {
                 <Td textAlign="center">
                   <Icon as={CheckCircleIcon} color="green"></Icon>
                 </Td>
-                <Td>{/* etherscanLogPageUrl() */}</Td>
+                <Td>{submission.verificationTx}</Td>
               </Tr>
             ))}
           </Tbody>
