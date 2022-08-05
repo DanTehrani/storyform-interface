@@ -14,7 +14,7 @@ const Create: NextPage = () => {
         owner: address,
         title: "「匿名回答アンケート」についての調査",
         version: 1,
-        questions: JSON.stringify([
+        questions: [
           {
             label:
               "匿名回答の社内・プロジェクト内アンケートに回答したことはありますか？",
@@ -34,7 +34,7 @@ const Create: NextPage = () => {
             type: "text",
             customerAttributes: []
           }
-        ])
+        ]
       };
 
       uploadForm(form);

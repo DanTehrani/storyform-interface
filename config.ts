@@ -18,6 +18,16 @@ export const SIGNATURE_DOMAIN = {
 
 // TODO: move this out of config
 export const SIGNATURE_DATA_TYPES = {
+  Question: [
+    {
+      name: "label",
+      type: "string"
+    },
+    {
+      name: "type",
+      type: "string"
+    }
+  ],
   Form: [
     { name: "owner", type: "string" },
     {
@@ -30,7 +40,7 @@ export const SIGNATURE_DATA_TYPES = {
     },
     {
       name: "questions",
-      type: "string"
+      type: "Question[]"
     }
   ]
 };

@@ -14,13 +14,12 @@ import {
 } from "@chakra-ui/react";
 import IndexPageSkeleton from "../../components/IndexPageSkeleton";
 import {
-  useAppDispatch,
-  useAppSelector,
   useGetIdentitySecret,
-  useGroup
+  useGroup,
+  useForm,
+  useSubmitForm
 } from "../../hooks";
-import { submitAnswers } from "../../state/formAnswersSlice";
-import { getForm } from "../../state/formSlice";
+import FormNotFound from "../../components/FormNotFound";
 import { useRouter } from "next/router";
 import { SEMAPHORE_GROUP_ID } from "../../config";
 import { poseidon } from "circomlibjs";
@@ -41,29 +40,27 @@ const Form: NextPage = () => {
   const [displayPleaseFillWarning, setDisplayPleaseFillWarning] =
     useState<boolean>(false);
 
-  const dispatch = useAppDispatch();
-  const submissionComplete = useAppSelector(
-    state => state.formAnswers.submissionComplete
-  );
-  const form = useAppSelector(state => state.form.form);
   const [answers, setAnswers] = useState<string[]>([]);
   const { group } = useGroup(SEMAPHORE_GROUP_ID);
-  const questions = form.questions;
   const formId = query.formId?.toString();
+  const { form, formNotFound } = useForm(formId);
+  const { submitForm, submissionComplete, submittingForm } = useSubmitForm();
 
   useEffect(() => {
-    if (formId) {
-      dispatch(
-        getForm({
-          formId
-        })
-      );
+    if (form?.questions) {
+      //      setAnswers(new Array(form?.questions.length).fill(""));
     }
-  }, [dispatch, formId]);
+  }, [form?.questions, form?.questions.length]);
+
+  if (formNotFound) {
+    return <FormNotFound></FormNotFound>;
+  }
 
   if (!form) {
     return <IndexPageSkeleton></IndexPageSkeleton>;
   }
+
+  const questions = form.questions;
 
   const emptyRequiredFields = questions.map(({ required }, i) => ({
     questionIndex: i,
@@ -120,26 +117,23 @@ const Form: NextPage = () => {
           submissionId
         });
 
-        dispatch(
-          submitAnswers({
-            //@ts-ignore
-            formId,
-            submissionId: submissionId.toString(),
-            membershipProof: JSON.stringify(membershipFullProof, null, 0),
-            dataSubmissionProof: JSON.stringify(
-              dataSubmissionFullProof,
-              null,
-              0
-            ),
-            answers
-          })
-        );
+        submitForm({
+          formId,
+          submissionId: submissionId.toString(),
+          membershipProof: JSON.stringify(membershipFullProof, null, 0),
+          dataSubmissionProof: JSON.stringify(dataSubmissionFullProof, null, 0),
+          answers
+        });
       }
     }
   };
 
   const handleInputChange = async (value: string, inputIndex: number) => {
-    setAnswers(answers.map((answer, i) => (i === inputIndex ? value : answer)));
+    const newValues = new Array(questions.length)
+      .fill("")
+      .map((_, i) => (i === inputIndex ? value : answers[i] || ""));
+
+    setAnswers(newValues);
   };
 
   return (
@@ -175,7 +169,6 @@ const Form: NextPage = () => {
                   borderRadius={0}
                   padding={"0px 0px 8px"}
                   variant="unstyled"
-                  value={answers[i]}
                   onChange={e => {
                     handleInputChange(e.target.value, i);
                   }}
@@ -189,7 +182,6 @@ const Form: NextPage = () => {
                   variant="outline"
                   // @ts-ignore
                   defaultValue={question.options[0]}
-                  value={answers[i]}
                   onChange={e => {
                     handleInputChange(e.target.value, i);
                   }}
@@ -206,7 +198,12 @@ const Form: NextPage = () => {
             </Box>
           ))}
         </FormControl>
-        <Button mt={4} disabled={!group} onClick={handleSubmitClick}>
+        <Button
+          mt={4}
+          disabled={!group}
+          onClick={handleSubmitClick}
+          isLoading={submittingForm}
+        >
           Sign and submit
         </Button>
       </Container>

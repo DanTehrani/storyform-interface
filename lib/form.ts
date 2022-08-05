@@ -3,7 +3,7 @@ import arweaveGraphQl from "../lib/arweaveGraphQl";
 import arweave from "./arweave";
 import { gql } from "@apollo/client";
 import { APP_ID } from "../config";
-import { notEmpty, formSchemeValid } from "./utils";
+import { notEmpty, formSchemeValid } from "../utils";
 
 export const getForm = async (formId: string): Promise<Form | null> => {
   const result = await arweaveGraphQl.query({
@@ -30,10 +30,14 @@ export const getForm = async (formId: string): Promise<Form | null> => {
           values: [APP_ID],
           op: "EQ"
         },
-
         {
-          name: "Survey-Id",
+          name: "Form-Id",
           values: [formId],
+          op: "EQ"
+        },
+        {
+          name: "Type",
+          values: ["Form"],
           op: "EQ"
         }
       ]
@@ -90,7 +94,7 @@ export const getForms = async ({
         },
         {
           name: "Type",
-          values: ["Form", "Survey"],
+          values: ["Form"],
           op: "EQ"
         }
       ]
@@ -102,7 +106,7 @@ export const getForms = async ({
   const forms: Form[] = (
     await Promise.all(
       transactions.map(tx =>
-        (async (): Promise<Form> => {
+        (async (): Promise<Form | null> => {
           let data: string | null;
           try {
             data = (
@@ -117,11 +121,15 @@ export const getForms = async ({
             data = null;
           }
 
-          const form = data && JSON.parse(data);
+          if (!data) {
+            return null;
+          }
+
+          const form: Form = JSON.parse(data);
 
           return {
             id: tx.tags.find(tag => tag.name === "Form-Id")?.value,
-            questions: form?.question || [],
+            questions: form?.questions || [],
             title: form?.title || "",
             owner: form?.owner || "",
             version: form?.version || ""

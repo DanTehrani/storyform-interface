@@ -1,5 +1,3 @@
-import type { MerkleProof } from "@zk-kit/incremental-merkle-tree";
-
 export type FormCustomAttribute = {
   key: string;
   value: string;
@@ -14,7 +12,7 @@ export interface FormQuestion {
 }
 
 export type Form = {
-  id?: string;
+  id: string;
   title: string;
   version: string;
   questions: FormQuestion[];
@@ -65,6 +63,7 @@ export type FormSubmission = {
   submissionId: string;
   txId: string;
   arweaveTxStatus: number;
+  verificationTx: string;
 };
 
 export type FormSubmissionInput = {
@@ -79,4 +78,9 @@ export type ProofInputs = {
   secret: bigint;
   formId: bigint;
   submissionId: bigint;
+};
+
+export type Pagination = {
+  first: number;
+  after?: string;
 };

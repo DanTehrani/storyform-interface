@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  Text,
   Link,
   TableContainer,
   Table,
@@ -11,19 +12,16 @@ import {
   Td,
   Icon
 } from "@chakra-ui/react";
-import { CheckCircleIcon } from "@chakra-ui/icons";
+import { CheckCircleIcon, MinusIcon } from "@chakra-ui/icons";
 import type { NextPage } from "next";
 import { useForm, useSubmissions } from "../../../hooks";
 import IndexPageSkeleton from "../../../components/IndexPageSkeleton";
 import { useRouter } from "next/router";
-
-const getShortenId = (id: string) => `${id.slice(0, 3)}...${id.slice(6, 9)}`;
-
-const getTxArweaveExplorerUrl = (txId: string) =>
-  `https://viewblock.io/arweave/tx/${txId}`;
-
-const etherscanLogPageUrl = (txId: string) =>
-  `https://etherscan.io/tx/${txId}#eventlog`;
+import {
+  getEtherscanLogPageUrl,
+  getTxArweaveExplorerUrl,
+  getShortenId
+} from "../../../utils";
 
 const Submission: NextPage = () => {
   const { query } = useRouter();
@@ -31,12 +29,16 @@ const Submission: NextPage = () => {
   const [after, setAfter] = useState<string | undefined>();
 
   const formId = query?.formId?.toString();
-  const form = useForm(formId);
+  const { form, formNotFound } = useForm(formId);
 
   const submissions = useSubmissions(formId, {
     first,
     after
   });
+
+  if (formNotFound) {
+    return <Text>Form not found</Text>;
+  }
 
   if (!form || !submissions) {
     return <IndexPageSkeleton></IndexPageSkeleton>;
@@ -48,7 +50,13 @@ const Submission: NextPage = () => {
     <>
       <TableContainer>
         <Table variant="simple">
+          {!submissions.length ? (
+            <TableCaption>回答はありません</TableCaption>
+          ) : (
+            <></>
+          )}
           <TableCaption>{form.title}</TableCaption>
+
           <Thead>
             <Tr>
               {questions.map((question, i) => (
@@ -79,9 +87,24 @@ const Submission: NextPage = () => {
                   &nbsp; ({submission.arweaveTxStatus === 202 ? "Pending" : ""})
                 </Td>
                 <Td textAlign="center">
-                  <Icon as={CheckCircleIcon} color="green"></Icon>
+                  {submission.verificationTx ? (
+                    <Icon as={CheckCircleIcon} color="green"></Icon>
+                  ) : (
+                    <Icon as={MinusIcon} color="green"></Icon>
+                  )}
                 </Td>
-                <Td>{submission.verificationTx}</Td>
+                <Td>
+                  <Link
+                    href={getEtherscanLogPageUrl(
+                      submission.verificationTx,
+                      "goerli"
+                    )}
+                    isExternal
+                    textDecoration="underline"
+                  >
+                    {getShortenId(submission.verificationTx)}
+                  </Link>
+                </Td>
               </Tr>
             ))}
           </Tbody>

@@ -7,7 +7,8 @@ import {
   Th,
   Tr,
   Tbody,
-  Td
+  Td,
+  Button
 } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import { useForms, usePagination } from "../hooks";
@@ -25,6 +26,10 @@ const Forms: NextPage = () => {
     return <IndexPageSkeleton></IndexPageSkeleton>;
   }
 
+  const handleAnswerClick = (formId: string) => {
+    window.open(`/forms/${formId}`);
+  };
+
   return (
     <>
       <TableContainer>
@@ -35,6 +40,7 @@ const Forms: NextPage = () => {
               <Th>ID</Th>
               <Th>Title</Th>
               <Th>Submissions</Th>
+              <Th>回答する</Th>
               <Th>Owner</Th>
             </Tr>
           </Thead>
@@ -51,6 +57,15 @@ const Forms: NextPage = () => {
                   >
                     View submissions
                   </Link>
+                </Td>
+                <Td textAlign={"left"}>
+                  <Button
+                    onClick={() => {
+                      handleAnswerClick(form.id);
+                    }}
+                  >
+                    回答する
+                  </Button>
                 </Td>
                 <Td>{form.owner}</Td>
               </Tr>

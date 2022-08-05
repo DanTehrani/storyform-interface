@@ -10,11 +10,15 @@ export const submitAnswer = async (submission: FormSubmissionInput) => {
 };
 
 export const getSubmissions = async ({
+  formId,
   first,
-  after
+  after,
+  storyForm
 }: {
+  formId: string;
   first: number;
   after?: string;
+  storyForm: any;
 }) => {
   const result = await arweaveGraphQl.query({
     query: gql`
@@ -44,6 +48,11 @@ export const getSubmissions = async ({
         {
           name: "Type",
           values: ["submission"],
+          op: "EQ"
+        },
+        {
+          name: "Form-Id",
+          values: [formId],
           op: "EQ"
         }
       ]
@@ -77,19 +86,24 @@ export const getSubmissions = async ({
 
           const transactionStatus = await arweave.transactions.getStatus(tx.id);
 
-          if (!data) {
-            return null;
-          }
+          const submissionId = tx.tags.find(
+            tag => tag.name === "Submission-Id"
+          ).value;
 
-          const { answers } = JSON.parse(data);
+          const verificationLogs = await storyForm.queryFilter(
+            storyForm.filters.ProofVerified(submissionId, null)
+          );
+
+          const verificationTx =
+            verificationLogs?.length && verificationLogs[0];
 
           return {
             txId: tx.id,
             formId: tx.tags.find(tag => tag.name === "Form-Id").value,
-            answers: answers || [],
-            submissionId: tx.tags.find(tag => tag.name === "Submission-Id")
-              .value,
-            arweaveTxStatus: transactionStatus.status
+            answers: (data && JSON.parse(data).answers) || [],
+            submissionId,
+            arweaveTxStatus: transactionStatus.status,
+            verificationTx: verificationTx?.transactionHash
           };
         })().catch(err => err)
       )
