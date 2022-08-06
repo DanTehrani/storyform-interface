@@ -1,7 +1,7 @@
+import type { NextPage } from "next";
 import { useState } from "react";
 import { Button } from "@chakra-ui/react";
-import type { NextPage } from "next";
-import { useGetIdentity, useAddMember } from ".../../../hooks";
+import { useGetIdentity } from "../../../hooks";
 
 const JoinGroup: NextPage = () => {
   const getIdentity = useGetIdentity();
