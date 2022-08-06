@@ -1,22 +1,27 @@
 export const APP_ID = "StoryForm-dev";
 
-export const CONTRACT_ADDRESS = {
-  STORY_FORM: {
-    goerli: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-    local: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
-  }
+export const STORY_FORM_ADDRESS = {
+  goerli: "0xB8F8D1AD7A8D8161223AC1276D8a361faC2534f9",
+  hardhat: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
 };
 
 export const SEMAPHORE_GROUP_ID = 1;
 
 export const SIGNATURE_DOMAIN = {
-  chainId: "31337", // 4 = Rinkeby
-  name: "StoryForm-dev",
-  version: "1",
-  verifyingContract: CONTRACT_ADDRESS.STORY_FORM.local
+  goerli: {
+    name: "StoryForm-dev",
+    version: "1",
+    chainId: "5", // 4 = Rinkeby
+    verifyingContract: STORY_FORM_ADDRESS.goerli
+  },
+  hardhat: {
+    name: "StoryForm-dev",
+    version: "1",
+    chainId: "31337", // 4 = Rinkeby
+    verifyingContract: STORY_FORM_ADDRESS.hardhat
+  }
 };
 
-// TODO: move this out of config
 export const SIGNATURE_DATA_TYPES = {
   Question: [
     {

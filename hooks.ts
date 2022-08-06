@@ -6,10 +6,9 @@ import {
   useContract,
   useSignMessage,
   useSignTypedData,
-  useNetwork,
   useProvider
 } from "wagmi";
-import { CONTRACT_ADDRESS } from "./config";
+import { STORY_FORM_ADDRESS } from "./config";
 import StormFormABI from "./abi/StoryForm.json";
 import { Group } from "@semaphore-protocol/group";
 import { poseidon } from "circomlibjs";
@@ -32,10 +31,11 @@ const {
 import { groth16Prove as generateDataSubmissionProof } from "./lib/zksnark";
 
 const useStoryForm = () => {
+  const provider = useProvider();
   const contract = useContract({
-    addressOrName: CONTRACT_ADDRESS.STORY_FORM.local,
+    addressOrName: STORY_FORM_ADDRESS[provider.network.name],
     contractInterface: StormFormABI.abi,
-    signerOrProvider: ethers.getDefaultProvider("http://localhost:8545")
+    signerOrProvider: provider
   });
 
   return contract;
@@ -43,10 +43,10 @@ const useStoryForm = () => {
 
 export const useGroup = (groupId: number) => {
   const [group, setGroup] = useState<Group | null>();
-  const provider = getDefaultProvider("http://localhost:8545");
+  const provider = useProvider();
 
   const contract = useContract({
-    addressOrName: CONTRACT_ADDRESS.STORY_FORM.local,
+    addressOrName: STORY_FORM_ADDRESS[provider.network.name],
     contractInterface: StormFormABI.abi,
     signerOrProvider: provider
   });
@@ -143,11 +143,12 @@ export const useSubmissions = (
 };
 
 export const useUploadForm = () => {
+  const provider = useProvider();
   const { signTypedDataAsync } = useSignTypedData();
 
   const uploadForm = async form => {
     const eip712TypedMessage: EIP721TypedMessage = {
-      domain: SIGNATURE_DOMAIN,
+      domain: SIGNATURE_DOMAIN[provider.network.name],
       types: SIGNATURE_DATA_TYPES,
       value: form
     };
@@ -264,8 +265,7 @@ export const useGenerateProof = () => {
 };
 
 export const useGetEtherscanUrl = () => {
-  const { chain } = useNetwork();
-  const provider = useProvider({ chainId: chain?.id });
+  const provider = useProvider();
 
   const getEtherscanUrl = (id: string) =>
     `https://${provider.network.name}.etherscan.io/search?q=${id}`;
@@ -273,8 +273,7 @@ export const useGetEtherscanUrl = () => {
   return getEtherscanUrl;
 };
 export const useGetEtherscanLogPageUrl = () => {
-  const { chain } = useNetwork();
-  const provider = useProvider({ chainId: chain?.id });
+  const provider = useProvider({});
 
   const getEtherscanLogPageUrl = (txId: string) =>
     `https://${provider.network.name}.etherscan.io/tx/${txId}#eventlog`;
