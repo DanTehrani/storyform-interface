@@ -4,7 +4,13 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "./store";
 import { getSubmissions } from "./lib/formSubmission";
 import { getDefaultProvider } from "ethers";
-import { useContract, useSignMessage, useSignTypedData } from "wagmi";
+import {
+  useContract,
+  useSignMessage,
+  useSignTypedData,
+  useNetwork,
+  useProvider
+} from "wagmi";
 import { CONTRACT_ADDRESS } from "./config";
 import StormFormABI from "./abi/StoryForm.json";
 import { Group } from "@semaphore-protocol/group";
@@ -261,4 +267,23 @@ export const useGenerateProof = () => {
   };
 
   return { generatingProof, generateProof };
+};
+
+export const useGetEtherscanUrl = () => {
+  const { chain } = useNetwork();
+  const provider = useProvider({ chainId: chain?.id });
+
+  const getEtherscanUrl = (id: string) =>
+    `https://${provider.network.name}.etherscan.io/search?q=${id}`;
+
+  return getEtherscanUrl;
+};
+export const useGetEtherscanLogPageUrl = () => {
+  const { chain } = useNetwork();
+  const provider = useProvider({ chainId: chain?.id });
+
+  const getEtherscanLogPageUrl = (txId: string) =>
+    `https://${provider.network.name}.etherscan.io/tx/${txId}#eventlog`;
+
+  return getEtherscanLogPageUrl;
 };

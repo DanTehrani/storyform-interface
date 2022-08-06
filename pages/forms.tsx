@@ -11,11 +11,12 @@ import {
 } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import type { NextPage } from "next";
-import { useForms, usePagination } from "../hooks";
+import { useForms, usePagination, useGetEtherscanUrl } from "../hooks";
 import IndexPageSkeleton from "../components/IndexPageSkeleton";
-import { getEtherscanUrl, getTxArweaveExplorerUrl } from "../utils";
+import { getTxArweaveExplorerUrl } from "../utils";
 
 const Forms: NextPage = () => {
+  const getEtherscanUrl = useGetEtherscanUrl();
   const { pagination } = usePagination({
     first: 20,
     after: ""

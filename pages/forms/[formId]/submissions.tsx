@@ -14,17 +14,18 @@ import {
 } from "@chakra-ui/react";
 import { CheckCircleIcon, MinusIcon } from "@chakra-ui/icons";
 import type { NextPage } from "next";
-import { useForm, useSubmissions } from "../../../hooks";
+import {
+  useForm,
+  useSubmissions,
+  useGetEtherscanLogPageUrl
+} from "../../../hooks";
 import IndexPageSkeleton from "../../../components/IndexPageSkeleton";
 import { useRouter } from "next/router";
-import {
-  getEtherscanLogPageUrl,
-  getTxArweaveExplorerUrl,
-  getShortenId
-} from "../../../utils";
+import { getTxArweaveExplorerUrl, getShortenId } from "../../../utils";
 
 const Submission: NextPage = () => {
   const { query } = useRouter();
+  const getEtherscanLogPageUrl = useGetEtherscanLogPageUrl();
   const [first, setFirst] = useState<number>(10);
   const [after, setAfter] = useState<string | undefined>();
 
@@ -48,7 +49,7 @@ const Submission: NextPage = () => {
 
   return (
     <>
-      <TableContainer>
+      <TableContainer mt={5}>
         <Table variant="simple">
           {!submissions.length ? (
             <TableCaption>回答はありません</TableCaption>
