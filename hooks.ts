@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import { getSubmissions } from "./lib/formSubmission";
-import { getDefaultProvider } from "ethers";
 import {
   useContract,
   useSignMessage,
@@ -13,7 +12,6 @@ import StormFormABI from "./abi/StoryForm.json";
 import { Group } from "@semaphore-protocol/group";
 import { poseidon } from "circomlibjs";
 import { Identity } from "@semaphore-protocol/identity";
-import { ethers } from "ethers";
 import {
   Form,
   FormInput,

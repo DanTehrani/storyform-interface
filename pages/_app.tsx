@@ -15,7 +15,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "../components/ErrorFallback";
 
 const { provider } = configureChains(
-  [chain.hardhat],
+  [chain.hardhat, chain.goerli],
   [
     jsonRpcProvider({
       rpc: chain => {
