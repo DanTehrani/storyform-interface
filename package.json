@@ -1,5 +1,6 @@
 {
   "name": "my-app",
+  "homepage": "https://dantehrani.github.io/story-form-interface",
   "version": "0.1.0",
   "private": true,
   "scripts": {
