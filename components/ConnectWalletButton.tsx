@@ -9,6 +9,7 @@ const ConnectWalletButton = () => {
 
   return (
     <Button
+      variant="outline"
       onClick={() => {
         connect();
       }}

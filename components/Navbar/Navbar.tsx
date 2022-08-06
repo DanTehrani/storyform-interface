@@ -43,7 +43,7 @@ const Navbar = () => {
   const { disconnect } = useDisconnect();
 
   return (
-    <Box backgroundImage="radial-gradient( circle farthest-corner at 10% 20%,  rgba(171,102,255,1) 0%, rgba(116,182,247,1) 90% );">
+    <Box backgroundImage="radial-gradient( circle farthest-corner at 10% 20%,  rgba(111,111,219,1) 0%, rgba(182,109,246,1) 72.4% );">
       <Flex
         minH={"60px"}
         py={{ base: 2 }}
@@ -68,7 +68,14 @@ const Navbar = () => {
         </Flex>
         <Flex justify={{ base: "center", md: "start" }} align="center">
           <Text display={{ base: "none", md: "flex" }} fontWeight={600}>
-            ZK Survey
+            <Link
+              href="/forms"
+              _hover={{
+                textDecoration: "none"
+              }}
+            >
+              ZK Survey
+            </Link>
           </Text>
           <Box ml={4} display={{ base: "none", md: "flex" }} p="4px" gap={1}>
             {NAV_ITEMS.map(({ label, url }, i) => (
@@ -82,6 +89,7 @@ const Navbar = () => {
           <Box>
             {isConnected ? (
               <Button
+                variant="outline"
                 onClick={() => {
                   disconnect();
                 }}
