@@ -180,10 +180,10 @@ export const useSubmitForm = () => {
   const [submittingForm, setSubmittingForm] = useState<boolean>(false);
   const [submissionComplete, setSubmissionComplete] = useState<boolean>(false);
   const submitForm = async (formSubmission: FormSubmissionInput) => {
-    setSubmittingForm(false);
+    setSubmittingForm(true);
     await submitAnswer(formSubmission);
 
-    setSubmittingForm(true);
+    setSubmittingForm(false);
     setSubmissionComplete(true);
   };
 

@@ -12,6 +12,7 @@ import {
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { useConnect, useAccount, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
+import ConnectWalletButton from "../ConnectWalletButton";
 
 const StyledLink = props => {
   const linkHoverColor = useColorModeValue("gray.800", "white");
@@ -86,14 +87,7 @@ const Navbar = () => {
                 {address && getShortenAddress(address)}
               </Button>
             ) : (
-              <Button
-                bgColor={"orange"}
-                onClick={() => {
-                  connect();
-                }}
-              >
-                Connect
-              </Button>
+              <ConnectWalletButton></ConnectWalletButton>
             )}
           </Box>
         </Flex>

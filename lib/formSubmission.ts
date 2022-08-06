@@ -4,6 +4,12 @@ import arweave from "./arweave";
 import { FormSubmission, FormSubmissionInput } from "../types";
 import { gql } from "@apollo/client";
 import { APP_ID } from "../config";
+import {
+  notEmpty,
+  formSubmissionSchemeValid,
+  getArweaveTxTagValue,
+  getLatestByTagValue
+} from "../utils";
 
 export const submitAnswer = async (submission: FormSubmissionInput) => {
   const res = await axios.post(`/answers`, submission);
@@ -59,12 +65,7 @@ export const getSubmissions = async ({
     }
   });
 
-  const transactions = result.data.transactions.edges.map(({ node }) => node);
-
-  function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
-    if (value === null || value === undefined) return false;
-    return true;
-  }
+  const transactions = getLatestByTagValue(result, "Submission-Id");
 
   const submissions: FormSubmission[] = (
     await Promise.all(
@@ -86,9 +87,7 @@ export const getSubmissions = async ({
 
           const transactionStatus = await arweave.transactions.getStatus(tx.id);
 
-          const submissionId = tx.tags.find(
-            tag => tag.name === "Submission-Id"
-          ).value;
+          const submissionId = getArweaveTxTagValue(tx, "Submission-Id");
 
           const verificationLogs = await storyForm.queryFilter(
             storyForm.filters.ProofVerified(submissionId, null)
@@ -99,16 +98,19 @@ export const getSubmissions = async ({
 
           return {
             txId: tx.id,
-            formId: tx.tags.find(tag => tag.name === "Form-Id").value,
+            formId: getArweaveTxTagValue(tx, "Form-Id"),
             answers: (data && JSON.parse(data).answers) || [],
             submissionId,
             arweaveTxStatus: transactionStatus.status,
-            verificationTx: verificationTx?.transactionHash
+            verificationTx: verificationTx?.transactionHash,
+            unixTime: parseInt(getArweaveTxTagValue(tx, "Unix-Time"))
           };
         })().catch(err => err)
       )
     )
-  ).filter(notEmpty);
+  )
+    .filter(notEmpty)
+    .filter(formSubmissionSchemeValid);
 
   return submissions;
 };

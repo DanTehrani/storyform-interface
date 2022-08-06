@@ -3,7 +3,12 @@ import arweaveGraphQl from "../lib/arweaveGraphQl";
 import arweave from "./arweave";
 import { gql } from "@apollo/client";
 import { APP_ID } from "../config";
-import { notEmpty, formSchemeValid } from "../utils";
+import {
+  notEmpty,
+  formSchemeValid,
+  getArweaveTxTagValue,
+  getLatestByTagValue
+} from "../utils";
 
 export const getForm = async (formId: string): Promise<Form | null> => {
   const result = await arweaveGraphQl.query({
@@ -101,7 +106,7 @@ export const getForms = async ({
     }
   });
 
-  const transactions = result.data.transactions.edges.map(({ node }) => node);
+  const transactions = getLatestByTagValue(result, "Form-Id");
 
   const forms: Form[] = (
     await Promise.all(
@@ -128,11 +133,11 @@ export const getForms = async ({
           const form: Form = JSON.parse(data);
 
           return {
-            id: tx.tags.find(tag => tag.name === "Form-Id")?.value,
-            questions: form?.questions || [],
-            title: form?.title || "",
-            owner: form?.owner || "",
-            version: form?.version || ""
+            id: getArweaveTxTagValue(tx, "Form-Id"),
+            questions: form?.questions,
+            title: form?.title,
+            owner: form?.owner,
+            unixTime: form?.unixTime
           };
         })().catch(err => err)
       )

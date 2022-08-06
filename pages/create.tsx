@@ -1,7 +1,8 @@
-import { Button, Heading, Center, useUpdateEffect } from "@chakra-ui/react";
+import { Button, Heading, Center } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { useUploadForm } from "../hooks";
+import { getCurrentUnixTime } from "../utils";
 
 const underConstruction = false;
 const Create: NextPage = () => {
@@ -13,7 +14,7 @@ const Create: NextPage = () => {
       const form = {
         owner: address,
         title: "「匿名回答アンケート」についての調査",
-        version: 1,
+        unixTime: getCurrentUnixTime(),
         questions: [
           {
             label:

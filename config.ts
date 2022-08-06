@@ -35,8 +35,8 @@ export const SIGNATURE_DATA_TYPES = {
       type: "string"
     },
     {
-      name: "version",
-      type: "int8"
+      name: "unixTime",
+      type: "int256"
     },
     {
       name: "questions",

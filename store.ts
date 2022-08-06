@@ -1,11 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
 import formAnswersReducer from "./state/formAnswersSlice";
-import formReducer from "./state/formSlice";
 
 const store = configureStore({
   reducer: {
-    formAnswers: formAnswersReducer,
-    form: formReducer
+    formAnswers: formAnswersReducer
   }
 });
 

@@ -14,7 +14,7 @@ export interface FormQuestion {
 export type Form = {
   id: string;
   title: string;
-  version: string;
+  unixTime: number;
   questions: FormQuestion[];
   owner: string;
 };
@@ -46,7 +46,7 @@ export type EIP721TypedMessage = {
   };
   value: {
     title: string;
-    version: number;
+    unixTime: number;
     questions: string;
     owner: string;
   };
@@ -64,6 +64,7 @@ export type FormSubmission = {
   txId: string;
   arweaveTxStatus: number;
   verificationTx: string;
+  unixTime: number;
 };
 
 export type FormSubmissionInput = {
@@ -72,6 +73,7 @@ export type FormSubmissionInput = {
   submissionId: string;
   membershipProof: string;
   dataSubmissionProof: string;
+  unixTime: number;
 };
 
 export type ProofInputs = {
