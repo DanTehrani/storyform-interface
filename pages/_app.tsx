@@ -11,6 +11,8 @@ import {
 import { useEffect } from "react";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { alchemyProvider } from "wagmi/providers/alchemy";
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorFallback from "../components/ErrorFallback";
 
 const { provider } = configureChains(
   [chain.hardhat],
@@ -52,9 +54,20 @@ const Provider = ({ Component, pageProps }) => {
 
 const MyApp = ({ Component, pageProps }) => {
   return (
-    <WagmiConfig client={client}>
-      <Provider Component={Component} pageProps={pageProps}></Provider>
-    </WagmiConfig>
+    <ErrorBoundary
+      FallbackComponent={ErrorFallback}
+      onError={(error: Error, info: { componentStack: string }) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        // eslint-disable-next-line no-console
+        console.error(info);
+        // TODO Report to Sentry
+      }}
+    >
+      <WagmiConfig client={client}>
+        <Provider Component={Component} pageProps={pageProps}></Provider>
+      </WagmiConfig>
+    </ErrorBoundary>
   );
 };
 
