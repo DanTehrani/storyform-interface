@@ -22,7 +22,10 @@ import {
 import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN } from "./config";
 import axios from "./lib/axios";
 import { getForm, getForms } from "./lib/form";
-import { submitAnswer } from "./lib/formSubmission";
+const {
+  generateProof: generateSemaphoreMembershipProof
+} = require("@semaphore-protocol/proof");
+import { groth16Prove as generateDataSubmissionProof } from "./lib/zksnark";
 
 // Reference: https://react-redux.js.org/using-react-redux/usage-with-typescript
 export const useAppDispatch: () => AppDispatch = useDispatch;
@@ -175,13 +178,15 @@ export const useForms = (pagination: Pagination): Form[] | undefined => {
 
   return forms;
 };
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 export const useSubmitForm = () => {
   const [submittingForm, setSubmittingForm] = useState<boolean>(false);
   const [submissionComplete, setSubmissionComplete] = useState<boolean>(false);
   const submitForm = async (formSubmission: FormSubmissionInput) => {
     setSubmittingForm(true);
-    await submitAnswer(formSubmission);
+    //    await submitAnswer(formSubmission);
+    await sleep(3000);
 
     setSubmittingForm(false);
     setSubmissionComplete(true);
@@ -209,4 +214,51 @@ export const usePagination = (
     pagination,
     setPagination
   };
+};
+
+export const useGenerateProof = () => {
+  const [generatingProof, setGeneratingProof] = useState<boolean>(false);
+  const getIdentitySecret = useGetIdentitySecret();
+
+  const generateProof = async (formId, group) => {
+    setGeneratingProof(true);
+    const secret = await getIdentitySecret();
+    const semaphoreIdentity = new Identity(secret.toString());
+
+    // Reference: https://github.com/semaphore-protocol/boilerplate/blob/450248d33406a31b16f987c655cbe07a2ee9873d/apps/web-app/src/components/ProofStep.tsx#L48
+    const externalNullifier = BigInt(1); // Group Id
+    const signal = "0";
+
+    // Re-construct group from on-chain data.
+    const membershipFullProof = await generateSemaphoreMembershipProof(
+      semaphoreIdentity,
+      group,
+      externalNullifier,
+      signal,
+      {
+        wasmFilePath: "/semaphore.wasm",
+        zkeyFilePath: "/semaphore.zkey"
+      }
+    );
+
+    const secretBI = BigInt(secret);
+    const formIdBI = BigInt(`0x${formId.slice(2)}`);
+    const submissionId = poseidon([secretBI, formIdBI]);
+
+    const dataSubmissionFullProof = await generateDataSubmissionProof({
+      secret: secretBI,
+      formId: formIdBI,
+      submissionId
+    });
+
+    setGeneratingProof(false);
+
+    return {
+      submissionId,
+      dataSubmissionFullProof,
+      membershipFullProof
+    };
+  };
+
+  return { generatingProof, generateProof };
 };

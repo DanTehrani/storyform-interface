@@ -13,7 +13,7 @@ const ConnectWalletButton = () => {
         connect();
       }}
     >
-      Connect
+      ウォレットに接続
     </Button>
   );
 };

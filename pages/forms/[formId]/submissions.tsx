@@ -95,10 +95,7 @@ const Submission: NextPage = () => {
                 </Td>
                 <Td>
                   <Link
-                    href={getEtherscanLogPageUrl(
-                      submission.verificationTx,
-                      "goerli"
-                    )}
+                    href={getEtherscanLogPageUrl(submission.verificationTx)}
                     isExternal
                     textDecoration="underline"
                   >

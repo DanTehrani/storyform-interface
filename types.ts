@@ -17,6 +17,7 @@ export type Form = {
   unixTime: number;
   questions: FormQuestion[];
   owner: string;
+  arweaveTxId: string;
 };
 
 export type FormAnswer = {

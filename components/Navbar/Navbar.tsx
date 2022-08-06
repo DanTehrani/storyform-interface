@@ -1,22 +1,26 @@
 import {
-  chakra,
   Box,
   Flex,
   IconButton,
   Collapse,
   Link,
   Button,
+  Text,
   useColorModeValue,
   useDisclosure
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
-import { useConnect, useAccount, useDisconnect } from "wagmi";
-import { InjectedConnector } from "wagmi/connectors/injected";
+import { useAccount, useDisconnect } from "wagmi";
 import ConnectWalletButton from "../ConnectWalletButton";
 
-const StyledLink = props => {
-  const linkHoverColor = useColorModeValue("gray.800", "white");
+const NAV_ITEMS = [
+  {
+    label: "フォーム一覧",
+    url: "/forms"
+  }
+];
 
+const StyledLink = props => {
   return (
     <Link
       {...props}
@@ -35,9 +39,6 @@ const getShortenAddress = (account: string) =>
 const Navbar = () => {
   const { isOpen, onToggle } = useDisclosure();
 
-  const { connect } = useConnect({
-    connector: new InjectedConnector()
-  });
   const { isConnected, address } = useAccount();
   const { disconnect } = useDisconnect();
 
@@ -66,14 +67,13 @@ const Navbar = () => {
           />
         </Flex>
         <Flex justify={{ base: "center", md: "start" }} align="center">
-          <Box display={{ base: "none", md: "flex" }}>
-            <StyledLink
-              href="https://github.com/DanTehrani/story-interface"
-              isExternal
-            >
-              GitHub
-            </StyledLink>
-            <StyledLink href="/forms">Forms</StyledLink>
+          <Text display={{ base: "none", md: "flex" }}>ZK Survey</Text>
+          <Box ml={4} display={{ base: "none", md: "flex" }} p="4px" gap={1}>
+            {NAV_ITEMS.map(({ label, url, external }, i) => (
+              <StyledLink key={i} href={url} isExternal={external}>
+                <Text>{label}</Text>
+              </StyledLink>
+            ))}
           </Box>
         </Flex>
         <Flex>
@@ -94,17 +94,13 @@ const Navbar = () => {
       </Flex>
 
       <Collapse in={isOpen} animateOpacity>
-        <Box p={4} display={{ md: "none" }}>
-          <StyledLink
-            href="https://github.com/DanTehrani/story-interface"
-            isExternal
-          >
-            GitHub
-          </StyledLink>
-        </Box>
-        <Box p={4} display={{ md: "none" }}>
-          <StyledLink href="/forms">Forms</StyledLink>
-        </Box>
+        {NAV_ITEMS.map(({ label, url, external }, i) => (
+          <Box p={4} display={{ md: "none" }} key={i}>
+            <StyledLink href={url} isExternal={external}>
+              {label}
+            </StyledLink>
+          </Box>
+        ))}
       </Collapse>
     </Box>
   );

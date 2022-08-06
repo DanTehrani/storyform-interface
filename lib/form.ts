@@ -65,7 +65,10 @@ export const getForm = async (formId: string): Promise<Form | null> => {
     return null;
   }
 
-  return JSON.parse(data);
+  return {
+    ...JSON.parse(data),
+    arweaveTxId: txId
+  };
 };
 
 export const getForms = async ({
@@ -137,7 +140,8 @@ export const getForms = async ({
             questions: form?.questions,
             title: form?.title,
             owner: form?.owner,
-            unixTime: form?.unixTime
+            unixTime: form?.unixTime,
+            arweaveTxId: tx.id
           };
         })().catch(err => err)
       )

@@ -23,8 +23,11 @@ export const formSubmissionSchemeValid = (
 export const getTxArweaveExplorerUrl = (txId: string) =>
   `https://viewblock.io/arweave/tx/${txId}`;
 
-export const getEtherscanLogPageUrl = (txId: string, network: string) =>
-  `https://${network}.etherscan.io/tx/${txId}#eventlog`;
+export const getEtherscanLogPageUrl = (txId: string) =>
+  `https://goerli.etherscan.io/tx/${txId}#eventlog`;
+
+export const getEtherscanUrl = (id: string) =>
+  `https://goerli.etherscan.io/search?q=${id}`;
 
 export const getShortenId = (id: string) =>
   `${id.slice(0, 3)}...${id.slice(6, 9)}`;

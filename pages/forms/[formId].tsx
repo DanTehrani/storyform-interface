@@ -11,40 +11,37 @@ import {
   Select,
   Center,
   Container,
-  ButtonGroup
+  ButtonGroup,
+  useToast
 } from "@chakra-ui/react";
 import IndexPageSkeleton from "../../components/IndexPageSkeleton";
 import {
-  useGetIdentitySecret,
   useGroup,
   useForm,
-  useSubmitForm
+  useSubmitForm,
+  useGenerateProof
 } from "../../hooks";
 import FormNotFound from "../../components/FormNotFound";
 import { useRouter } from "next/router";
 import { SEMAPHORE_GROUP_ID } from "../../config";
-import { poseidon } from "circomlibjs";
-import { groth16Prove as generateDataSubmissionProof } from "../../lib/zksnark";
-import { Identity } from "@semaphore-protocol/identity";
 import ConnectWalletButton from "../../components/ConnectWalletButton";
 
-const {
-  generateProof: generateSemaphoreMembershipProof
-} = require("@semaphore-protocol/proof");
 import { useAccount } from "wagmi";
 import { notEmpty } from "../../utils";
 
 const Form: NextPage = () => {
   const { query } = useRouter();
-  const getIdentitySecret = useGetIdentitySecret();
+  const router = useRouter();
 
   const { address, isConnected } = useAccount();
+  const toast = useToast();
 
   const [answers, setAnswers] = useState<string[]>([]);
   const { group } = useGroup(SEMAPHORE_GROUP_ID);
   const formId = query.formId?.toString();
   const { form, formNotFound } = useForm(formId);
   const { submitForm, submissionComplete, submittingForm } = useSubmitForm();
+  const { generatingProof, generateProof } = useGenerateProof();
 
   if (formNotFound) {
     return <FormNotFound></FormNotFound>;
@@ -66,9 +63,19 @@ const Form: NextPage = () => {
 
   if (submissionComplete) {
     return (
-      <Box>
-        <Text>ご回答ありがとうございます。</Text>
-      </Box>
+      <Center height="70vh" justifyContent="center" flexDirection="column">
+        <Text fontSize="lg">
+          ご回答ありがとうございます。 回答が反映されるまで数分かかります 。
+        </Text>
+        <Button
+          mt={5}
+          onClick={() => {
+            router.push(`/forms/${formId}/submissions`);
+          }}
+        >
+          回答一覧を見る
+        </Button>
+      </Center>
     );
   }
 
@@ -77,35 +84,16 @@ const Form: NextPage = () => {
   }
 
   const handleSubmitClick = async () => {
-    if (address) {
-      const secret = await getIdentitySecret();
-      const semaphoreIdentity = new Identity(secret.toString());
-
-      // Reference: https://github.com/semaphore-protocol/boilerplate/blob/450248d33406a31b16f987c655cbe07a2ee9873d/apps/web-app/src/components/ProofStep.tsx#L48
-      const externalNullifier = BigInt(1); // Group Id
-      const signal = "0";
-
-      // Re-construct group from on-chain data.
-      const membershipFullProof = await generateSemaphoreMembershipProof(
-        semaphoreIdentity,
-        group,
-        externalNullifier,
-        signal,
-        {
-          wasmFilePath: "/semaphore.wasm",
-          zkeyFilePath: "/semaphore.zkey"
-        }
-      );
-
-      const secretBI = BigInt(secret);
-      const formIdBI = BigInt(`0x${formId.slice(2)}`);
-      const submissionId = poseidon([secretBI, formIdBI]);
-
-      const dataSubmissionFullProof = await generateDataSubmissionProof({
-        secret: secretBI,
-        formId: formIdBI,
-        submissionId
+    if (!allRequiredAnswersProvided) {
+      toast({
+        title: "必須項目を入力してください",
+        status: "warning",
+        duration: 9000,
+        isClosable: true
       });
+    } else if (address) {
+      const { submissionId, membershipFullProof, dataSubmissionFullProof } =
+        await generateProof(formId, group);
 
       submitForm({
         formId,
@@ -190,10 +178,10 @@ const Form: NextPage = () => {
         <ButtonGroup mt={4}>
           <Button
             onClick={handleSubmitClick}
-            isLoading={submittingForm}
-            isDisabled={!group || !isConnected || !allRequiredAnswersProvided}
+            isLoading={generatingProof || submittingForm}
+            isDisabled={!group || !isConnected}
           >
-            Sign and submit
+            送信
           </Button>
           {!isConnected ? <ConnectWalletButton></ConnectWalletButton> : <></>}
         </ButtonGroup>
