@@ -5,7 +5,7 @@ const nextConfig = {
 
   assetPrefix:
     // eslint-disable-next-line no-undef
-    process.env.NODE_ENV === "production" ? "/story-interface/" : "",
+    process.env.NODE_ENV === "production" ? "/story-form-interface/" : "",
   webpack5: true,
   webpack: config => {
     config.resolve.fallback = { fs: false };
