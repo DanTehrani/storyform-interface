@@ -2,7 +2,6 @@ import {
   Link,
   TableContainer,
   Table,
-  TableCaption,
   Thead,
   Th,
   Tr,
@@ -33,9 +32,8 @@ const Forms: NextPage = () => {
 
   return (
     <>
-      <TableContainer>
+      <TableContainer mt={5}>
         <Table variant="simple">
-          <TableCaption>Forms</TableCaption>
           <Thead>
             <Tr>
               <Th>タイトル</Th>

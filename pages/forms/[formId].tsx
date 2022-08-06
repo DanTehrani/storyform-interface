@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { NextPage } from "next";
 import {
   Heading,
@@ -14,7 +14,6 @@ import {
   ButtonGroup,
   useToast
 } from "@chakra-ui/react";
-import IndexPageSkeleton from "../../components/IndexPageSkeleton";
 import {
   useGroup,
   useForm,
@@ -25,6 +24,7 @@ import FormNotFound from "../../components/FormNotFound";
 import { useRouter } from "next/router";
 import { SEMAPHORE_GROUP_ID } from "../../config";
 import ConnectWalletButton from "../../components/ConnectWalletButton";
+import FormSkeleton from "../../components/FormSkeleton";
 
 import { useAccount } from "wagmi";
 import { notEmpty } from "../../utils";
@@ -48,7 +48,7 @@ const Form: NextPage = () => {
   }
 
   if (!form) {
-    return <IndexPageSkeleton></IndexPageSkeleton>;
+    return <FormSkeleton></FormSkeleton>;
   }
 
   const questions = form.questions.map(question => ({
@@ -115,13 +115,7 @@ const Form: NextPage = () => {
   };
 
   return (
-    <Center
-      width="100%"
-      display={"flex"}
-      flexDirection="column"
-      bgColor="#f2ddc1"
-      p={3}
-    >
+    <Center width="100%" display={"flex"} flexDirection="column" p={6}>
       <Container maxW={640}>
         <Heading size="md" mb={3}>
           {form.title}

@@ -43,7 +43,7 @@ const Navbar = () => {
   const { disconnect } = useDisconnect();
 
   return (
-    <Box>
+    <Box backgroundImage="radial-gradient( circle farthest-corner at 10% 20%,  rgba(171,102,255,1) 0%, rgba(116,182,247,1) 90% );">
       <Flex
         minH={"60px"}
         py={{ base: 2 }}
@@ -67,11 +67,13 @@ const Navbar = () => {
           />
         </Flex>
         <Flex justify={{ base: "center", md: "start" }} align="center">
-          <Text display={{ base: "none", md: "flex" }}>ZK Survey</Text>
+          <Text display={{ base: "none", md: "flex" }} fontWeight={600}>
+            ZK Survey
+          </Text>
           <Box ml={4} display={{ base: "none", md: "flex" }} p="4px" gap={1}>
             {NAV_ITEMS.map(({ label, url, external }, i) => (
               <StyledLink key={i} href={url} isExternal={external}>
-                <Text>{label}</Text>
+                <Text color="blackAlpha.700">{label}</Text>
               </StyledLink>
             ))}
           </Box>
@@ -94,9 +96,9 @@ const Navbar = () => {
       </Flex>
 
       <Collapse in={isOpen} animateOpacity>
-        {NAV_ITEMS.map(({ label, url, external }, i) => (
+        {NAV_ITEMS.map(({ label, url }, i) => (
           <Box p={4} display={{ md: "none" }} key={i}>
-            <StyledLink href={url} isExternal={external}>
+            <StyledLink href={url} color="black">
               {label}
             </StyledLink>
           </Box>
