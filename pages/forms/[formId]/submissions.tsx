@@ -14,18 +14,17 @@ import {
 } from "@chakra-ui/react";
 import { CheckCircleIcon, MinusIcon } from "@chakra-ui/icons";
 import type { NextPage } from "next";
-import {
-  useForm,
-  useSubmissions,
-  useGetEtherscanLogPageUrl
-} from "../../../hooks";
+import { useForm, useSubmissions } from "../../../hooks";
 import IndexPageSkeleton from "../../../components/IndexPageSkeleton";
 import { useRouter } from "next/router";
-import { getTxArweaveExplorerUrl, getShortenId } from "../../../utils";
+import {
+  getEtherscanLogPageUrl,
+  getTxArweaveExplorerUrl,
+  getShortenId
+} from "../../../utils";
 
 const Submission: NextPage = () => {
   const { query } = useRouter();
-  const getEtherscanLogPageUrl = useGetEtherscanLogPageUrl();
   const [first, setFirst] = useState<number>(10);
   const [after, setAfter] = useState<string | undefined>();
 

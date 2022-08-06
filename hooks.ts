@@ -39,21 +39,20 @@ const useStoryForm = () => {
   return contract;
 };
 
+export const useJoinGroup = (groupId: number) => {
+  // Post to gateway
+};
+
 export const useGroup = (groupId: number) => {
   const [group, setGroup] = useState<Group | null>();
-  const provider = useProvider();
 
-  const contract = useContract({
-    addressOrName: STORY_FORM_ADDRESS[provider.network.name],
-    contractInterface: StormFormABI.abi,
-    signerOrProvider: provider
-  });
+  const storyForm = useStoryForm();
 
   useEffect(() => {
     (async () => {
-      if (contract) {
-        const events = await contract.queryFilter(
-          contract.filters.MemberAdded(groupId)
+      if (storyForm) {
+        const events = await storyForm.queryFilter(
+          storyForm.filters.MemberAdded(groupId)
         );
 
         const members = events.map(({ args }) => args[1].toString());
@@ -112,7 +111,6 @@ export const useForm = (formId: string | undefined) => {
   return { form, formNotFound };
 };
 
-// formAnswersSlice alternative
 export const useSubmissions = (
   formId: string | undefined,
   pagination: Pagination
@@ -260,21 +258,4 @@ export const useGenerateProof = () => {
   };
 
   return { generatingProof, generateProof };
-};
-
-export const useGetEtherscanUrl = () => {
-  const provider = useProvider();
-
-  const getEtherscanUrl = (id: string) =>
-    `https://${provider.network.name}.etherscan.io/search?q=${id}`;
-
-  return getEtherscanUrl;
-};
-export const useGetEtherscanLogPageUrl = () => {
-  const provider = useProvider({});
-
-  const getEtherscanLogPageUrl = (txId: string) =>
-    `https://${provider.network.name}.etherscan.io/tx/${txId}#eventlog`;
-
-  return getEtherscanLogPageUrl;
 };

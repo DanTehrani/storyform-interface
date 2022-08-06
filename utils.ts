@@ -1,5 +1,6 @@
 import { Form, FormSubmission } from "./types";
 import type { ApolloQueryResult } from "@apollo/client";
+const { NEXT_PUBLIC_CHAIN_ID } = process.env;
 
 export const notEmpty = (value: any): boolean =>
   value === null || value === undefined ? false : true;
@@ -22,12 +23,6 @@ export const formSubmissionSchemeValid = (
 
 export const getTxArweaveExplorerUrl = (txId: string) =>
   `https://viewblock.io/arweave/tx/${txId}`;
-
-export const getEtherscanLogPageUrl = (txId: string) =>
-  `https://goerli.etherscan.io/tx/${txId}#eventlog`;
-
-export const getEtherscanUrl = (id: string) =>
-  `https://goerli.etherscan.io/search?q=${id}`;
 
 export const getShortenId = (id: string) =>
   `${id.slice(0, 3)}...${id.slice(6, 9)}`;
@@ -63,3 +58,26 @@ export const getLatestByTagValue = (result: ApolloQueryResult<any>, tagName) =>
             getArweaveTxTagValue(tx, tagName)
         ) === i
     );
+
+export const getNetworkNameFromChainId = (chainId: number): string => {
+  switch (chainId) {
+    case 5:
+      return "goerli";
+    case 31337:
+      return "hardhat";
+    default:
+      return "";
+  }
+};
+
+export const getEtherscanUrl = (id: string) =>
+  NEXT_PUBLIC_CHAIN_ID &&
+  `https://${getNetworkNameFromChainId(
+    parseInt(NEXT_PUBLIC_CHAIN_ID)
+  )}.etherscan.io/search?q=${id}`;
+
+export const getEtherscanLogPageUrl = (txId: string) =>
+  NEXT_PUBLIC_CHAIN_ID &&
+  `https://${getNetworkNameFromChainId(
+    parseInt(NEXT_PUBLIC_CHAIN_ID)
+  )}.etherscan.io/tx/${txId}#eventlog`;
