@@ -1,13 +1,15 @@
 /** @type {import('next').NextConfig} */
 
+const GITHUB_PAGES_PATH =
+  // eslint-disable-next-line no-undef
+  process.env.NODE_ENV === "production" ? "/story-form-interface" : "";
+
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  basePath: "/story-form-interface",
+  basePath: GITHUB_PAGES_PATH,
 
-  assetPrefix:
-    // eslint-disable-next-line no-undef
-    process.env.NODE_ENV === "production" ? "/story-form-interface/" : "",
+  assetPrefix: GITHUB_PAGES_PATH,
   webpack5: true,
   webpack: config => {
     config.resolve.fallback = { fs: false };
