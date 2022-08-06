@@ -71,8 +71,8 @@ const Navbar = () => {
             ZK Survey
           </Text>
           <Box ml={4} display={{ base: "none", md: "flex" }} p="4px" gap={1}>
-            {NAV_ITEMS.map(({ label, url, external }, i) => (
-              <StyledLink key={i} href={url} isExternal={external}>
+            {NAV_ITEMS.map(({ label, url }, i) => (
+              <StyledLink key={i} href={url}>
                 <Text color="blackAlpha.700">{label}</Text>
               </StyledLink>
             ))}

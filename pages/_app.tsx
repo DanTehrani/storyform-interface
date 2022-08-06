@@ -1,8 +1,6 @@
 // pages/_app.js
 import { ChakraProvider } from "@chakra-ui/react";
 import Navbar from "../components/Navbar";
-import store from "../store";
-import { Provider as ReduxProvider } from "react-redux";
 import {
   WagmiConfig,
   createClient,
@@ -45,12 +43,10 @@ const Provider = ({ Component, pageProps }) => {
   }, [switchNetwork]);
 
   return (
-    <ReduxProvider store={store}>
-      <ChakraProvider>
-        <Navbar></Navbar>
-        <Component pageProps={pageProps} />
-      </ChakraProvider>
-    </ReduxProvider>
+    <ChakraProvider>
+      <Navbar></Navbar>
+      <Component pageProps={pageProps} />
+    </ChakraProvider>
   );
 };
 

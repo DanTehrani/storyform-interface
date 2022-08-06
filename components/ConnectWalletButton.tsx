@@ -1,5 +1,5 @@
 import { Button } from "@chakra-ui/react";
-import { useConnect, useAccount } from "wagmi";
+import { useConnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 
 const ConnectWalletButton = () => {
