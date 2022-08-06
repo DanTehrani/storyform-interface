@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
+
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  basePath: "/story-form-interface",
 
   assetPrefix:
     // eslint-disable-next-line no-undef
