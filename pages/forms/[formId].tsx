@@ -135,7 +135,7 @@ const Form: NextPage = () => {
         {isConnected && !isEligibleToAnswer ? (
           <Alert status="error">
             <AlertIcon />
-            ログインしたアカウントではこのフォームに回答できません
+            ログインされたアカウントではこのフォームに回答できません
           </Alert>
         ) : (
           <></>
