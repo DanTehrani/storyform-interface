@@ -29,7 +29,9 @@ const {
 import { groth16Prove as generateDataSubmissionProof } from "./lib/zksnark";
 
 const useStoryForm = () => {
-  const provider = useProvider();
+  const provider = useProvider({
+    chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "31337")
+  });
   // eslint-disable-next-line no-console
   console.log(`Provider network ${provider.network}`);
   const contract = useContract({
@@ -143,7 +145,9 @@ export const useSubmissions = (
 };
 
 export const useUploadForm = () => {
-  const provider = useProvider();
+  const provider = useProvider({
+    chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "31337")
+  });
   const { signTypedDataAsync } = useSignTypedData();
 
   const uploadForm = async form => {
