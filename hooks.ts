@@ -23,6 +23,7 @@ import {
 import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN } from "./config";
 import axios from "./lib/axios";
 import { getForm, getForms } from "./lib/form";
+import { submitAnswer } from "./lib/formSubmission";
 const {
   generateProof: generateSemaphoreMembershipProof
 } = require("@semaphore-protocol/proof");
@@ -183,15 +184,13 @@ export const useForms = (pagination: Pagination): Form[] | undefined => {
 
   return forms;
 };
-const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 export const useSubmitForm = () => {
   const [submittingForm, setSubmittingForm] = useState<boolean>(false);
   const [submissionComplete, setSubmissionComplete] = useState<boolean>(false);
   const submitForm = async (formSubmission: FormSubmissionInput) => {
     setSubmittingForm(true);
-    //    await submitAnswer(formSubmission);
-    await sleep(3000);
+    await submitAnswer(formSubmission);
 
     setSubmittingForm(false);
     setSubmissionComplete(true);
