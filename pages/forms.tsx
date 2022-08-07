@@ -9,13 +9,16 @@ import {
   Td,
   Button
 } from "@chakra-ui/react";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { ExternalLinkIcon, CheckIcon } from "@chakra-ui/icons";
 import type { NextPage } from "next";
 import { useForms, usePagination } from "../hooks";
+import { useAccount } from "wagmi";
 import IndexPageSkeleton from "../components/IndexPageSkeleton";
 import { getEtherscanUrl, getTxArweaveExplorerUrl } from "../utils";
+import { TEMPORARY_ADMIN_ADDRESS } from "../config";
 
 const Forms: NextPage = () => {
+  const { address } = useAccount();
   const { pagination } = usePagination({
     first: 20,
     after: ""
@@ -36,7 +39,8 @@ const Forms: NextPage = () => {
         <Table variant="simple">
           <Thead>
             <Tr>
-              <Th>タイトル</Th>
+              <Th></Th>
+              <Th textAlign="left">タイトル</Th>
               <Th>回答する</Th>
               <Th>回答一覧</Th>
               <Th>作成者</Th>
@@ -46,8 +50,19 @@ const Forms: NextPage = () => {
           <Tbody>
             {forms.map((form, i) => (
               <Tr key={i}>
-                <Td>{form.title}</Td>
-                <Td textAlign={"left"}>
+                <Td textAlign="center">
+                  {address === TEMPORARY_ADMIN_ADDRESS ? (
+                    <>
+                      回答できます
+                      <CheckIcon color="purple" mx="1px" mt="-1px"></CheckIcon>
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                </Td>
+                <Td textAlign="left">{form.title}</Td>
+
+                <Td>
                   <Button
                     onClick={() => {
                       handleAnswerClick(form.id);
@@ -62,7 +77,7 @@ const Forms: NextPage = () => {
                     isExternal
                     textDecoration="underline"
                   >
-                    回答を見る
+                    回答一覧を見る
                   </Link>
                 </Td>
                 <Td>

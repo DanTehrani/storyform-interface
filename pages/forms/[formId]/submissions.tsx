@@ -12,7 +12,7 @@ import {
   Td,
   Icon
 } from "@chakra-ui/react";
-import { CheckCircleIcon, MinusIcon } from "@chakra-ui/icons";
+import { CheckCircleIcon, MinusIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import type { NextPage } from "next";
 import { useForm, useSubmissions } from "../../../hooks";
 import IndexPageSkeleton from "../../../components/IndexPageSkeleton";
@@ -62,9 +62,9 @@ const Submission: NextPage = () => {
               {questions.map((question, i) => (
                 <Th key={i}>{question.label}</Th>
               ))}
-              <Th>ID</Th>
-              <Th>Verified</Th>
-              <Th>Verification Log</Th>
+              <Th>信頼性</Th>
+              <Th>Arweave</Th>
+              <Th>ゼロ知識認証ログ</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -76,16 +76,6 @@ const Submission: NextPage = () => {
                     // eslint-disable-next-line security/detect-object-injection
                     <Td key={i}>{submission.answers[i] || ""}</Td>
                   ))}
-                <Td>
-                  <Link
-                    href={getTxArweaveExplorerUrl(submission.txId)}
-                    isExternal
-                    textDecoration="underline"
-                  >
-                    {getShortenId(submission.txId)}
-                  </Link>
-                  &nbsp; ({submission.arweaveTxStatus === 202 ? "Pending" : ""})
-                </Td>
                 <Td textAlign="center">
                   {submission.verificationTx ? (
                     <Icon as={CheckCircleIcon} color="green"></Icon>
@@ -95,11 +85,24 @@ const Submission: NextPage = () => {
                 </Td>
                 <Td>
                   <Link
+                    href={getTxArweaveExplorerUrl(submission.txId)}
+                    isExternal
+                    textDecoration="underline"
+                  >
+                    Arweave
+                    <ExternalLinkIcon mx="1px" mt="-1px" />
+                  </Link>
+                  &nbsp; {submission.arweaveTxStatus === 202 ? "(Pending)" : ""}
+                </Td>
+
+                <Td>
+                  <Link
                     href={getEtherscanLogPageUrl(submission.verificationTx)}
                     isExternal
                     textDecoration="underline"
                   >
-                    {getShortenId(submission.verificationTx)}
+                    ゼロ知識認証ログ
+                    <ExternalLinkIcon mx="1px" mt="-1px" />
                   </Link>
                 </Td>
               </Tr>

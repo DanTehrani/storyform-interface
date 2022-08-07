@@ -1,6 +1,7 @@
 import { Form, FormSubmission } from "./types";
 import type { ApolloQueryResult } from "@apollo/client";
 const { NEXT_PUBLIC_CHAIN_ID } = process.env;
+import { TEMPORARY_ADMIN_ADDRESS } from "./config";
 
 export const notEmpty = (value: any): boolean =>
   value === null || value === undefined ? false : true;
@@ -81,3 +82,6 @@ export const getEtherscanLogPageUrl = (txId: string) =>
   `https://${getNetworkNameFromChainId(
     parseInt(NEXT_PUBLIC_CHAIN_ID)
   )}.etherscan.io/tx/${txId}#eventlog`;
+
+export const eligibleToAnswer = (address: string) =>
+  address === TEMPORARY_ADMIN_ADDRESS;

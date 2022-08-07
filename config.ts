@@ -1,5 +1,8 @@
 export const APP_ID = "StoryForm-dev";
 
+export const TEMPORARY_ADMIN_ADDRESS =
+  "0x06D35f6B8Fb9Ad47A86602b6a6C3c2DcD1C36F1";
+
 export const STORY_FORM_ADDRESS = {
   goerli: "0xB8F8D1AD7A8D8161223AC1276D8a361faC2534f9",
   hardhat: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"

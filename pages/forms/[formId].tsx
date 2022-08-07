@@ -1,6 +1,9 @@
 import { useState } from "react";
 import type { NextPage } from "next";
 import {
+  Link,
+  AlertIcon,
+  Alert,
   Heading,
   Box,
   FormControl,
@@ -26,14 +29,20 @@ import { SEMAPHORE_GROUP_ID } from "../../config";
 import ConnectWalletButton from "../../components/ConnectWalletButton";
 import FormSkeleton from "../../components/FormSkeleton";
 
+import { useConnect } from "wagmi";
+import { InjectedConnector } from "wagmi/connectors/injected";
 import { useAccount } from "wagmi";
-import { notEmpty } from "../../utils";
+import { notEmpty, eligibleToAnswer } from "../../utils";
+import EthereumIcon from "../../components/EthereumIcon";
 
 const Form: NextPage = () => {
   const { query } = useRouter();
   const router = useRouter();
 
   const { address, isConnected } = useAccount();
+  const { connect } = useConnect({
+    connector: new InjectedConnector()
+  });
   const toast = useToast();
 
   const [answers, setAnswers] = useState<string[]>([]);
@@ -114,10 +123,38 @@ const Form: NextPage = () => {
     setAnswers(newValues);
   };
 
+  const isEligibleToAnswer = address && eligibleToAnswer(address);
+
   return (
     <Center width="100%" display={"flex"} flexDirection="column" p={6}>
       <Container maxW={640}>
-        <Heading size="md" mb={3}>
+        {!isConnected ? (
+          <Alert status="warning">
+            <AlertIcon />
+            このフォームに回答可能か、
+            <Link
+              onClick={() => {
+                connect();
+              }}
+              textDecoration="underline"
+            >
+              ログイン
+            </Link>
+            <EthereumIcon></EthereumIcon>
+            しご確認ださい。
+          </Alert>
+        ) : (
+          <></>
+        )}
+        {isConnected && !isEligibleToAnswer ? (
+          <Alert status="error">
+            <AlertIcon />
+            ログインしたアカウントではこのフォームに回答できません
+          </Alert>
+        ) : (
+          <></>
+        )}
+        <Heading size="md" mb={3} mt={6}>
           {form.title}
         </Heading>
         <FormControl>
@@ -173,7 +210,7 @@ const Form: NextPage = () => {
           <Button
             onClick={handleSubmitClick}
             isLoading={generatingProof || submittingForm}
-            isDisabled={!group || !isConnected}
+            isDisabled={!group || !isConnected || !isEligibleToAnswer}
           >
             送信
           </Button>

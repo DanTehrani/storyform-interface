@@ -1,6 +1,7 @@
 import { Button } from "@chakra-ui/react";
 import { useConnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
+import EthereumIcon from "./EthereumIcon";
 
 const ConnectWalletButton = () => {
   const { connect } = useConnect({
@@ -13,8 +14,9 @@ const ConnectWalletButton = () => {
       onClick={() => {
         connect();
       }}
+      leftIcon={<EthereumIcon></EthereumIcon>}
     >
-      ウォレットに接続
+      ログイン
     </Button>
   );
 };
