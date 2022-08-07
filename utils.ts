@@ -83,5 +83,5 @@ export const getEtherscanLogPageUrl = (txId: string) =>
     parseInt(NEXT_PUBLIC_CHAIN_ID)
   )}.etherscan.io/tx/${txId}#eventlog`;
 
-export const eligibleToAnswer = (address: string) =>
+export const eligibleToAnswer = (address: string, formId: string) =>
   address === TEMPORARY_ADMIN_ADDRESS;

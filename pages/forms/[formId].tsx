@@ -28,21 +28,16 @@ import { useRouter } from "next/router";
 import { SEMAPHORE_GROUP_ID } from "../../config";
 import ConnectWalletButton from "../../components/ConnectWalletButton";
 import FormSkeleton from "../../components/FormSkeleton";
-
-import { useConnect } from "wagmi";
-import { InjectedConnector } from "wagmi/connectors/injected";
 import { useAccount } from "wagmi";
 import { notEmpty, eligibleToAnswer } from "../../utils";
-import EthereumIcon from "../../components/EthereumIcon";
+import ConnectWalletLinkButton from "../../components/ConnectWalletLinkButton";
 
 const Form: NextPage = () => {
   const { query } = useRouter();
   const router = useRouter();
 
   const { address, isConnected } = useAccount();
-  const { connect } = useConnect({
-    connector: new InjectedConnector()
-  });
+
   const toast = useToast();
 
   const [answers, setAnswers] = useState<string[]>([]);
@@ -123,7 +118,7 @@ const Form: NextPage = () => {
     setAnswers(newValues);
   };
 
-  const isEligibleToAnswer = address && eligibleToAnswer(address);
+  const isEligibleToAnswer = address && eligibleToAnswer(address, formId);
 
   return (
     <Center width="100%" display={"flex"} flexDirection="column" p={6}>
@@ -132,16 +127,7 @@ const Form: NextPage = () => {
           <Alert status="warning">
             <AlertIcon />
             このフォームに回答可能か、
-            <Link
-              onClick={() => {
-                connect();
-              }}
-              textDecoration="underline"
-            >
-              ログイン
-            </Link>
-            <EthereumIcon></EthereumIcon>
-            しご確認ださい。
+            <ConnectWalletLinkButton></ConnectWalletLinkButton>しご確認ださい。
           </Alert>
         ) : (
           <></>

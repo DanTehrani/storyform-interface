@@ -13,26 +13,43 @@ const Create: NextPage = () => {
     if (address) {
       const form = {
         owner: address,
-        title: "「匿名回答アンケート」についての調査",
+        title: "率直な回答のみ！新型コロナウイルスと自粛についての調査",
         unixTime: getCurrentUnixTime(),
         questions: [
           {
             label:
-              "匿名回答の社内・プロジェクト内アンケートに回答したことはありますか？",
+              "緊急事態宣言、又は、まん延防止等重点措置発令中に、外出を自粛していますか？",
             type: "select",
-            options: ["はい", "いいえ"],
+            options: [
+              "可能な限りしている",
+              "何となくしている",
+              "全くしていない",
+              "わからない"
+            ],
             customerAttributes: []
           },
           {
-            label:
-              "上記で「はい」と回答された方：それは、何に関するアンケートでしたか？",
-            type: "text",
+            label: "新型コロナウイルスに感染したことがありますか？",
+            type: "select",
+            options: ["はい", "いいえ", "わからない"],
             customerAttributes: []
           },
           {
-            label:
-              "「匿名で回答ができる」という要素は、どのような場面で重要だと思いますか？",
-            type: "text",
+            label: "濃厚接触者となったことがありますか？",
+            type: "select",
+            options: ["はい", "いいえ", "わからない"],
+            customerAttributes: []
+          },
+          {
+            label: "何度ワクチン接種されましたか？",
+            type: "select",
+            options: ["0回", "1回", "2回", "3回", "4回", "5回以上"],
+            customerAttributes: []
+          },
+          {
+            label: "該当する年齢層を教えてください",
+            type: "select",
+            options: ["0~20歳", "21~40歳", "41~60歳", "61歳~80歳", "81歳以上"],
             customerAttributes: []
           }
         ]
@@ -42,7 +59,6 @@ const Create: NextPage = () => {
     }
   };
 
-  // TODO: Check if wallet is connected or not
   return underConstruction ? (
     <Center>
       <Heading>under construction...</Heading>

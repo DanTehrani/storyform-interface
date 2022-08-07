@@ -14,23 +14,34 @@ import type { NextPage } from "next";
 import { useForms, usePagination } from "../hooks";
 import { useAccount } from "wagmi";
 import IndexPageSkeleton from "../components/IndexPageSkeleton";
-import { getEtherscanUrl, getTxArweaveExplorerUrl } from "../utils";
-import { TEMPORARY_ADMIN_ADDRESS } from "../config";
+import {
+  eligibleToAnswer,
+  getEtherscanUrl,
+  getTxArweaveExplorerUrl
+} from "../utils";
+import { useConnect } from "wagmi";
+import { InjectedConnector } from "wagmi/connectors/injected";
+import { useRouter } from "next/router";
 
 const Forms: NextPage = () => {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   const { pagination } = usePagination({
     first: 20,
     after: ""
   });
   const forms = useForms(pagination);
+  const router = useRouter();
+
+  const { connect } = useConnect({
+    connector: new InjectedConnector()
+  });
 
   if (!forms) {
     return <IndexPageSkeleton></IndexPageSkeleton>;
   }
 
   const handleAnswerClick = (formId: string) => {
-    window.open(`/forms/${formId}`);
+    router.push(`/forms/${formId}`);
   };
 
   return (
@@ -51,7 +62,7 @@ const Forms: NextPage = () => {
             {forms.map((form, i) => (
               <Tr key={i}>
                 <Td textAlign="center">
-                  {address === TEMPORARY_ADMIN_ADDRESS ? (
+                  {address && eligibleToAnswer(address, form.id) ? (
                     <>
                       回答できます
                       <CheckIcon color="purple" mx="1px" mt="-1px"></CheckIcon>
@@ -61,20 +72,33 @@ const Forms: NextPage = () => {
                   )}
                 </Td>
                 <Td textAlign="left">{form.title}</Td>
-
                 <Td>
-                  <Button
-                    onClick={() => {
-                      handleAnswerClick(form.id);
-                    }}
-                  >
-                    回答する
-                  </Button>
+                  {isConnected ? (
+                    <Button
+                      onClick={() => {
+                        handleAnswerClick(form.id);
+                      }}
+                      isDisabled={
+                        !address || !eligibleToAnswer(address || "", form.id)
+                      }
+                    >
+                      {!address || !eligibleToAnswer(address || "", form.id)
+                        ? "回答できません"
+                        : "回答する"}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => {
+                        connect();
+                      }}
+                    >
+                      回答権を確認
+                    </Button>
+                  )}
                 </Td>
                 <Td>
                   <Link
                     href={`forms/${form.id}/submissions`}
-                    isExternal
                     textDecoration="underline"
                   >
                     回答一覧を見る
