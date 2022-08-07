@@ -30,6 +30,8 @@ import { groth16Prove as generateDataSubmissionProof } from "./lib/zksnark";
 
 const useStoryForm = () => {
   const provider = useProvider();
+  // eslint-disable-next-line no-console
+  console.log(`Provider network ${provider.network}`);
   const contract = useContract({
     addressOrName: STORY_FORM_ADDRESS[provider.network.name],
     contractInterface: StormFormABI.abi,
@@ -52,8 +54,10 @@ export const useGroup = (groupId: number) => {
     (async () => {
       if (storyForm) {
         const events = await storyForm.queryFilter(
-          storyForm.filters.MemberAdded(groupId)
+          storyForm.filters.MemberAdded(groupId, null, null)
         );
+        // eslint-disable-next-line no-console
+        console.log(events);
 
         const members = events.map(({ args }) => args[1].toString());
         const _group = new Group(16);
@@ -225,6 +229,8 @@ export const useGenerateProof = () => {
     // Reference: https://github.com/semaphore-protocol/boilerplate/blob/450248d33406a31b16f987c655cbe07a2ee9873d/apps/web-app/src/components/ProofStep.tsx#L48
     const externalNullifier = BigInt(1); // Group Id
     const signal = "0";
+
+    console.log(semaphoreIdentity.generateCommitment());
 
     // Re-construct group from on-chain data.
     const membershipFullProof = await generateSemaphoreMembershipProof(
