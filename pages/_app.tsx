@@ -37,7 +37,7 @@ const Provider = ({ Component, pageProps }) => {
 
   useEffect(() => {
     if (switchNetwork) {
-      const chainId = "31337" || process.env.NEXT_PUBLIC_CHAIN_ID;
+      const chainId = process.env.NEXT_PUBLIC_CHAIN_ID || "31337";
       if (chainId) {
         switchNetwork(parseInt(chainId));
       }
