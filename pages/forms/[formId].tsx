@@ -31,6 +31,8 @@ import FormSkeleton from "../../components/FormSkeleton";
 import { useAccount } from "wagmi";
 import { notEmpty, eligibleToAnswer } from "../../utils";
 import ConnectWalletLinkButton from "../../components/ConnectWalletLinkButton";
+import SubmittingFormModal from "../../components/SubmittingFormModal";
+import { motion } from "framer-motion";
 
 const Form: NextPage = () => {
   const { query } = useRouter();
@@ -67,7 +69,14 @@ const Form: NextPage = () => {
 
   if (submissionComplete) {
     return (
-      <Center height="70vh" justifyContent="center" flexDirection="column">
+      <Center
+        as={motion.div}
+        height="70vh"
+        justifyContent="center"
+        flexDirection="column"
+        initial={{ opacity: 0, scale: 1 }}
+        animate={{ opacity: 1, scale: 1 }}
+      >
         <Text fontSize="lg">
           ご回答ありがとうございます。 回答が反映されるまで数分かかります 。
         </Text>
@@ -203,6 +212,11 @@ const Form: NextPage = () => {
           {!isConnected ? <ConnectWalletButton></ConnectWalletButton> : <></>}
         </ButtonGroup>
       </Container>
+      <SubmittingFormModal
+        generatingProof={generatingProof}
+        submittingForm={submittingForm}
+        isOpen={generatingProof || submittingForm}
+      ></SubmittingFormModal>
     </Center>
   );
 };

@@ -92,7 +92,7 @@ const Forms: NextPage = () => {
                         connect();
                       }}
                     >
-                      回答権を確認
+                      ログインし回答権を確認
                     </Button>
                   )}
                 </Td>

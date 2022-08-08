@@ -225,15 +225,14 @@ export const useGenerateProof = () => {
   const getIdentitySecret = useGetIdentitySecret();
 
   const generateProof = async (formId, group) => {
-    setGeneratingProof(true);
     const secret = await getIdentitySecret();
     const semaphoreIdentity = new Identity(secret.toString());
+
+    setGeneratingProof(true);
 
     // Reference: https://github.com/semaphore-protocol/boilerplate/blob/450248d33406a31b16f987c655cbe07a2ee9873d/apps/web-app/src/components/ProofStep.tsx#L48
     const externalNullifier = BigInt(1); // Group Id
     const signal = "0";
-
-    console.log(semaphoreIdentity.generateCommitment());
 
     // Re-construct group from on-chain data.
     const membershipFullProof = await generateSemaphoreMembershipProof(
