@@ -19,11 +19,12 @@ import IndexPageSkeleton from "../../../components/IndexPageSkeleton";
 import { useRouter } from "next/router";
 import {
   getEtherscanLogPageUrl,
-  getTxArweaveExplorerUrl,
-  getShortenId
+  getTxArweaveExplorerUrl
 } from "../../../utils";
+import useTranslation from "next-translate/useTranslation";
 
 const Submission: NextPage = () => {
+  const { t } = useTranslation("form-submissions");
   const { query } = useRouter();
   const [first, setFirst] = useState<number>(10);
   const [after, setAfter] = useState<string | undefined>();
@@ -51,7 +52,7 @@ const Submission: NextPage = () => {
       <TableContainer mt={5}>
         <Table variant="simple">
           {!submissions.length ? (
-            <TableCaption>回答はありません</TableCaption>
+            <TableCaption>{t("no-submissions")}</TableCaption>
           ) : (
             <></>
           )}
@@ -62,9 +63,9 @@ const Submission: NextPage = () => {
               {questions.map((question, i) => (
                 <Th key={i}>{question.label}</Th>
               ))}
-              <Th>信頼性</Th>
+              <Th>{t("credibility")}</Th>
               <Th>Arweave</Th>
-              <Th>ゼロ知識認証ログ</Th>
+              <Th>{t("zk-verification-log")}</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -101,7 +102,7 @@ const Submission: NextPage = () => {
                     isExternal
                     textDecoration="underline"
                   >
-                    ゼロ知識認証ログ
+                    {t("zk-verification-log")}
                     <ExternalLinkIcon mx="1px" mt="-1px" />
                   </Link>
                 </Td>

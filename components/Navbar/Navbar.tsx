@@ -12,13 +12,7 @@ import {
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { useAccount, useDisconnect } from "wagmi";
 import ConnectWalletButton from "../ConnectWalletButton";
-
-const NAV_ITEMS = [
-  {
-    label: "フォーム一覧",
-    url: "/forms"
-  }
-];
+import useTranslation from "next-translate/useTranslation";
 
 const StyledLink = props => {
   return (
@@ -37,10 +31,18 @@ const getShortenAddress = (account: string) =>
   `${account.slice(0, 6)}...${account.slice(7, 11)}`;
 
 const Navbar = () => {
+  const { t } = useTranslation("common");
   const { isOpen, onToggle } = useDisclosure();
 
   const { isConnected, address } = useAccount();
   const { disconnect } = useDisconnect();
+
+  const NAV_ITEMS = [
+    {
+      label: t("forms"),
+      url: "/forms"
+    }
+  ];
 
   return (
     <Box backgroundImage="radial-gradient( circle farthest-corner at 10% 20%,  rgba(111,111,219,1) 0%, rgba(182,109,246,1) 72.4% );">

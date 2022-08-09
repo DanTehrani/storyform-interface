@@ -22,8 +22,10 @@ import {
 import { useConnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { useRouter } from "next/router";
+import useTranslation from "next-translate/useTranslation";
 
 const Forms: NextPage = () => {
+  const { t } = useTranslation("forms");
   const { address, isConnected } = useAccount();
   const { pagination } = usePagination({
     first: 20,
@@ -51,10 +53,10 @@ const Forms: NextPage = () => {
           <Thead>
             <Tr>
               <Th></Th>
-              <Th textAlign="left">タイトル</Th>
-              <Th>回答する</Th>
-              <Th>回答一覧</Th>
-              <Th>作成者</Th>
+              <Th textAlign="left">{t("title")}</Th>
+              <Th>{t("answer")}</Th>
+              <Th>{t("answers")}</Th>
+              <Th>{t("creator")}</Th>
               <Th>Arweave</Th>
             </Tr>
           </Thead>
@@ -64,7 +66,7 @@ const Forms: NextPage = () => {
                 <Td textAlign="center">
                   {address && eligibleToAnswer(address, form.id) ? (
                     <>
-                      回答できます
+                      {t("can-answer")}
                       <CheckIcon color="purple" mx="1px" mt="-1px"></CheckIcon>
                     </>
                   ) : (
@@ -83,8 +85,8 @@ const Forms: NextPage = () => {
                       }
                     >
                       {!address || !eligibleToAnswer(address || "", form.id)
-                        ? "回答できません"
-                        : "回答する"}
+                        ? t("cannot-answer")
+                        : t("answer")}
                     </Button>
                   ) : (
                     <Button
@@ -92,7 +94,7 @@ const Forms: NextPage = () => {
                         connect();
                       }}
                     >
-                      ログインし回答権を確認
+                      {t("login-and-answer")}
                     </Button>
                   )}
                 </Td>
@@ -101,7 +103,7 @@ const Forms: NextPage = () => {
                     href={`forms/${form.id}/submissions`}
                     textDecoration="underline"
                   >
-                    回答一覧を見る
+                    {t("view-answers")}
                   </Link>
                 </Td>
                 <Td>

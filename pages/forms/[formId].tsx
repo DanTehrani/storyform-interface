@@ -33,10 +33,12 @@ import { notEmpty, eligibleToAnswer } from "../../utils";
 import ConnectWalletLinkButton from "../../components/ConnectWalletLinkButton";
 import SubmittingFormModal from "../../components/SubmittingFormModal";
 import { motion } from "framer-motion";
+import useTranslation from "next-translate/useTranslation";
 
 const Form: NextPage = () => {
   const { query } = useRouter();
   const router = useRouter();
+  const { t } = useTranslation("form");
 
   const { address, isConnected } = useAccount();
 
@@ -77,16 +79,14 @@ const Form: NextPage = () => {
         initial={{ opacity: 0, scale: 1 }}
         animate={{ opacity: 1, scale: 1 }}
       >
-        <Text fontSize="lg">
-          ご回答ありがとうございます。 回答が反映されるまで数分かかります 。
-        </Text>
+        <Text fontSize="lg">{t("thank-you-for-answering")}</Text>
         <Button
           mt={5}
           onClick={() => {
             router.push(`/forms/${formId}/submissions`);
           }}
         >
-          回答一覧を見る
+          {t("view-answers")}
         </Button>
       </Center>
     );
@@ -99,7 +99,7 @@ const Form: NextPage = () => {
   const handleSubmitClick = async () => {
     if (!allRequiredAnswersProvided) {
       toast({
-        title: "必須項目を入力してください",
+        title: t("please-fill-required-fields"),
         status: "warning",
         duration: 9000,
         isClosable: true
@@ -135,8 +135,9 @@ const Form: NextPage = () => {
         {!isConnected ? (
           <Alert status="warning">
             <AlertIcon />
-            このフォームに回答可能か、
-            <ConnectWalletLinkButton></ConnectWalletLinkButton>しご確認ださい。
+            {t("login-and-check-eligibility", {
+              loginButton: <ConnectWalletLinkButton></ConnectWalletLinkButton>
+            })}
           </Alert>
         ) : (
           <></>
@@ -144,7 +145,7 @@ const Form: NextPage = () => {
         {isConnected && !isEligibleToAnswer ? (
           <Alert status="error">
             <AlertIcon />
-            ログインされたアカウントではこのフォームに回答できません
+            {t("cannot-answer-with-account")}
           </Alert>
         ) : (
           <></>
@@ -207,7 +208,7 @@ const Form: NextPage = () => {
             isLoading={generatingProof || submittingForm}
             isDisabled={!group || !isConnected || !isEligibleToAnswer}
           >
-            送信
+            {t("submit")}
           </Button>
           {!isConnected ? <ConnectWalletButton></ConnectWalletButton> : <></>}
         </ButtonGroup>
