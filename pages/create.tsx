@@ -17,7 +17,7 @@ const SAMPLE_FORM_JSON = {
       label: "The question",
       type: "text|select",
       options: ["option 1", "option 2"],
-      customerAttributes: []
+      customAttributes: []
     }
   ]
 };
