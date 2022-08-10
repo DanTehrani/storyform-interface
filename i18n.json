@@ -5,6 +5,7 @@
     "*": ["common"],
     "/forms": ["forms"],
     "/forms/[formId]/submissions": ["form-submissions"],
-    "/forms/[formId]": ["form"]
+    "/forms/[formId]": ["form"],
+    "/create": ["create"]
   }
 }

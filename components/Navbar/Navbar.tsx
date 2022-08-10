@@ -39,6 +39,10 @@ const Navbar = () => {
 
   const NAV_ITEMS = [
     {
+      label: t("create-a-form"),
+      url: "/create"
+    },
+    {
       label: t("forms"),
       url: "/forms"
     }

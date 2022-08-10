@@ -87,3 +87,8 @@ export type Pagination = {
   first: number;
   after?: string;
 };
+
+export type FormJsonInput = {
+  title: string;
+  questions: FormQuestion[];
+};

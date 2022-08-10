@@ -5749,6 +5749,11 @@ prettier@^2.7.1:
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.7.1.tgz#e235806850d057f97bb08368a4f7d899f7760c64"
   integrity sha512-ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g==
 
+prismjs@^1.28.0:
+  version "1.28.0"
+  resolved "https://registry.yarnpkg.com/prismjs/-/prismjs-1.28.0.tgz#0d8f561fa0f7cf6ebca901747828b149147044b6"
+  integrity sha512-8aaXdYvl1F7iC7Xm1spqSaY/OJBpYW3v+KJ+F17iYxvdc8sfjW194COK5wVhMZX45tGteiBQgdvD/nhxcRwylw==
+
 process@^0.11.10:
   version "0.11.10"
   resolved "https://registry.yarnpkg.com/process/-/process-0.11.10.tgz#7332300e840161bda3e69a1d1d91a7d4bc16f182"
@@ -5994,6 +5999,11 @@ react-remove-scroll@^2.5.4:
     tslib "^2.1.0"
     use-callback-ref "^1.3.0"
     use-sidecar "^1.1.2"
+
+react-simple-code-editor@^0.11.2:
+  version "0.11.2"
+  resolved "https://registry.yarnpkg.com/react-simple-code-editor/-/react-simple-code-editor-0.11.2.tgz#af9da6706b76d2a520bd7b82e3383b329f61cd87"
+  integrity sha512-vLMEDj+qLrZ88zK/8bhRdqM2Mp0cQJCUbHPc/QIfxlIYHzAclaAzPX0TQ4ZI5LTYSP3hsYYOT3EciV2dCG4o0Q==
 
 react-style-singleton@^2.2.1:
   version "2.2.1"
