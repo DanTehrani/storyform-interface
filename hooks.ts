@@ -16,7 +16,7 @@ import {
   Form,
   FormInput,
   FormSubmission,
-  EIP721TypedMessage,
+  WagmiEIP712TypedMessage,
   Pagination,
   FormSubmissionInput
 } from "./types";
@@ -152,10 +152,11 @@ export const useUploadForm = () => {
   const { signTypedDataAsync } = useSignTypedData();
 
   const uploadForm = async form => {
-    const eip712TypedMessage: EIP721TypedMessage = {
+    const eip712TypedMessage: WagmiEIP712TypedMessage = {
       domain: SIGNATURE_DOMAIN[provider.network.name],
       types: SIGNATURE_DATA_TYPES,
-      value: form
+      value: form,
+      primaryType: "Form"
     };
 
     const signature = await signTypedDataAsync(eip712TypedMessage);

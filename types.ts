@@ -35,7 +35,7 @@ export type Proof = {
   publicSignals: any;
 };
 
-export type EIP721TypedMessage = {
+export type WagmiEIP712TypedMessage = {
   domain: {
     [additionalProperties: string]: string;
   };
@@ -51,11 +51,12 @@ export type EIP721TypedMessage = {
     questions: string;
     owner: string;
   };
+  primaryType: string;
 };
 
 export type FormInput = {
   signature: string;
-  eip712TypedMessage: EIP721TypedMessage;
+  eip712TypedMessage: WagmiEIP712TypedMessage;
 };
 
 export type FormSubmission = {
