@@ -70,28 +70,42 @@ const FormEditor: React.FC<Props> = ({ form, onSave, saveButtonLabel }) => {
         >
           <Box minWidth={{ base: 300 }} minHeight={[400]}>
             <Center>
-              <Heading size="md">Form in JSON format</Heading>
+              <Heading size="md">{t("form-in-json-format")}</Heading>
             </Center>
-            <Text mt={3}>{t("recommended-json-editors")}</Text>
+            <Text></Text>
             <UnorderedList>
               <ListItem>
                 <Link
                   isExternal
-                  href="https://jsonformatter.org/json-editor"
+                  href="https://daniel-tehrani-33.gitbook.io/untitled/create-a-form"
                   textDecor="underline"
                 >
-                  Best JSON Editor
+                  {t("form-jon-specification")}
                 </Link>
               </ListItem>
               <ListItem>
-                <Link
-                  isExternal
-                  textDecor="underline"
-                  href="https://jsoneditoronline.org/"
-                >
-                  JSON Editor Online
-                </Link>
+                <Text mt={3}>{t("recommended-json-editors")}</Text>
               </ListItem>
+              <UnorderedList>
+                <ListItem>
+                  <Link
+                    isExternal
+                    href="https://jsonformatter.org/json-editor"
+                    textDecor="underline"
+                  >
+                    Best JSON Editor
+                  </Link>
+                </ListItem>
+                <ListItem>
+                  <Link
+                    isExternal
+                    textDecor="underline"
+                    href="https://jsoneditoronline.org/"
+                  >
+                    JSON Editor Online
+                  </Link>
+                </ListItem>
+              </UnorderedList>
             </UnorderedList>
             <Box border="solid 1px" borderRadius={5} mt={5}>
               <Editor
@@ -109,7 +123,7 @@ const FormEditor: React.FC<Props> = ({ form, onSave, saveButtonLabel }) => {
 
           <Box minWidth={{ base: 300, lg: 500 }} minHeight={[400]}>
             <Center>
-              <Heading size="md">Preview</Heading>
+              <Heading size="md">{t("preview")}</Heading>
             </Center>
             {form && form.title && form.questions ? (
               <Form

@@ -5,7 +5,7 @@ import { InjectedConnector } from "wagmi/connectors/injected";
 import useTranslation from "next-translate/useTranslation";
 
 const ConnectWalletLinkButton = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation("common");
   const { connect } = useConnect({
     connector: new InjectedConnector()
   });

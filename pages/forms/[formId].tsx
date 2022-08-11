@@ -34,6 +34,7 @@ import ConnectWalletLinkButton from "../../components/ConnectWalletLinkButton";
 import SubmittingFormModal from "../../components/SubmittingFormModal";
 import { motion } from "framer-motion";
 import useTranslation from "next-translate/useTranslation";
+import Trans from "next-translate/Trans";
 
 const Form: NextPage = () => {
   const { query } = useRouter();
@@ -135,9 +136,12 @@ const Form: NextPage = () => {
         {!isConnected ? (
           <Alert status="warning">
             <AlertIcon />
-            {t("login-and-check-eligibility", {
-              loginButton: <ConnectWalletLinkButton></ConnectWalletLinkButton>
-            })}
+            <Trans
+              i18nKey="form:login-and-check-eligibility"
+              components={{
+                loginButton: <ConnectWalletLinkButton></ConnectWalletLinkButton>
+              }}
+            ></Trans>
           </Alert>
         ) : (
           <></>
