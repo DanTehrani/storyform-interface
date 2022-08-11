@@ -53,10 +53,7 @@ const FormPage: NextPage = () => {
     return <FormSkeleton></FormSkeleton>;
   }
 
-  const questions = form.questions.map(question => ({
-    ...question,
-    required: true
-  }));
+  const questions = form.questions;
 
   if (submissionComplete) {
     return (

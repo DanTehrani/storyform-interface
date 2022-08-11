@@ -80,7 +80,7 @@ const Form: React.FC<Props> = ({
             ) : question.type === "select" ? (
               <>
                 <Select
-                  placeholder={t("please-select")}
+                  placeholder="Please select"
                   size="lg"
                   variant="outline"
                   // @ts-ignore
@@ -132,7 +132,7 @@ const Form: React.FC<Props> = ({
       </FormControl>
       <ButtonGroup mt={4}>
         <Button onClick={handleSubmitClick} isDisabled={isSubmitDisabled}>
-          {t("submit")}
+          Submit
         </Button>
         {!isConnected ? <ConnectWalletButton></ConnectWalletButton> : <></>}
       </ButtonGroup>
