@@ -6,7 +6,8 @@ import {
   ModalBody,
   ModalCloseButton,
   Button,
-  VStack
+  VStack,
+  ModalHeader
 } from "@chakra-ui/react";
 import { useConnect } from "wagmi";
 import ConnectWalletModalContext from "../contexts/ConnectWalletModalContext";
@@ -37,6 +38,7 @@ const ConnectWalletModal = () => {
     >
       <ModalOverlay></ModalOverlay>
       <ModalContent padding={4}>
+        <ModalHeader>Sign in with</ModalHeader>
         <ModalCloseButton></ModalCloseButton>
         <ModalBody>
           <VStack>

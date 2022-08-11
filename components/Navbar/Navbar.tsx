@@ -80,7 +80,7 @@ const Navbar = () => {
                 textDecoration: "none"
               }}
             >
-              ZK Survey
+              Storyform
             </Link>
           </Text>
           <Box ml={4} display={{ base: "none", md: "flex" }} p="4px" gap={1}>

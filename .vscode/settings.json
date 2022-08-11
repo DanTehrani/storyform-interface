@@ -16,6 +16,7 @@
     "groth",
     "Merkle",
     "snarkjs",
+    "Storyform",
     "Wagmi"
   ]
 }

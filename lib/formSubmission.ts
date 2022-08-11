@@ -53,7 +53,7 @@ export const getSubmissions = async ({
         },
         {
           name: "Type",
-          values: ["submission"],
+          values: ["Submission", "submission"],
           op: "EQ"
         },
         {
