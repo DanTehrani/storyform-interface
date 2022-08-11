@@ -46,6 +46,7 @@ const Submission: NextPage = () => {
   }
 
   const questions = form.questions;
+  const context = form.context;
 
   return (
     <>
@@ -57,15 +58,17 @@ const Submission: NextPage = () => {
             <></>
           )}
           <TableCaption>{form.title}</TableCaption>
-
           <Thead>
             <Tr>
               {questions.map((question, i) => (
                 <Th key={i}>{question.label}</Th>
               ))}
-              <Th>{t("credibility")}</Th>
               <Th>Arweave</Th>
-              <Th>{t("zk-verification-log")}</Th>
+              {context.requireZkMembershipProof ? (
+                <Th>{t("zk-verification-log")}</Th>
+              ) : (
+                <></>
+              )}
             </Tr>
           </Thead>
           <Tbody>
@@ -95,17 +98,20 @@ const Submission: NextPage = () => {
                   </Link>
                   &nbsp; {submission.arweaveTxStatus === 202 ? "(Pending)" : ""}
                 </Td>
-
-                <Td>
-                  <Link
-                    href={getEtherscanLogPageUrl(submission.verificationTx)}
-                    isExternal
-                    textDecoration="underline"
-                  >
-                    {t("zk-verification-log")}
-                    <ExternalLinkIcon mx="1px" mt="-1px" />
-                  </Link>
-                </Td>
+                {context.requireZkMembershipProof ? (
+                  <Td>
+                    <Link
+                      href={getEtherscanLogPageUrl(submission.verificationTx)}
+                      isExternal
+                      textDecoration="underline"
+                    >
+                      {t("zk-verification-log")}
+                      <ExternalLinkIcon mx="1px" mt="-1px" />
+                    </Link>
+                  </Td>
+                ) : (
+                  <></>
+                )}
               </Tr>
             ))}
           </Tbody>
