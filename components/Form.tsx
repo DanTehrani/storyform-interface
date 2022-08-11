@@ -31,7 +31,7 @@ const Form: React.FC<Props> = ({
   const { isConnected } = useAccount();
   const [answers, setAnswers] = useState<string[]>([]);
   const [showOtherInput, setShowOtherInput] = useState<boolean>(false);
-  const { t } = useTranslation("create");
+  const { t } = useTranslation("Form");
 
   const handleInputChange = async (value: string, inputIndex: number) => {
     const newValues = new Array(questions.length)

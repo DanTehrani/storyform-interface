@@ -1,11 +1,11 @@
 {
   "locales": ["en", "ja"],
-  "defaultLocale": "ja",
+  "defaultLocale": "en",
   "pages": {
     "*": ["common"],
     "/forms": ["forms"],
     "/forms/[formId]/submissions": ["form-submissions"],
-    "/forms/[formId]": ["form"],
+    "/forms/[formId]": ["[formId]", "Form"],
     "/create": ["create"]
   }
 }

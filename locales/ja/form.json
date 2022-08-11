@@ -1,7 +1,7 @@
 {
-  "submit": "送信",
-  "thank-you-for-answering": "ご回答ありがとうございます。 回答が反映されるまで数分かかります 。",
-  "view-answers": "回答一覧を見る",
-  "please-fill-required-fields": "必須項目を入力してください",
-  "login-and-check-eligibility": "このフォームに回答可能か <loginButton></loginButton>  しご確認ださい。"
+  "cannot-answer-with-account": "You cannot answer with the account you logged in with",
+  "generating-zk-proof": "Generating zero knowledge proof",
+  "submitting": "Submitting your answer",
+  "submit": "Submit",
+  "please-select": "Please select"
 }

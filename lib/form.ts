@@ -69,19 +69,7 @@ export const getForm = async (formId: string): Promise<Form | null> => {
 
   return {
     ...parsed,
-    context: {
-      requireZkMembershipProof: true
-    },
-    questions: [
-      ...parsed.questions,
-      {
-        label: "test",
-        type: "select",
-        options: ["option1", "option2"],
-        required: true,
-        other: true
-      }
-    ],
+    context: {},
     arweaveTxId: txId
   };
 };
@@ -154,6 +142,7 @@ export const getForms = async ({
             id: getArweaveTxTagValue(tx, "Form-Id"),
             questions: form?.questions,
             title: form?.title,
+            context: form.context || {},
             owner: form?.owner,
             unixTime: form?.unixTime,
             arweaveTxId: tx.id

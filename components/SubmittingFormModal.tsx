@@ -12,6 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { FormContext } from "../types";
 import { CheckIcon } from "@chakra-ui/icons";
+import useTranslation from "next-translate/useTranslation";
 
 const StyledCircularProgress = () => (
   <CircularProgress size={5} isIndeterminate color="purple.300" />
@@ -32,6 +33,7 @@ const SubmittingFormModal = ({
   submittingForm,
   formContext
 }: Props) => {
+  const { t } = useTranslation("Form");
   return (
     <>
       <Modal
@@ -46,26 +48,30 @@ const SubmittingFormModal = ({
           <ModalHeader></ModalHeader>
           <ModalBody>
             <VStack align="left">
-              <HStack>
-                {generatingProof ? (
-                  <StyledCircularProgress></StyledCircularProgress>
-                ) : (
-                  <StyledCheckIcon></StyledCheckIcon>
-                )}
-                {formContext ? <Text>匿名信頼性証明を作成中</Text> : <></>}
-              </HStack>
+              {formContext.requireZkMembershipProof ? (
+                <HStack>
+                  {generatingProof ? (
+                    <StyledCircularProgress></StyledCircularProgress>
+                  ) : (
+                    <StyledCheckIcon></StyledCheckIcon>
+                  )}
+                  <Text>{t("generating-zk-proof")}</Text>
+                </HStack>
+              ) : (
+                <></>
+              )}
               <HStack>
                 {generatingProof ? (
                   <></>
                 ) : submittingForm ? (
                   <>
                     <StyledCircularProgress></StyledCircularProgress>
-                    <Text>回答を送信中</Text>
+                    <Text>{t("submitting")}</Text>
                   </>
                 ) : (
                   <>
                     <StyledCheckIcon></StyledCheckIcon>
-                    <Text>回答を送信中</Text>
+                    <Text>{t("submitting")}</Text>
                   </>
                 )}
               </HStack>

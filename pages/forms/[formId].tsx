@@ -41,7 +41,7 @@ import Form from "../../components/Form";
 const FormPage: NextPage = () => {
   const { query } = useRouter();
   const router = useRouter();
-  const { t } = useTranslation("form");
+  const { t } = useTranslation("[formId]");
 
   const { address, isConnected } = useAccount();
 
@@ -145,7 +145,7 @@ const FormPage: NextPage = () => {
           <Alert status="warning">
             <AlertIcon />
             <Trans
-              i18nKey="form:login-and-check-eligibility"
+              i18nKey="[formId]:login-and-check-eligibility"
               components={{
                 loginButton: <ConnectWalletLinkButton></ConnectWalletLinkButton>
               }}

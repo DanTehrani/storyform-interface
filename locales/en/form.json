@@ -1,8 +1,7 @@
 {
+  "cannot-answer-with-account": "You cannot answer with the account you logged in with",
+  "generating-zk-proof": "Generating zero knowledge proof",
+  "submitting": "Submitting your answer",
   "submit": "Submit",
-  "view-answers": "View answers",
-  "thank-you-for-answering": "Thank you for answering. It will take a couple of minutes for your answer to appear.",
-  "please-fill-required-fields": "Please fill the required fields",
-  "login-and-check-eligibility": "<loginButton></loginButton> and check you eligibility",
-  "cannot-answer-with-account": "You cannot answer with the account you logged in with"
+  "please-select": "Please select"
 }

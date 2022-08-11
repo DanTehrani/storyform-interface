@@ -84,4 +84,6 @@ export const getEtherscanLogPageUrl = (txId: string) =>
   )}.etherscan.io/tx/${txId}#eventlog`;
 
 export const eligibleToAnswer = (address: string, formId: string) =>
+  formId ===
+    "26eb2d0d16802f92c19787daec3fdc0bf4e99240bdc7efa6ac921b904dcd4cc7" || // survey about the survey tool
   address === TEMPORARY_ADMIN_ADDRESS;
