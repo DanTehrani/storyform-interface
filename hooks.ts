@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useEffect } from "react";
 import { getSubmissions } from "./lib/formSubmission";
 import {
@@ -28,6 +28,7 @@ const {
   generateProof: generateSemaphoreMembershipProof
 } = require("@semaphore-protocol/proof");
 import { groth16Prove as generateDataSubmissionProof } from "./lib/zksnark";
+import ConnectWalletModalContext from "./contexts/ConnectWalletModalContext";
 
 const useStoryForm = () => {
   const provider = useProvider({
@@ -283,4 +284,14 @@ export const useGenerateProof = () => {
   };
 
   return { generatingProof, generateProof };
+};
+
+export const useConnectWallet = () => {
+  const { open } = useContext(ConnectWalletModalContext);
+
+  const connect = () => {
+    open();
+  };
+
+  return connect;
 };

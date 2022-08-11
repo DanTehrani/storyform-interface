@@ -1,14 +1,11 @@
 import { Button } from "@chakra-ui/react";
 import useTranslation from "next-translate/useTranslation";
-import { useConnect } from "wagmi";
-import { InjectedConnector } from "wagmi/connectors/injected";
 import EthereumIcon from "./EthereumIcon";
+import { useConnectWallet } from "../hooks";
 
 const ConnectWalletButton = () => {
   const { t } = useTranslation("common");
-  const { connect } = useConnect({
-    connector: new InjectedConnector()
-  });
+  const connect = useConnectWallet();
 
   return (
     <Button

@@ -13,23 +13,50 @@ import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "../components/ErrorFallback";
+import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
+import { InjectedConnector } from "wagmi/connectors/injected";
+import { MetaMaskConnector } from "wagmi/connectors/metaMask";
+import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
+import ConnectWalletModal from "../components/ConnectWalletModal";
+import { ConnectWalletModalProvider } from "../contexts/ConnectWalletModalContext";
 
-const { provider } = configureChains(
-  [chain.hardhat, chain.goerli],
-  [
-    jsonRpcProvider({
-      rpc: chain => {
-        if (chain.id !== 31337) return null;
-        return { http: chain.rpcUrls.default };
-      }
-    }),
-    alchemyProvider({ apiKey: "PT2E3_7VyBJKUCSi_46fGUjKO0bC0auG" })
-  ]
-);
+const chains = [chain.hardhat, chain.goerli];
+
+const { provider } = configureChains(chains, [
+  jsonRpcProvider({
+    rpc: chain => {
+      if (chain.id !== 31337) return null;
+      return { http: chain.rpcUrls.default };
+    }
+  }),
+  alchemyProvider({ apiKey: "PT2E3_7VyBJKUCSi_46fGUjKO0bC0auG" })
+]);
 
 const client = createClient({
   autoConnect: false,
-  provider
+  provider,
+  connectors: [
+    new MetaMaskConnector({ chains }),
+    new CoinbaseWalletConnector({
+      chains,
+      options: {
+        appName: "wagmi"
+      }
+    }),
+    new WalletConnectConnector({
+      chains,
+      options: {
+        qrcode: true
+      }
+    }),
+    new InjectedConnector({
+      chains,
+      options: {
+        name: "Injected",
+        shimDisconnect: true
+      }
+    })
+  ]
 });
 
 const Provider = ({ Component, pageProps }) => {
@@ -46,8 +73,11 @@ const Provider = ({ Component, pageProps }) => {
 
   return (
     <ChakraProvider>
-      <Navbar></Navbar>
-      <Component pageProps={pageProps} />
+      <ConnectWalletModalProvider>
+        <Navbar></Navbar>
+        <Component pageProps={pageProps} />
+        <ConnectWalletModal></ConnectWalletModal>
+      </ConnectWalletModalProvider>
     </ChakraProvider>
   );
 };
