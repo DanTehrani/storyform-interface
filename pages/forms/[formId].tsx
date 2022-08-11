@@ -21,7 +21,8 @@ import {
   useGroup,
   useForm,
   useSubmitForm,
-  useGenerateProof
+  useGenerateProof,
+  useGetSubmissionId
 } from "../../hooks";
 import FormNotFound from "../../components/FormNotFound";
 import { useRouter } from "next/router";
@@ -51,6 +52,7 @@ const FormPage: NextPage = () => {
   const { form, formNotFound } = useForm(formId);
   const { submitForm, submissionComplete, submittingForm } = useSubmitForm();
   const { generatingProof, generateProof } = useGenerateProof();
+  const getSubmissionId = useGetSubmissionId();
 
   if (formNotFound) {
     return <FormNotFound></FormNotFound>;
@@ -106,17 +108,31 @@ const FormPage: NextPage = () => {
         isClosable: true
       });
     } else if (address) {
-      const { submissionId, membershipFullProof, dataSubmissionFullProof } =
-        await generateProof(formId, group);
+      if (form.context.requireZkMembershipProof) {
+        const { submissionId, membershipFullProof, dataSubmissionFullProof } =
+          await generateProof(formId, group);
 
-      submitForm({
-        formId,
-        submissionId: submissionId.toString(),
-        membershipProof: JSON.stringify(membershipFullProof, null, 0),
-        dataSubmissionProof: JSON.stringify(dataSubmissionFullProof, null, 0),
-        answers,
-        unixTime: Math.floor(Date.now() / 1000)
-      });
+        submitForm({
+          formId,
+          submissionId: submissionId.toString(),
+          membershipProof: JSON.stringify(membershipFullProof, null, 0),
+          dataSubmissionProof: JSON.stringify(dataSubmissionFullProof, null, 0),
+          answers,
+          unixTime: Math.floor(Date.now() / 1000)
+        });
+      } else if (form.context.requireSignature) {
+        // Submit with a signature
+        // TODO: Implement this
+      } else {
+        const submissionId = await getSubmissionId(formId);
+
+        submitForm({
+          formId,
+          submissionId: submissionId.toString(),
+          answers,
+          unixTime: Math.floor(Date.now() / 1000)
+        });
+      }
     }
   };
 
@@ -157,6 +173,7 @@ const FormPage: NextPage = () => {
         generatingProof={generatingProof}
         submittingForm={submittingForm}
         isOpen={generatingProof || submittingForm}
+        formContext={form.context}
       ></SubmittingFormModal>
     </Center>
   );

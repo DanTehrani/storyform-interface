@@ -221,6 +221,22 @@ export const usePagination = (
   };
 };
 
+export const useGetSubmissionId = () => {
+  const getIdentitySecret = useGetIdentitySecret();
+
+  const getSubmissionId = async (formId: string): Promise<bigint> => {
+    const secret = await getIdentitySecret();
+
+    const secretBI = BigInt(secret);
+    const formIdBI = BigInt(`0x${formId.slice(2)}`);
+    const submissionId = poseidon([secretBI, formIdBI]);
+
+    return submissionId;
+  };
+
+  return getSubmissionId;
+};
+
 export const useGenerateProof = () => {
   const [generatingProof, setGeneratingProof] = useState<boolean>(false);
   const getIdentitySecret = useGetIdentitySecret();

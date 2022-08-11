@@ -18,7 +18,14 @@ export type Form = {
   unixTime: number;
   questions: FormQuestion[];
   owner: string;
+  context: FormContext;
   arweaveTxId: string;
+};
+
+export type FormContext = {
+  groupId?: number;
+  requireZkMembershipProof: boolean;
+  requireSignature: boolean;
 };
 
 export type FormAnswer = {
@@ -74,8 +81,8 @@ export type FormSubmissionInput = {
   formId: string;
   answers: string[];
   submissionId: string;
-  membershipProof: string;
-  dataSubmissionProof: string;
+  membershipProof?: string;
+  dataSubmissionProof?: string;
   unixTime: number;
 };
 

@@ -69,6 +69,9 @@ export const getForm = async (formId: string): Promise<Form | null> => {
 
   return {
     ...parsed,
+    context: {
+      requireZkMembershipProof: true
+    },
     questions: [
       ...parsed.questions,
       {

@@ -10,6 +10,7 @@ import {
   HStack,
   VStack
 } from "@chakra-ui/react";
+import { FormContext } from "../types";
 import { CheckIcon } from "@chakra-ui/icons";
 
 const StyledCircularProgress = () => (
@@ -18,7 +19,19 @@ const StyledCircularProgress = () => (
 
 const StyledCheckIcon = () => <CheckIcon color="purple.300"></CheckIcon>;
 
-const SubmittingFormModal = ({ isOpen, generatingProof, submittingForm }) => {
+type Props = {
+  isOpen: boolean;
+  generatingProof: boolean;
+  submittingForm: boolean;
+  formContext: FormContext;
+};
+
+const SubmittingFormModal = ({
+  isOpen,
+  generatingProof,
+  submittingForm,
+  formContext
+}: Props) => {
   return (
     <>
       <Modal
@@ -39,7 +52,7 @@ const SubmittingFormModal = ({ isOpen, generatingProof, submittingForm }) => {
                 ) : (
                   <StyledCheckIcon></StyledCheckIcon>
                 )}
-                <Text>匿名信頼性証明を作成中</Text>
+                {formContext ? <Text>匿名信頼性証明を作成中</Text> : <></>}
               </HStack>
               <HStack>
                 {generatingProof ? (
