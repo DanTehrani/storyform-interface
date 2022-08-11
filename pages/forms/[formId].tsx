@@ -1,21 +1,13 @@
-import { useState } from "react";
 import type { NextPage } from "next";
 import {
-  Link,
   AlertIcon,
   Alert,
-  Heading,
-  Box,
-  FormControl,
-  FormLabel,
   Button,
-  Input,
   Text,
-  Select,
   Center,
   Container,
-  ButtonGroup,
-  useToast
+  useToast,
+  VStack
 } from "@chakra-ui/react";
 import {
   useGroup,
@@ -27,7 +19,6 @@ import {
 import FormNotFound from "../../components/FormNotFound";
 import { useRouter } from "next/router";
 import { SEMAPHORE_GROUP_ID } from "../../config";
-import ConnectWalletButton from "../../components/ConnectWalletButton";
 import FormSkeleton from "../../components/FormSkeleton";
 import { useAccount } from "wagmi";
 import { notEmpty, eligibleToAnswer } from "../../utils";
@@ -141,27 +132,39 @@ const FormPage: NextPage = () => {
   return (
     <Center width="100%" display={"flex"} flexDirection="column" p={6}>
       <Container maxW={640}>
-        {!isConnected ? (
+        <VStack spacing={4}>
           <Alert status="warning">
             <AlertIcon />
-            <Trans
-              i18nKey="[formId]:login-and-check-eligibility"
-              components={{
-                loginButton: <ConnectWalletLinkButton></ConnectWalletLinkButton>
-              }}
-            ></Trans>
+            <Text>
+              Your answer will be uploaded to Arweave. You may not be able to
+              delete your submission, so please carefully consider what
+              information to enter.
+            </Text>
           </Alert>
-        ) : (
-          <></>
-        )}
-        {isConnected && !isEligibleToAnswer ? (
-          <Alert status="error">
-            <AlertIcon />
-            {t("cannot-answer-with-account")}
-          </Alert>
-        ) : (
-          <></>
-        )}
+          {!isConnected ? (
+            <Alert status="warning">
+              <AlertIcon />
+              <Trans
+                i18nKey="[formId]:login-and-check-eligibility"
+                components={{
+                  loginButton: (
+                    <ConnectWalletLinkButton></ConnectWalletLinkButton>
+                  )
+                }}
+              ></Trans>
+            </Alert>
+          ) : (
+            <></>
+          )}
+          {isConnected && !isEligibleToAnswer ? (
+            <Alert status="error">
+              <AlertIcon />
+              {t("cannot-answer-with-account")}
+            </Alert>
+          ) : (
+            <></>
+          )}
+        </VStack>
         <Form
           title={form.title}
           questions={form.questions}
