@@ -9,6 +9,7 @@ export interface FormQuestion {
   customAttributes: FormCustomAttribute[];
   required?: boolean;
   options?: string[];
+  other?: boolean;
 }
 
 export type Form = {

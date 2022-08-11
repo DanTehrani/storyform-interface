@@ -30,6 +30,7 @@ const Form: React.FC<Props> = ({
 }) => {
   const { isConnected } = useAccount();
   const [answers, setAnswers] = useState<string[]>([]);
+  const [showOtherInput, setShowOtherInput] = useState<boolean>(false);
   const { t } = useTranslation();
 
   const handleInputChange = async (value: string, inputIndex: number) => {
@@ -77,21 +78,52 @@ const Form: React.FC<Props> = ({
                 placeholder="Enter here"
               ></Input>
             ) : question.type === "select" ? (
-              <Select
-                placeholder={question.label}
-                size="lg"
-                variant="outline"
-                // @ts-ignore
-                onChange={e => {
-                  handleInputChange(e.target.value, i);
-                }}
-              >
-                {question.options?.map(option => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </Select>
+              <>
+                <Select
+                  placeholder={question.label}
+                  size="lg"
+                  variant="outline"
+                  // @ts-ignore
+                  onChange={e => {
+                    if (question.other && e.target.value === "other") {
+                      setShowOtherInput(true);
+                      handleInputChange("", i);
+                    } else {
+                      handleInputChange(e.target.value, i);
+                      setShowOtherInput(false);
+                    }
+                  }}
+                >
+                  {question.options?.map(option => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                  {question.other ? (
+                    <option key="other" value="other">
+                      Other
+                    </option>
+                  ) : (
+                    <></>
+                  )}
+                </Select>
+                {question.other && showOtherInput ? (
+                  <Input
+                    mt={4}
+                    borderWidth={"0px 0px 1px 0px"}
+                    borderRadius={0}
+                    padding={"0px 0px 8px"}
+                    variant="unstyled"
+                    onChange={e => {
+                      handleInputChange(e.target.value, i);
+                    }}
+                    required={question.required}
+                    placeholder="Enter here"
+                  ></Input>
+                ) : (
+                  <></>
+                )}
+              </>
             ) : (
               <></>
             )}

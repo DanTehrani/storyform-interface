@@ -35,8 +35,9 @@ import SubmittingFormModal from "../../components/SubmittingFormModal";
 import { motion } from "framer-motion";
 import useTranslation from "next-translate/useTranslation";
 import Trans from "next-translate/Trans";
+import Form from "../../components/Form";
 
-const Form: NextPage = () => {
+const FormPage: NextPage = () => {
   const { query } = useRouter();
   const router = useRouter();
   const { t } = useTranslation("form");
@@ -45,7 +46,6 @@ const Form: NextPage = () => {
 
   const toast = useToast();
 
-  const [answers, setAnswers] = useState<string[]>([]);
   const { group } = useGroup(SEMAPHORE_GROUP_ID);
   const formId = query.formId?.toString();
   const { form, formNotFound } = useForm(formId);
@@ -64,11 +64,6 @@ const Form: NextPage = () => {
     ...question,
     required: true
   }));
-
-  const allRequiredAnswersProvided = !questions.some(({ required }, i) => {
-    const answer = answers.find((_, index) => index === i);
-    return required && (answer === "" || !notEmpty(answer));
-  });
 
   if (submissionComplete) {
     return (
@@ -97,7 +92,12 @@ const Form: NextPage = () => {
     return <></>;
   }
 
-  const handleSubmitClick = async () => {
+  const handleSubmitClick = async answers => {
+    const allRequiredAnswersProvided = !questions.some(({ required }, i) => {
+      const answer = answers.find((_, index) => index === i);
+      return required && (answer === "" || !notEmpty(answer));
+    });
+
     if (!allRequiredAnswersProvided) {
       toast({
         title: t("please-fill-required-fields"),
@@ -118,14 +118,6 @@ const Form: NextPage = () => {
         unixTime: Math.floor(Date.now() / 1000)
       });
     }
-  };
-
-  const handleInputChange = async (value: string, inputIndex: number) => {
-    const newValues = new Array(questions.length)
-      .fill("")
-      .map((_, i) => (i === inputIndex ? value : answers[i] || ""));
-
-    setAnswers(newValues);
   };
 
   const isEligibleToAnswer = address && eligibleToAnswer(address, formId);
@@ -154,68 +146,12 @@ const Form: NextPage = () => {
         ) : (
           <></>
         )}
-        <Heading size="md" mb={3} mt={6}>
-          {form.title}
-        </Heading>
-        <FormControl>
-          {questions.map((question, i) => (
-            <Box
-              key={i}
-              padding="24px"
-              borderWidth={1}
-              borderRadius={10}
-              mb={3}
-              bgColor="white"
-              borderColor="lightgrey"
-            >
-              <FormLabel mb={4}>
-                {question.label}
-                {question.required ? " *" : ""}
-              </FormLabel>
-              {question.type === "text" ? (
-                <Input
-                  borderWidth={"0px 0px 1px 0px"}
-                  borderRadius={0}
-                  padding={"0px 0px 8px"}
-                  variant="unstyled"
-                  onChange={e => {
-                    handleInputChange(e.target.value, i);
-                  }}
-                  required={question.required}
-                  placeholder="Enter here"
-                ></Input>
-              ) : question.type === "select" ? (
-                <Select
-                  placeholder={question.label}
-                  size="lg"
-                  variant="outline"
-                  // @ts-ignore
-                  onChange={e => {
-                    handleInputChange(e.target.value, i);
-                  }}
-                >
-                  {question.options?.map(option => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </Select>
-              ) : (
-                <></>
-              )}
-            </Box>
-          ))}
-        </FormControl>
-        <ButtonGroup mt={4}>
-          <Button
-            onClick={handleSubmitClick}
-            isLoading={generatingProof || submittingForm}
-            isDisabled={!group || !isConnected || !isEligibleToAnswer}
-          >
-            {t("submit")}
-          </Button>
-          {!isConnected ? <ConnectWalletButton></ConnectWalletButton> : <></>}
-        </ButtonGroup>
+        <Form
+          title={form.title}
+          questions={form.questions}
+          isSubmitDisabled={false}
+          onSubmit={handleSubmitClick}
+        ></Form>
       </Container>
       <SubmittingFormModal
         generatingProof={generatingProof}
@@ -226,4 +162,4 @@ const Form: NextPage = () => {
   );
 };
 
-export default Form;
+export default FormPage;

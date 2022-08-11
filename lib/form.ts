@@ -65,8 +65,20 @@ export const getForm = async (formId: string): Promise<Form | null> => {
     return null;
   }
 
+  const parsed = JSON.parse(data);
+
   return {
-    ...JSON.parse(data),
+    ...parsed,
+    questions: [
+      ...parsed.questions,
+      {
+        label: "test",
+        type: "select",
+        options: ["option1", "option2"],
+        required: true,
+        other: true
+      }
+    ],
     arweaveTxId: txId
   };
 };
