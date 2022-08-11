@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { ExternalLinkIcon, CheckIcon } from "@chakra-ui/icons";
 import type { NextPage } from "next";
-import { useForms, usePagination } from "../hooks";
+import { useForms, usePagination, useConnectWallet } from "../hooks";
 import { useAccount } from "wagmi";
 import IndexPageSkeleton from "../components/IndexPageSkeleton";
 import {
@@ -19,8 +19,6 @@ import {
   getEtherscanUrl,
   getTxArweaveExplorerUrl
 } from "../utils";
-import { useConnect } from "wagmi";
-import { InjectedConnector } from "wagmi/connectors/injected";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
 
@@ -33,10 +31,7 @@ const Forms: NextPage = () => {
   });
   const forms = useForms(pagination);
   const router = useRouter();
-
-  const { connect } = useConnect({
-    connector: new InjectedConnector()
-  });
+  const connect = useConnectWallet();
 
   if (!forms) {
     return <IndexPageSkeleton></IndexPageSkeleton>;
