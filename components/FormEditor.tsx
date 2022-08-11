@@ -125,10 +125,10 @@ const FormEditor: React.FC<Props> = ({ form, onSave, saveButtonLabel }) => {
             <Center>
               <Heading size="md">{t("preview")}</Heading>
             </Center>
-            {form && form.title && form.questions ? (
+            {_form && _form.title && _form.questions ? (
               <Form
-                title={form.title}
-                questions={form.questions}
+                title={_form.title}
+                questions={_form.questions}
                 isSubmitDisabled={true}
                 onSubmit={() => {
                   //

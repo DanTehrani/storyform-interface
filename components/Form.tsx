@@ -31,7 +31,7 @@ const Form: React.FC<Props> = ({
   const { isConnected } = useAccount();
   const [answers, setAnswers] = useState<string[]>([]);
   const [showOtherInput, setShowOtherInput] = useState<boolean>(false);
-  const { t } = useTranslation();
+  const { t } = useTranslation("create");
 
   const handleInputChange = async (value: string, inputIndex: number) => {
     const newValues = new Array(questions.length)
@@ -80,7 +80,7 @@ const Form: React.FC<Props> = ({
             ) : question.type === "select" ? (
               <>
                 <Select
-                  placeholder={question.label}
+                  placeholder={t("please-select")}
                   size="lg"
                   variant="outline"
                   // @ts-ignore

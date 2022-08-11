@@ -4,5 +4,6 @@
   "login-and-create": "作成",
   "form-in-json-format": "フォーム（JSON形式）",
   "preview": "プレビュー",
-  "form-jon-specification": "フォームのJSON形式について"
+  "form-jon-specification": "フォームのJSON形式について",
+  "please-select": "選択してください"
 }

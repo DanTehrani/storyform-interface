@@ -4,5 +4,6 @@
   "login-and-create": "Create",
   "form-in-json-format": "Form in JSON format",
   "preview": "Preview",
-  "form-jon-specification": "About the form JSON specification"
+  "form-jon-specification": "About the form JSON specification",
+  "please-select": "Please select"
 }
