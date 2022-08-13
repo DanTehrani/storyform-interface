@@ -1,4 +1,16 @@
-import { Heading, Center, Container } from "@chakra-ui/react";
+import { useContext } from "react";
+import {
+  Button,
+  Heading,
+  Center,
+  Container,
+  Box,
+  Tabs,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tab
+} from "@chakra-ui/react";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { useUploadForm } from "../hooks";
@@ -7,20 +19,9 @@ import { getCurrentUnixTime } from "../utils";
 import useTranslation from "next-translate/useTranslation";
 import { useConnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
-import FormEditor from "../components/FormEditor";
-import { Form } from "../types";
-
-const SAMPLE_FORM_JSON = {
-  title: "Title of your form",
-  questions: [
-    {
-      label: "The question",
-      type: "text|select",
-      options: ["option 1", "option 2"],
-      customAttributes: []
-    }
-  ]
-};
+import CreateFormContext from "../contexts/CreateFormContext";
+import FormQuestionsTab from "../components/Create/FormQuestionsTab";
+import FormSettingsTab from "../components/Create/FormSettingsTab";
 
 const Create: NextPage = () => {
   const { t } = useTranslation("create");
@@ -30,31 +31,46 @@ const Create: NextPage = () => {
     connector: new InjectedConnector()
   });
 
-  const handleCreateClick = async (form: Form) => {
+  const { formInput, setFormInput } = useContext(CreateFormContext);
+
+  const handleCreateClick = async () => {
     if (!isConnected) {
       await connectAsync();
     }
 
-    const formInput = {
+    uploadForm({
       owner: address,
       unixTime: getCurrentUnixTime(),
-      title: form.title,
-      questions: form.questions
-    };
-
-    uploadForm(formInput);
+      title: formInput.title,
+      questions: formInput.questions
+    });
   };
 
   return (
-    <Container mt={10} maxW={[1400]}>
+    <Container mt={10} maxW={[700]}>
+      <Box textAlign="right">
+        <Button variant="solid" colorScheme="teal" onClick={handleCreateClick}>
+          Publish
+        </Button>
+      </Box>
       <Center>
         <Heading>{t("create-a-form")}</Heading>
       </Center>
-      <FormEditor
-        form={SAMPLE_FORM_JSON}
-        onSave={handleCreateClick}
-        saveButtonLabel={t("login-and-create")}
-      ></FormEditor>
+
+      <Tabs mt={4}>
+        <TabList>
+          <Tab>Questions</Tab>
+          <Tab>Settings</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            <FormQuestionsTab></FormQuestionsTab>
+          </TabPanel>
+          <TabPanel>
+            <FormSettingsTab></FormSettingsTab>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     </Container>
   );
 };

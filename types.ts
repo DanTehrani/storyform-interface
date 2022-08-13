@@ -5,7 +5,7 @@ export type FormCustomAttribute = {
 
 export interface FormQuestion {
   label: string;
-  type: string;
+  type: string; // text, select, checkbox
   customAttributes: FormCustomAttribute[];
   required?: boolean;
   options?: string[];
@@ -100,4 +100,14 @@ export type Pagination = {
 export type FormJsonInput = {
   title: string;
   questions: FormQuestion[];
+};
+
+export type FormSettings = {
+  requireEthereumWallet: boolean;
+};
+
+export type CreateFormInput = {
+  title: string;
+  questions: FormQuestion[];
+  settings: FormSettings;
 };
