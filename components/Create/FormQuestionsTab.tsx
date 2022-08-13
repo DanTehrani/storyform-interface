@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { Button, Center, Input, Stack } from "@chakra-ui/react";
+import { SmallAddIcon } from "@chakra-ui/icons";
 import FormInputCard from "../../components/FormInputCard";
 import CreateFormContext from "../../contexts/CreateFormContext";
 
@@ -108,7 +109,12 @@ const FormQuestionsTab = () => {
         ))}
       </Stack>
       <Center mt={4}>
-        <Button onClick={handleAddQuestionClick}>Add a question</Button>
+        <Button
+          onClick={handleAddQuestionClick}
+          leftIcon={<SmallAddIcon></SmallAddIcon>}
+        >
+          Add a question
+        </Button>
       </Center>
     </>
   );

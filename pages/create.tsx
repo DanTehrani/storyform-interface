@@ -22,16 +22,26 @@ import { InjectedConnector } from "wagmi/connectors/injected";
 import CreateFormContext from "../contexts/CreateFormContext";
 import FormQuestionsTab from "../components/Create/FormQuestionsTab";
 import FormSettingsTab from "../components/Create/FormSettingsTab";
+import ConnectWalletButton from "../components/ConnectWalletButton";
+
+const CreateFormHeading = () => {
+  const { t } = useTranslation("create");
+
+  return (
+    <Center>
+      <Heading>{t("create-a-form")}</Heading>
+    </Center>
+  );
+};
 
 const Create: NextPage = () => {
-  const { t } = useTranslation("create");
   const { isConnected, address } = useAccount();
   const uploadForm = useUploadForm();
   const { connectAsync } = useConnect({
     connector: new InjectedConnector()
   });
 
-  const { formInput, setFormInput } = useContext(CreateFormContext);
+  const { formInput } = useContext(CreateFormContext);
 
   const handleCreateClick = async () => {
     if (!isConnected) {
@@ -46,6 +56,17 @@ const Create: NextPage = () => {
     });
   };
 
+  if (!isConnected) {
+    return (
+      <Container mt={10} maxW={[700]}>
+        <CreateFormHeading></CreateFormHeading>
+        <Center mt={4}>
+          <ConnectWalletButton></ConnectWalletButton>
+        </Center>
+      </Container>
+    );
+  }
+
   return (
     <Container mt={10} maxW={[700]}>
       <Box textAlign="right">
@@ -53,10 +74,7 @@ const Create: NextPage = () => {
           Publish
         </Button>
       </Box>
-      <Center>
-        <Heading>{t("create-a-form")}</Heading>
-      </Center>
-
+      <CreateFormHeading></CreateFormHeading>
       <Tabs mt={4}>
         <TabList>
           <Tab>Questions</Tab>
