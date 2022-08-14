@@ -1,6 +1,6 @@
-import { createContext, useState } from "react";
+import { createContext, useCallback, useState } from "react";
 import {
-  CreateFormInput,
+  FormInput,
   FormQuestion,
   FormSettings,
   ICreateFormContext
@@ -28,25 +28,29 @@ const defaultState = {
 const CreateFormContext = createContext<ICreateFormContext>(defaultState);
 
 export const CreateFormContextProvider = ({ children }) => {
-  const [formInput, setFormInput] = useState<CreateFormInput>(
-    defaultState.formInput
+  const [formInput, setFormInput] = useState<FormInput>(defaultState.formInput);
+
+  const updateQuestion = useCallback(
+    (question: FormQuestion, questionIndex) => {
+      setFormInput(_formInput => ({
+        ..._formInput,
+        questions: _formInput.questions.map((q, i) =>
+          i === questionIndex ? question : q
+        )
+      }));
+    },
+    [setFormInput]
   );
 
-  const updateQuestion = (question: FormQuestion, questionIndex) => {
-    setFormInput({
-      ...formInput,
-      questions: formInput.questions.map((q, i) =>
-        i === questionIndex ? question : q
-      )
-    });
-  };
-
-  const updateSettings = (settings: FormSettings) => {
-    setFormInput({
-      ...formInput,
-      settings
-    });
-  };
+  const updateSettings = useCallback(
+    (settings: FormSettings) => {
+      setFormInput(_formInput => ({
+        ..._formInput,
+        settings
+      }));
+    },
+    [setFormInput]
+  );
 
   return (
     <CreateFormContext.Provider

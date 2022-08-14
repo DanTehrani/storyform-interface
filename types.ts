@@ -63,11 +63,6 @@ export type WagmiEIP712TypedMessage = {
   primaryType: string;
 };
 
-export type FormInput = {
-  signature: string;
-  eip712TypedMessage: WagmiEIP712TypedMessage;
-};
-
 export type FormSubmission = {
   formId: string;
   answers: string[];
@@ -107,23 +102,22 @@ export type FormSettings = {
   requireEthereumWallet: boolean;
 };
 
-// TODO: update the name to FormInput
-export type CreateFormInput = {
+export type FormInput = {
   title: string;
   questions: FormQuestion[];
   settings: FormSettings;
 };
 
 export interface ICreateFormContext {
-  formInput: CreateFormInput;
-  setFormInput: (formInput: CreateFormInput) => void;
+  formInput: FormInput;
+  setFormInput: (formInput: FormInput) => void;
   updateQuestion: (question: FormQuestion, questionIndex: number) => void;
   updateSettings: (settings: FormSettings) => void;
 }
 
 export interface IEditFormContext {
-  formInput: CreateFormInput;
-  setFormInput: (formInput: CreateFormInput) => void;
+  formInput: FormInput;
+  setFormInput: (formInput: FormInput) => void;
   updateQuestion: (question: FormQuestion, questionIndex: number) => void;
   updateSettings: (settings: FormSettings) => void;
   getForm: (formId: string) => void;

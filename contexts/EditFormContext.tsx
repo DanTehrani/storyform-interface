@@ -1,6 +1,6 @@
 import { createContext, useCallback, useState } from "react";
 import {
-  CreateFormInput,
+  FormInput,
   FormQuestion,
   FormSettings,
   IEditFormContext
@@ -31,27 +31,31 @@ const defaultState = {
 const EditFormContext = createContext<IEditFormContext>(defaultState);
 
 export const EditFormContextProvider = ({ children }) => {
-  const [formInput, setFormInput] = useState<CreateFormInput>(
-    defaultState.formInput
-  );
+  const [formInput, setFormInput] = useState<FormInput>(defaultState.formInput);
 
   const [formNotFound, setFormNotFound] = useState<boolean>(false);
 
-  const updateQuestion = (question: FormQuestion, questionIndex) => {
-    setFormInput({
-      ...formInput,
-      questions: formInput.questions.map((q, i) =>
-        i === questionIndex ? question : q
-      )
-    });
-  };
+  const updateQuestion = useCallback(
+    (question: FormQuestion, questionIndex) => {
+      setFormInput(_formInput => ({
+        ..._formInput,
+        questions: _formInput.questions.map((q, i) =>
+          i === questionIndex ? question : q
+        )
+      }));
+    },
+    [setFormInput]
+  );
 
-  const updateSettings = (settings: FormSettings) => {
-    setFormInput({
-      ...formInput,
-      settings
-    });
-  };
+  const updateSettings = useCallback(
+    (settings: FormSettings) => {
+      setFormInput(_formInput => ({
+        ..._formInput,
+        settings
+      }));
+    },
+    [setFormInput]
+  );
 
   const getForm = useCallback(async (formId: string) => {
     const _form = await _getForm(formId);

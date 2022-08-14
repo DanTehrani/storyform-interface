@@ -14,7 +14,6 @@ import { poseidon } from "circomlibjs";
 import { Identity } from "@semaphore-protocol/identity";
 import {
   Form,
-  FormInput,
   FormSubmission,
   WagmiEIP712TypedMessage,
   Pagination,
@@ -168,7 +167,7 @@ export const useUploadForm = () => {
 
     const signature = await signTypedDataAsync(eip712TypedMessage);
 
-    const formInput: FormInput = {
+    const formInput = {
       signature,
       eip712TypedMessage
     };
