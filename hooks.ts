@@ -147,12 +147,18 @@ export const useSubmissions = (
 };
 
 export const useUploadForm = () => {
+  const [uploading, setUploading] = useState<boolean>(false);
+  const [uploadComplete, setUploadComplete] = useState<boolean>(false);
+  const [url, setUrl] = useState<string | null>();
   const provider = useProvider({
     chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "31337")
   });
   const { signTypedDataAsync } = useSignTypedData();
 
   const uploadForm = async form => {
+    setUploading(true);
+    // Get the id
+
     const eip712TypedMessage: WagmiEIP712TypedMessage = {
       domain: SIGNATURE_DOMAIN[provider.network.name],
       types: SIGNATURE_DATA_TYPES,
@@ -168,9 +174,11 @@ export const useUploadForm = () => {
     };
 
     await axios.post("/forms", formInput);
+    setUploading(false);
+    setUploadComplete(true);
   };
 
-  return uploadForm;
+  return { uploading, uploadForm, uploadComplete, url };
 };
 
 export const useForms = (pagination: Pagination): Form[] | undefined => {

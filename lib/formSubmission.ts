@@ -12,7 +12,7 @@ import {
 } from "../utils";
 
 export const submitAnswer = async (submission: FormSubmissionInput) => {
-  const res = await axios.post(`/answers`, submission);
+  //  const res = await axios.post(`/answers`, submission);
 };
 
 export const getSubmissions = async ({

@@ -16,6 +16,7 @@ import {
   ChevronDownIcon
 } from "@chakra-ui/icons";
 import CreateFormContext from "../contexts/CreateFormContext";
+import EditFormContext from "../contexts/EditFormContext";
 import { FormQuestion } from "../types";
 
 const SelectInput = ({
@@ -84,10 +85,12 @@ type Props = {
   formQuestionIndex: number;
   deleteQuestion: () => void;
   moveQuestionUp: () => void;
+  context: any;
   moveQuestionDown: () => void;
 };
 
 const CreateFormQuestionCard: React.FC<Props> = ({
+  context,
   formQuestion,
   formQuestionIndex,
   deleteQuestion,
@@ -95,8 +98,7 @@ const CreateFormQuestionCard: React.FC<Props> = ({
   moveQuestionDown
 }) => {
   // Depending on the type, gotta show something different.
-  const { formInput, setFormInput, updateQuestion } =
-    useContext(CreateFormContext);
+  const { formInput, setFormInput, updateQuestion } = useContext(context);
 
   const handleQuestionLabelChange = value => {
     setFormInput({

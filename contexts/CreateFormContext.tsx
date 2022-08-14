@@ -1,12 +1,10 @@
 import { createContext, useState } from "react";
-import { CreateFormInput, FormQuestion, FormSettings } from "../types";
-
-interface ICreateFormContext {
-  formInput: CreateFormInput;
-  setFormInput: (formInput: CreateFormInput) => void;
-  updateQuestion: (question: FormQuestion, questionIndex: number) => void;
-  updateSettings: (settings: FormSettings) => void;
-}
+import {
+  CreateFormInput,
+  FormQuestion,
+  FormSettings,
+  ICreateFormContext
+} from "../types";
 
 const defaultState = {
   formInput: {

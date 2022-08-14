@@ -1,9 +1,8 @@
 import { useContext } from "react";
 import { Stack, Checkbox } from "@chakra-ui/react";
-import CreateFormContext from "../../contexts/CreateFormContext";
 
-const FormSettingsTab = () => {
-  const { formInput, updateSettings } = useContext(CreateFormContext);
+const FormSettingsTab = ({ context }) => {
+  const { formInput, updateSettings } = useContext(context);
 
   return (
     <Stack>

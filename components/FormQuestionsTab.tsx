@@ -1,11 +1,10 @@
 import { useContext } from "react";
 import { Button, Center, Input, Stack } from "@chakra-ui/react";
 import { SmallAddIcon } from "@chakra-ui/icons";
-import FormInputCard from "../../components/FormInputCard";
-import CreateFormContext from "../../contexts/CreateFormContext";
+import FormInputCard from "./FormInputCard";
 
-const FormQuestionsTab = () => {
-  const { formInput, setFormInput } = useContext(CreateFormContext);
+const FormQuestionsTab = ({ context }) => {
+  const { formInput, setFormInput } = useContext(context);
 
   const handleAddQuestionClick = () => {
     setFormInput({
@@ -93,6 +92,7 @@ const FormQuestionsTab = () => {
       <Stack gap={4} mt={4}>
         {formInput.questions.map((formQuestion, i) => (
           <FormInputCard
+            context={context}
             key={i}
             formQuestion={formQuestion}
             formQuestionIndex={i}

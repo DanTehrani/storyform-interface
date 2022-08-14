@@ -162,3 +162,43 @@ export const getForms = async ({
 
   return forms;
 };
+
+export const getUserForms = async (address: string, pagination: Pagination) => {
+  const result = await arweaveGraphQl.query({
+    query: gql`
+      query transactions($first: Int!, $after: String, $tags: [TagFilter!]) {
+        transactions(first: $first, after: $after, tags: $tags) {
+          edges {
+            node {
+              id
+              tags {
+                value
+                name
+              }
+            }
+          }
+        }
+      }
+    `,
+    variables: {
+      first: pagination.first,
+      after: pagination.after,
+      tags: [
+        {
+          name: "App-Id",
+          values: [APP_ID],
+          op: "EQ"
+        },
+        {
+          name: "Type",
+          values: ["Form"],
+          op: "EQ"
+        }
+      ]
+    }
+  });
+};
+
+const getNextFormId = async (address: string) => {
+  //  await getUserForms(address);
+};

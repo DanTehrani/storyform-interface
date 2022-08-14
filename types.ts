@@ -17,6 +17,7 @@ export type Form = {
   title: string;
   unixTime: number;
   questions: FormQuestion[];
+  settings: FormSettings;
   owner: string;
   context: FormContext;
   arweaveTxId: string;
@@ -106,8 +107,25 @@ export type FormSettings = {
   requireEthereumWallet: boolean;
 };
 
+// TODO: update the name to FormInput
 export type CreateFormInput = {
   title: string;
   questions: FormQuestion[];
   settings: FormSettings;
 };
+
+export interface ICreateFormContext {
+  formInput: CreateFormInput;
+  setFormInput: (formInput: CreateFormInput) => void;
+  updateQuestion: (question: FormQuestion, questionIndex: number) => void;
+  updateSettings: (settings: FormSettings) => void;
+}
+
+export interface IEditFormContext {
+  formInput: CreateFormInput;
+  setFormInput: (formInput: CreateFormInput) => void;
+  updateQuestion: (question: FormQuestion, questionIndex: number) => void;
+  updateSettings: (settings: FormSettings) => void;
+  getForm: (formId: string) => void;
+  formNotFound: boolean;
+}
