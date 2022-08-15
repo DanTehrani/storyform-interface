@@ -5,7 +5,8 @@ import {
   useContract,
   useSignMessage,
   useSignTypedData,
-  useProvider
+  useProvider,
+  useAccount
 } from "wagmi";
 import { STORY_FORM_ADDRESS } from "./config";
 import StormFormABI from "./abi/StoryForm.json";
@@ -28,6 +29,7 @@ const {
 } = require("@semaphore-protocol/proof");
 import { groth16Prove as generateDataSubmissionProof } from "./lib/zksnark";
 import ConnectWalletModalContext from "./contexts/ConnectWalletModalContext";
+import { useAccordion } from "@chakra-ui/react";
 
 const useStoryForm = () => {
   const provider = useProvider({
@@ -190,6 +192,21 @@ export const useForms = (pagination: Pagination): Form[] | undefined => {
       }
     })();
   }, [pagination]);
+
+  return forms;
+};
+
+export const useUserForms = (pagination: Pagination): Form[] | undefined => {
+  const { address } = useAccount();
+  const [forms, setForms] = useState<Form[] | undefined>();
+
+  useEffect(() => {
+    (async () => {
+      if (pagination && address) {
+        setForms(await getForms({ ...pagination, owner: address }));
+      }
+    })();
+  }, [pagination, address]);
 
   return forms;
 };

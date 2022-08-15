@@ -8,7 +8,8 @@ import {
   TabPanels,
   TabPanel,
   Box,
-  Button
+  Button,
+  Center
 } from "@chakra-ui/react";
 import { useUploadForm } from "../../../hooks";
 import FormNotFound from "../../../components/FormNotFound";
@@ -20,10 +21,11 @@ import FormSkeleton from "../../../components/FormSkeleton";
 import { Form } from "../../../types";
 import EditFormContext from "../../../contexts/EditFormContext";
 import { getCurrentUnixTime } from "../../../utils";
+import ConnectWalletButton from "../../../components/ConnectWalletButton";
 
 const ManageForm: NextPage = () => {
   const { query } = useRouter();
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   const formId = query.formId?.toString();
   const { getForm, formInput, formNotFound } = useContext(EditFormContext);
   const { uploadForm, uploadComplete, uploading, url } = useUploadForm();
@@ -42,6 +44,16 @@ const ManageForm: NextPage = () => {
       questions: formInput.questions
     });
   };
+
+  // TODO: Check form ownership
+
+  if (!isConnected) {
+    return (
+      <Center mt={4}>
+        <ConnectWalletButton></ConnectWalletButton>
+      </Center>
+    );
+  }
 
   if (formNotFound) {
     return <FormNotFound></FormNotFound>;
@@ -67,6 +79,7 @@ const ManageForm: NextPage = () => {
         <TabList>
           <Tab>Questions</Tab>
           <Tab>Settings</Tab>
+          <Tab>Others</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -74,6 +87,11 @@ const ManageForm: NextPage = () => {
           </TabPanel>
           <TabPanel>
             <FormSettingsTab context={EditFormContext}></FormSettingsTab>
+          </TabPanel>
+          <TabPanel>
+            <Button variant="outline" colorScheme="red">
+              Delete from
+            </Button>
           </TabPanel>
         </TabPanels>
       </Tabs>

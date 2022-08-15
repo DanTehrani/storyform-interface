@@ -76,8 +76,35 @@ export const getForm = async (formId: string): Promise<Form | null> => {
 
 export const getForms = async ({
   first,
-  after
-}: Pagination): Promise<Form[]> => {
+  after,
+  owner
+}: Pagination & {
+  owner?: string;
+}): Promise<Form[]> => {
+  const tags = [
+    {
+      name: "App-Id",
+      values: [APP_ID],
+      op: "EQ"
+    },
+    {
+      name: "Type",
+      values: ["Form"],
+      op: "EQ"
+    }
+  ];
+
+  if (owner) {
+    // Temporary
+    /*
+    tags.push({
+      name: "Owner",
+      values: [owner],
+      op: "EQ"
+    });
+    */
+  }
+
   const result = await arweaveGraphQl.query({
     query: gql`
       query transactions($first: Int!, $after: String, $tags: [TagFilter!]) {
@@ -97,18 +124,7 @@ export const getForms = async ({
     variables: {
       first,
       after,
-      tags: [
-        {
-          name: "App-Id",
-          values: [APP_ID],
-          op: "EQ"
-        },
-        {
-          name: "Type",
-          values: ["Form"],
-          op: "EQ"
-        }
-      ]
+      tags
     }
   });
 
@@ -141,6 +157,7 @@ export const getForms = async ({
           return {
             id: getArweaveTxTagValue(tx, "Form-Id"),
             questions: form?.questions,
+            settings: form?.settings || {},
             title: form?.title,
             context: form.context || {},
             owner: form?.owner,

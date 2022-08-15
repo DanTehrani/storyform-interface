@@ -6,8 +6,17 @@ import {
   Link,
   Button,
   Text,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuItemOption,
+  MenuGroup,
+  MenuOptionGroup,
+  MenuDivider,
   useColorModeValue,
-  useDisclosure
+  useDisclosure,
+  LinkOverlay
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { useAccount, useDisconnect } from "wagmi";
@@ -92,7 +101,7 @@ const Navbar = () => {
           </Box>
         </Flex>
         <Flex>
-          <Box>
+          <Box mr={4}>
             {isConnected ? (
               <Button
                 variant="outline"
@@ -106,6 +115,28 @@ const Navbar = () => {
               <ConnectWalletButton></ConnectWalletButton>
             )}
           </Box>
+          {isConnected ? (
+            <Menu>
+              <MenuButton
+                bgColor="transparent"
+                _active={{
+                  bgColor: "transparent"
+                }}
+                _hover={{
+                  bgColor: "transparent"
+                }}
+                as={IconButton}
+                icon={<HamburgerIcon />}
+              ></MenuButton>
+              <MenuList>
+                <Link href="/user/forms">
+                  <MenuItem>Your forms</MenuItem>
+                </Link>
+              </MenuList>
+            </Menu>
+          ) : (
+            <></>
+          )}
         </Flex>
       </Flex>
 
