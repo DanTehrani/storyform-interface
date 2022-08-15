@@ -44,6 +44,11 @@ export const getForm = async (formId: string): Promise<Form | null> => {
           name: "Type",
           values: ["Form"],
           op: "EQ"
+        },
+        {
+          name: "App-Version",
+          values: ["0.0.1"],
+          op: "EQ"
         }
       ]
     }
@@ -106,6 +111,11 @@ export const getForms = async ({
         {
           name: "Type",
           values: ["Form"],
+          op: "EQ"
+        },
+        {
+          name: "App-Version",
+          values: ["0.0.1"],
           op: "EQ"
         }
       ]
