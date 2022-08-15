@@ -60,6 +60,11 @@ export const getSubmissions = async ({
           name: "Form-Id",
           values: [formId],
           op: "EQ"
+        },
+        {
+          name: "App-Version",
+          values: ["0.0.1"],
+          op: "EQ"
         }
       ]
     }
