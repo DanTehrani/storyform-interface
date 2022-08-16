@@ -12,6 +12,31 @@ export interface FormQuestion {
   other?: boolean;
 }
 
+export type FormIdPreImage = {
+  title: string;
+  unixTime: number;
+  questions: FormQuestion[];
+  settings: FormSettings;
+  owner: string;
+  status: "active" | "deleted";
+};
+
+export type FormUploadInput = {
+  id: string;
+} & FormIdPreImage;
+
+export type FormWithTxStatus = {
+  txStatus: number;
+  id?: string;
+  title?: string;
+  unixTime?: number;
+  questions?: FormQuestion[];
+  settings?: FormSettings;
+  owner?: string;
+  context?: FormContext;
+  arweaveTxId: string;
+};
+
 export type Form = {
   id: string;
   title: string;
@@ -54,12 +79,7 @@ export type WagmiEIP712TypedMessage = {
       type: string;
     }[];
   };
-  value: {
-    title: string;
-    unixTime: number;
-    questions: string;
-    owner: string;
-  };
+  value: FormUploadInput;
   primaryType: string;
 };
 
@@ -122,4 +142,14 @@ export interface IEditFormContext {
   updateSettings: (settings: FormSettings) => void;
   getForm: (formId: string) => void;
   formNotFound: boolean;
+  formUpdating: boolean;
 }
+
+export type ArweaveTxTag = {
+  name: string;
+  value: string;
+};
+export type ArweaveTx = {
+  id: string;
+  tags: ArweaveTxTag[];
+};

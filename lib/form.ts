@@ -1,4 +1,4 @@
-import { Form, Pagination } from "../types";
+import { Form, Pagination, FormWithTxStatus } from "../types";
 import arweaveGraphQl from "../lib/arweaveGraphQl";
 import arweave from "./arweave";
 import { gql } from "@apollo/client";
@@ -10,7 +10,11 @@ import {
   getLatestByTagValue
 } from "../utils";
 
-export const getForm = async (formId: string): Promise<Form | null> => {
+export const getForm = async (
+  formId: string
+): Promise<FormWithTxStatus | null> => {
+  // sort is HEIGHT_DESC by default
+  // TODO: Get the latest two, so in case the latest one is being uploaded the last version can be shown.
   const result = await arweaveGraphQl.query({
     query: gql`
       query transactions($first: Int!, $after: String, $tags: [TagFilter!]) {
@@ -47,7 +51,7 @@ export const getForm = async (formId: string): Promise<Form | null> => {
         },
         {
           name: "App-Version",
-          values: ["0.0.1"],
+          values: ["0.0.2"],
           op: "EQ"
         }
       ]
@@ -59,23 +63,31 @@ export const getForm = async (formId: string): Promise<Form | null> => {
     return null;
   }
 
-  const data: string | null = (
-    await arweave.transactions.getData(txId, {
-      decode: true,
-      string: true
-    })
-  ).toString();
+  const txStatusCode = await arweave.transactions.getStatus(txId);
 
-  if (!data) {
-    return null;
+  let data;
+  try {
+    data = (
+      await arweave.transactions.getData(txId, {
+        decode: true,
+        string: true
+      })
+    ).toString();
+  } catch (err) {
+    ///
   }
 
-  const parsed = JSON.parse(data);
+  const form = data
+    ? {
+        ...JSON.parse(data),
+        context: {},
+        arweaveTxId: txId
+      }
+    : {};
 
   return {
-    ...parsed,
-    context: {},
-    arweaveTxId: txId
+    txStatus: txStatusCode.status,
+    ...form
   };
 };
 
@@ -85,7 +97,8 @@ export const getForms = async ({
   owner
 }: Pagination & {
   owner?: string;
-}): Promise<Form[]> => {
+  // TODO Return last  and first cursor
+}): Promise<FormWithTxStatus[]> => {
   const tags = [
     {
       name: "App-Id",
@@ -138,12 +151,13 @@ export const getForms = async ({
     }
   });
 
+  // Get pending transactions and return
   const transactions = getLatestByTagValue(result, "Form-Id");
 
-  const forms: Form[] = (
+  const forms: FormWithTxStatus[] = (
     await Promise.all(
       transactions.map(tx =>
-        (async (): Promise<Form | null> => {
+        (async (): Promise<FormWithTxStatus | null> => {
           let data: string | null;
           try {
             data = (
@@ -158,13 +172,12 @@ export const getForms = async ({
             data = null;
           }
 
-          if (!data) {
-            return null;
-          }
+          const { status } = await arweave.transactions.getStatus(tx.id);
 
-          const form: Form = JSON.parse(data);
+          const form: Form = data ? JSON.parse(data) : null;
 
           return {
+            txStatus: status,
             id: getArweaveTxTagValue(tx, "Form-Id"),
             questions: form?.questions,
             settings: form?.settings || {},
@@ -174,7 +187,9 @@ export const getForms = async ({
             unixTime: form?.unixTime,
             arweaveTxId: tx.id
           };
-        })().catch(err => err)
+        })().catch(err => {
+          console.error(err);
+        })
       )
     )
   )
@@ -188,44 +203,4 @@ export const getForms = async ({
     .filter(formSchemeValid);
 
   return forms;
-};
-
-export const getUserForms = async (address: string, pagination: Pagination) => {
-  const result = await arweaveGraphQl.query({
-    query: gql`
-      query transactions($first: Int!, $after: String, $tags: [TagFilter!]) {
-        transactions(first: $first, after: $after, tags: $tags) {
-          edges {
-            node {
-              id
-              tags {
-                value
-                name
-              }
-            }
-          }
-        }
-      }
-    `,
-    variables: {
-      first: pagination.first,
-      after: pagination.after,
-      tags: [
-        {
-          name: "App-Id",
-          values: [APP_ID],
-          op: "EQ"
-        },
-        {
-          name: "Type",
-          values: ["Form"],
-          op: "EQ"
-        }
-      ]
-    }
-  });
-};
-
-const getNextFormId = async (address: string) => {
-  //  await getUserForms(address);
 };

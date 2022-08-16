@@ -26,6 +26,12 @@ export const SIGNATURE_DOMAIN = {
 };
 
 export const SIGNATURE_DATA_TYPES = {
+  Setting: [
+    {
+      name: "requireEthereumWallet",
+      type: "bool"
+    }
+  ],
   Question: [
     {
       name: "label",
@@ -34,10 +40,16 @@ export const SIGNATURE_DATA_TYPES = {
     {
       name: "type",
       type: "string"
+    },
+    {
+      name: "customAttributes",
+      type: "string[]"
     }
   ],
   Form: [
+    { name: "id", type: "string" },
     { name: "owner", type: "string" },
+    { name: "status", type: "string" },
     {
       name: "title",
       type: "string"
@@ -49,6 +61,10 @@ export const SIGNATURE_DATA_TYPES = {
     {
       name: "questions",
       type: "Question[]"
+    },
+    {
+      name: "settings",
+      type: "Setting"
     }
   ]
 };

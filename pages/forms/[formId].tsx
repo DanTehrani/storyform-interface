@@ -40,7 +40,7 @@ const FormPage: NextPage = () => {
 
   const { group } = useGroup(SEMAPHORE_GROUP_ID);
   const formId = query.formId?.toString();
-  const { form, formNotFound } = useForm(formId);
+  const { form, formNotFound, formUpdating } = useForm(formId);
   const { submitForm, submissionComplete, submittingForm } = useSubmitForm();
   const { generatingProof, generateProof } = useGenerateProof();
   const getSubmissionId = useGetSubmissionId();

@@ -9,7 +9,15 @@ import {
   TabPanel,
   Box,
   Button,
-  Center
+  Center,
+  Alert,
+  AlertIcon,
+  CloseButton,
+  Stack,
+  AlertTitle,
+  Text,
+  AlertDescription,
+  useDisclosure
 } from "@chakra-ui/react";
 import { useUploadForm } from "../../../hooks";
 import FormNotFound from "../../../components/FormNotFound";
@@ -18,7 +26,6 @@ import { useAccount } from "wagmi";
 import FormQuestionsTab from "../../../components/FormQuestionsTab";
 import FormSettingsTab from "../../../components/FormSettingsTab";
 import FormSkeleton from "../../../components/FormSkeleton";
-import { Form } from "../../../types";
 import EditFormContext from "../../../contexts/EditFormContext";
 import { getCurrentUnixTime } from "../../../utils";
 import ConnectWalletButton from "../../../components/ConnectWalletButton";
@@ -27,8 +34,14 @@ const ManageForm: NextPage = () => {
   const { query } = useRouter();
   const { address, isConnected } = useAccount();
   const formId = query.formId?.toString();
-  const { getForm, formInput, formNotFound } = useContext(EditFormContext);
-  const { uploadForm, uploadComplete, uploading, url } = useUploadForm();
+  const { getForm, formInput, formNotFound, formUpdating } =
+    useContext(EditFormContext);
+  const { uploadForm, uploadComplete, uploading } = useUploadForm();
+  const {
+    isOpen: isUpdateSuccessAlertOpen,
+    onClose: closeUpdateSuccessAlert,
+    onOpen: openUpdateSuccessAlert
+  } = useDisclosure({ defaultIsOpen: false });
 
   useEffect(() => {
     if (formId) {
@@ -36,13 +49,24 @@ const ManageForm: NextPage = () => {
     }
   }, [formId, getForm]);
 
+  useEffect(() => {
+    if (uploadComplete) {
+      openUpdateSuccessAlert();
+    }
+  }, [uploadComplete, openUpdateSuccessAlert]);
+
   const handleSaveClick = async () => {
-    await uploadForm({
-      owner: address,
-      unixTime: getCurrentUnixTime(),
-      title: formInput.title,
-      questions: formInput.questions
-    });
+    if (address && formId) {
+      await uploadForm({
+        id: formId,
+        owner: address,
+        unixTime: getCurrentUnixTime(),
+        title: formInput.title,
+        questions: formInput.questions,
+        settings: formInput.settings,
+        status: "active"
+      });
+    }
   };
 
   // TODO: Check form ownership
@@ -53,6 +77,10 @@ const ManageForm: NextPage = () => {
         <ConnectWalletButton></ConnectWalletButton>
       </Center>
     );
+  }
+
+  if (formUpdating) {
+    return <>Updating!</>;
   }
 
   if (formNotFound) {
@@ -75,6 +103,31 @@ const ManageForm: NextPage = () => {
           Update
         </Button>
       </Box>
+      {isUpdateSuccessAlertOpen ? (
+        <Alert
+          status="success"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          textAlign="center"
+          mt={4}
+          mb={4}
+        >
+          <Stack alignItems="end" width="100%">
+            <CloseButton onClick={closeUpdateSuccessAlert}></CloseButton>
+          </Stack>
+          <AlertIcon />
+          <AlertTitle>Success!</AlertTitle>
+          <AlertDescription>
+            <Text>
+              Your form is being updated! It will take a few minutes for the
+              update to be reflected.
+            </Text>
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <></>
+      )}
       <Tabs mt={4}>
         <TabList>
           <Tab>Questions</Tab>

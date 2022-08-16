@@ -1,7 +1,8 @@
-import { Form, FormSubmission } from "./types";
+import { Form, FormSubmission, FormIdPreImage } from "./types";
 import type { ApolloQueryResult } from "@apollo/client";
 const { NEXT_PUBLIC_CHAIN_ID } = process.env;
 import { TEMPORARY_ADMIN_ADDRESS } from "./config";
+import { sha256 } from "ethers/lib/utils";
 
 export const notEmpty = (value: any): boolean =>
   value === null || value === undefined ? false : true;
@@ -87,3 +88,6 @@ export const eligibleToAnswer = (address: string, formId: string) =>
   formId ===
     "26eb2d0d16802f92c19787daec3fdc0bf4e99240bdc7efa6ac921b904dcd4cc7" || // survey about the survey tool
   address === TEMPORARY_ADMIN_ADDRESS;
+
+export const getFormIdFromForm = (form: FormIdPreImage): string =>
+  sha256(new TextEncoder().encode(JSON.stringify(form)));

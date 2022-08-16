@@ -25,15 +25,16 @@ const defaultState = {
   updateQuestion: () => null,
   updateSettings: () => null,
   getForm: () => null,
-  formNotFound: false
+  formNotFound: false,
+  formUpdating: false
 };
 
 const EditFormContext = createContext<IEditFormContext>(defaultState);
 
 export const EditFormContextProvider = ({ children }) => {
   const [formInput, setFormInput] = useState<FormInput>(defaultState.formInput);
-
   const [formNotFound, setFormNotFound] = useState<boolean>(false);
+  const [formUpdating, setFormUpdating] = useState<boolean>(false);
 
   const updateQuestion = useCallback(
     (question: FormQuestion, questionIndex) => {
@@ -59,13 +60,14 @@ export const EditFormContextProvider = ({ children }) => {
 
   const getForm = useCallback(async (formId: string) => {
     const _form = await _getForm(formId);
-
-    if (_form) {
+    if (_form?.title && _form?.questions && _form.settings) {
       setFormInput({
         title: _form.title,
         questions: _form.questions,
         settings: _form.settings || {}
       });
+    } else if (_form?.txStatus === 202) {
+      setFormUpdating(true);
     } else {
       setFormNotFound(true);
     }
@@ -79,7 +81,8 @@ export const EditFormContextProvider = ({ children }) => {
         updateQuestion,
         updateSettings,
         getForm,
-        formNotFound
+        formNotFound,
+        formUpdating
       }}
     >
       {children}

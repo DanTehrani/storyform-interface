@@ -26,7 +26,7 @@ import {
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { useUploadForm } from "../hooks";
-import { getCurrentUnixTime } from "../utils";
+import { getCurrentUnixTime, getFormIdFromForm } from "../utils";
 
 import useTranslation from "next-translate/useTranslation";
 import { useConnect } from "wagmi";
@@ -36,6 +36,7 @@ import FormQuestionsTab from "../components/FormQuestionsTab";
 import FormSettingsTab from "../components/FormSettingsTab";
 import ConnectWalletButton from "../components/ConnectWalletButton";
 import { CopyIcon, ExternalLinkIcon } from "@chakra-ui/icons";
+import { FormIdPreImage } from "../types";
 
 const CreateFormHeading = () => {
   const { t } = useTranslation("create");
@@ -85,12 +86,20 @@ const Create: NextPage = () => {
       await connectAsync();
     }
 
-    await uploadForm({
-      owner: address,
-      unixTime: getCurrentUnixTime(),
-      title: formInput.title,
-      questions: formInput.questions
-    });
+    if (address) {
+      const formIdPreImage: FormIdPreImage = {
+        owner: address,
+        unixTime: getCurrentUnixTime(),
+        title: formInput.title,
+        questions: formInput.questions,
+        settings: formInput.settings,
+        status: "active"
+      };
+
+      const formId = getFormIdFromForm(formIdPreImage);
+
+      await uploadForm({ id: formId, ...formIdPreImage });
+    }
   };
 
   if (!isConnected) {
@@ -138,7 +147,7 @@ const Create: NextPage = () => {
             </Text>
           </AlertDescription>
           <Stack direction="row" justify="center" mt={4}>
-            <Input isReadOnly variant="filled" value="https://hello"></Input>
+            <Input isReadOnly variant="filled" value={url || ""}></Input>
             <IconButton
               aria-label="Copy form url"
               icon={<CopyIcon></CopyIcon>}

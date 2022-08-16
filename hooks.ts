@@ -18,7 +18,9 @@ import {
   FormSubmission,
   WagmiEIP712TypedMessage,
   Pagination,
-  FormSubmissionInput
+  FormSubmissionInput,
+  FormUploadInput,
+  FormWithTxStatus
 } from "./types";
 import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN } from "./config";
 import axios from "./lib/axios";
@@ -29,14 +31,11 @@ const {
 } = require("@semaphore-protocol/proof");
 import { groth16Prove as generateDataSubmissionProof } from "./lib/zksnark";
 import ConnectWalletModalContext from "./contexts/ConnectWalletModalContext";
-import { useAccordion } from "@chakra-ui/react";
 
 const useStoryForm = () => {
   const provider = useProvider({
     chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "31337")
   });
-  // eslint-disable-next-line no-console
-  console.log(`Provider network ${provider.network}`);
   const contract = useContract({
     addressOrName: STORY_FORM_ADDRESS[provider.network.name],
     contractInterface: StormFormABI.abi,
@@ -61,8 +60,6 @@ export const useGroup = (groupId: number) => {
         const events = await storyForm.queryFilter(
           storyForm.filters.MemberAdded(groupId, null, null)
         );
-        // eslint-disable-next-line no-console
-        console.log(events);
 
         const members = events.map(({ args }) => args[1].toString());
         const _group = new Group(16);
@@ -107,11 +104,11 @@ export const useForm = (formId: string | undefined) => {
   useEffect(() => {
     (async () => {
       if (formId) {
-        const _form = await getForm(formId);
-        if (!_form) {
+        const result = await getForm(formId);
+        if (!result) {
           setFormNotFound(true);
         } else {
-          setForm(_form);
+          setForm(result.form);
         }
       }
     })();
@@ -156,9 +153,8 @@ export const useUploadForm = () => {
   });
   const { signTypedDataAsync } = useSignTypedData();
 
-  const uploadForm = async form => {
+  const uploadForm = async (form: FormUploadInput) => {
     setUploading(true);
-    // Get the id
 
     const eip712TypedMessage: WagmiEIP712TypedMessage = {
       domain: SIGNATURE_DOMAIN[provider.network.name],
@@ -175,6 +171,7 @@ export const useUploadForm = () => {
     };
 
     await axios.post("/forms", formInput);
+    setUrl(`${window.location.origin}/forms/${form.id}`);
     setUploading(false);
     setUploadComplete(true);
   };
@@ -182,8 +179,10 @@ export const useUploadForm = () => {
   return { uploading, uploadForm, uploadComplete, url };
 };
 
-export const useForms = (pagination: Pagination): Form[] | undefined => {
-  const [forms, setForms] = useState<Form[] | undefined>();
+export const useForms = (
+  pagination: Pagination
+): FormWithTxStatus[] | undefined => {
+  const [forms, setForms] = useState<FormWithTxStatus[] | undefined>();
 
   useEffect(() => {
     (async () => {
@@ -196,9 +195,11 @@ export const useForms = (pagination: Pagination): Form[] | undefined => {
   return forms;
 };
 
-export const useUserForms = (pagination: Pagination): Form[] | undefined => {
+export const useUserForms = (
+  pagination: Pagination
+): FormWithTxStatus[] | undefined => {
   const { address } = useAccount();
-  const [forms, setForms] = useState<Form[] | undefined>();
+  const [forms, setForms] = useState<FormWithTxStatus[] | undefined>();
 
   useEffect(() => {
     (async () => {
