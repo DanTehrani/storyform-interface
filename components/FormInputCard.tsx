@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useContext } from "react";
 import {
   Button,
   Stack,
@@ -15,9 +15,9 @@ import {
   ChevronUpIcon,
   ChevronDownIcon
 } from "@chakra-ui/icons";
-import CreateFormContext from "../contexts/CreateFormContext";
-import EditFormContext from "../contexts/EditFormContext";
 import { FormQuestion } from "../types";
+import EditFormContext from "../contexts/EditFormContext";
+import CreateFormContext from "../contexts/CreateFormContext";
 
 const SelectInput = ({
   options,
@@ -85,7 +85,7 @@ type Props = {
   formQuestionIndex: number;
   deleteQuestion: () => void;
   moveQuestionUp: () => void;
-  context: any;
+  context: typeof EditFormContext | typeof CreateFormContext;
   moveQuestionDown: () => void;
 };
 
@@ -98,7 +98,12 @@ const CreateFormQuestionCard: React.FC<Props> = ({
   moveQuestionDown
 }) => {
   // Depending on the type, gotta show something different.
+  // @ts-ignore
   const { formInput, setFormInput, updateQuestion } = useContext(context);
+
+  if (!formInput) {
+    return <></>;
+  }
 
   const handleQuestionLabelChange = value => {
     setFormInput({

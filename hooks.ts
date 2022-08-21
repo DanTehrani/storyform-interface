@@ -19,8 +19,7 @@ import {
   WagmiEIP712TypedMessage,
   Pagination,
   FormSubmissionInput,
-  FormUploadInput,
-  FormWithTxStatus
+  FormUploadInput
 } from "./types";
 import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN } from "./config";
 import axios from "./lib/axios";
@@ -104,11 +103,12 @@ export const useForm = (formId: string | undefined) => {
   useEffect(() => {
     (async () => {
       if (formId) {
-        const result = await getForm(formId);
-        if (!result) {
+        const _form = await getForm(formId);
+
+        if (!_form) {
           setFormNotFound(true);
         } else {
-          setForm(result.form);
+          setForm(_form);
         }
       }
     })();
@@ -173,16 +173,14 @@ export const useUploadForm = () => {
     await axios.post("/forms", formInput);
     setUrl(`${window.location.origin}/forms/${form.id}`);
     setUploading(false);
-    setUploadComplete(true);
+    setUploadComplete(true); // TODO Change the name
   };
 
   return { uploading, uploadForm, uploadComplete, url };
 };
 
-export const useForms = (
-  pagination: Pagination
-): FormWithTxStatus[] | undefined => {
-  const [forms, setForms] = useState<FormWithTxStatus[] | undefined>();
+export const useForms = (pagination: Pagination): Form[] | undefined => {
+  const [forms, setForms] = useState<Form[] | undefined>();
 
   useEffect(() => {
     (async () => {
@@ -195,11 +193,9 @@ export const useForms = (
   return forms;
 };
 
-export const useUserForms = (
-  pagination: Pagination
-): FormWithTxStatus[] | undefined => {
+export const useUserForms = (pagination: Pagination): Form[] | undefined => {
   const { address } = useAccount();
-  const [forms, setForms] = useState<FormWithTxStatus[] | undefined>();
+  const [forms, setForms] = useState<Form[] | undefined>();
 
   useEffect(() => {
     (async () => {

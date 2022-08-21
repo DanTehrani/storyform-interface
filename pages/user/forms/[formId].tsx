@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import type { NextPage } from "next";
 import {
   Container,
@@ -20,7 +20,7 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import { useUploadForm } from "../../../hooks";
-import FormNotFound from "../../../components/FormNotFound";
+import FormNotFoundOrUploading from "../../../components/FormNotFoundOrUploading";
 import { useRouter } from "next/router";
 import { useAccount } from "wagmi";
 import FormQuestionsTab from "../../../components/FormQuestionsTab";
@@ -34,8 +34,7 @@ const ManageForm: NextPage = () => {
   const { query } = useRouter();
   const { address, isConnected } = useAccount();
   const formId = query.formId?.toString();
-  const { getForm, formInput, formNotFound, formUpdating } =
-    useContext(EditFormContext);
+  const { getForm, formInput, formNotFound } = useContext(EditFormContext);
   const { uploadForm, uploadComplete, uploading } = useUploadForm();
   const {
     isOpen: isUpdateSuccessAlertOpen,
@@ -56,11 +55,12 @@ const ManageForm: NextPage = () => {
   }, [uploadComplete, openUpdateSuccessAlert]);
 
   const handleSaveClick = async () => {
-    if (address && formId) {
+    if (address && formId && formInput) {
+      const unixTime = getCurrentUnixTime();
       await uploadForm({
         id: formId,
         owner: address,
-        unixTime: getCurrentUnixTime(),
+        unixTime,
         title: formInput.title,
         questions: formInput.questions,
         settings: formInput.settings,
@@ -79,12 +79,8 @@ const ManageForm: NextPage = () => {
     );
   }
 
-  if (formUpdating) {
-    return <>Updating!</>;
-  }
-
   if (formNotFound) {
-    return <FormNotFound></FormNotFound>;
+    return <FormNotFoundOrUploading></FormNotFoundOrUploading>;
   }
 
   if (!formInput) {

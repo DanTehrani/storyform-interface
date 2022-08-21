@@ -13,7 +13,7 @@ import { ExternalLinkIcon, CheckIcon } from "@chakra-ui/icons";
 import type { NextPage } from "next";
 import { useForms, usePagination, useConnectWallet } from "../hooks";
 import { useAccount } from "wagmi";
-import IndexPageSkeleton from "../components/IndexPageSkeleton";
+import FormsPageSkeleton from "../components/FormsPageSkeleton";
 import {
   eligibleToAnswer,
   getEtherscanUrl,
@@ -34,7 +34,7 @@ const Forms: NextPage = () => {
   const connect = useConnectWallet();
 
   if (!forms) {
-    return <IndexPageSkeleton></IndexPageSkeleton>;
+    return <FormsPageSkeleton></FormsPageSkeleton>;
   }
 
   const handleAnswerClick = (formId: string) => {

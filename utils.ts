@@ -37,6 +37,21 @@ export const getArweaveTxTagValue = (tx, tagName): string =>
 export const getArweaveTxUnixTime = (tx): number =>
   parseInt(getArweaveTxTagValue(tx, "Unix-Time"));
 
+export const sortArweaveTxsByUnixTime = txs =>
+  txs.edges
+    .map(({ node }) => node)
+    // Filter out transactions without the Unix-Time tag, by try extracting the tag.
+    .filter(tx => {
+      try {
+        getArweaveTxUnixTime(tx);
+        return true;
+      } catch (err) {
+        return false;
+      }
+    })
+    // Sort transactions is descending order re: timestamp
+    .sort((tx1, tx2) => getArweaveTxUnixTime(tx2) - getArweaveTxUnixTime(tx1));
+
 export const getLatestByTagValue = (result: ApolloQueryResult<any>, tagName) =>
   result.data.transactions.edges
     .map(({ node }) => node)
@@ -91,3 +106,7 @@ export const eligibleToAnswer = (address: string, formId: string) =>
 
 export const getFormIdFromForm = (form: FormIdPreImage): string =>
   sha256(new TextEncoder().encode(JSON.stringify(form)));
+
+export const sleep = ms => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};

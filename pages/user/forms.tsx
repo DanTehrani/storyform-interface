@@ -10,10 +10,10 @@ import {
 import type { NextPage } from "next";
 import { useUserForms, usePagination } from "../../hooks";
 import { useAccount } from "wagmi";
-import IndexPageSkeleton from "../../components/IndexPageSkeleton";
+import FormsPageSkeleton from "../../components/FormsPageSkeleton";
 import ConnectWalletButton from "../../components/ConnectWalletButton";
 
-const UserFormsHeading = () => <Heading m={4}>Your workspace</Heading>;
+const UserFormsHeading = () => <Heading m={4}>Your forms</Heading>;
 
 const UserForms: NextPage = () => {
   const { isConnected } = useAccount();
@@ -37,7 +37,7 @@ const UserForms: NextPage = () => {
   }
 
   if (!forms) {
-    return <IndexPageSkeleton></IndexPageSkeleton>;
+    return <FormsPageSkeleton></FormsPageSkeleton>;
   }
 
   return (

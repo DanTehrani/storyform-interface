@@ -12,7 +12,6 @@ import {
 } from "@chakra-ui/react";
 import ConnectWalletButton from "./ConnectWalletButton";
 import { useAccount } from "wagmi";
-import useTranslation from "next-translate/useTranslation";
 import { FormQuestion } from "../types";
 
 type Props = {
@@ -31,11 +30,11 @@ const Form: React.FC<Props> = ({
   const { isConnected } = useAccount();
   const [answers, setAnswers] = useState<string[]>([]);
   const [showOtherInput, setShowOtherInput] = useState<boolean>(false);
-  const { t } = useTranslation("Form");
 
   const handleInputChange = async (value: string, inputIndex: number) => {
     const newValues = new Array(questions.length)
       .fill("")
+      // eslint-disable-next-line security/detect-object-injection
       .map((_, i) => (i === inputIndex ? value : answers[i] || ""));
 
     setAnswers(newValues);

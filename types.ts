@@ -25,18 +25,6 @@ export type FormUploadInput = {
   id: string;
 } & FormIdPreImage;
 
-export type FormWithTxStatus = {
-  txStatus: number;
-  id?: string;
-  title?: string;
-  unixTime?: number;
-  questions?: FormQuestion[];
-  settings?: FormSettings;
-  owner?: string;
-  context?: FormContext;
-  arweaveTxId: string;
-};
-
 export type Form = {
   id: string;
   title: string;
@@ -44,14 +32,7 @@ export type Form = {
   questions: FormQuestion[];
   settings: FormSettings;
   owner: string;
-  context: FormContext;
   arweaveTxId: string;
-};
-
-export type FormContext = {
-  groupId?: number;
-  requireZkMembershipProof: boolean;
-  requireSignature: boolean;
 };
 
 export type FormAnswer = {
@@ -120,6 +101,7 @@ export type FormJsonInput = {
 
 export type FormSettings = {
   requireEthereumWallet: boolean;
+  requireZkMembershipProof: boolean;
 };
 
 export type FormInput = {
@@ -136,13 +118,12 @@ export interface ICreateFormContext {
 }
 
 export interface IEditFormContext {
-  formInput: FormInput;
+  formInput: FormInput | null | undefined;
   setFormInput: (formInput: FormInput) => void;
   updateQuestion: (question: FormQuestion, questionIndex: number) => void;
   updateSettings: (settings: FormSettings) => void;
   getForm: (formId: string) => void;
   formNotFound: boolean;
-  formUpdating: boolean;
 }
 
 export type ArweaveTxTag = {

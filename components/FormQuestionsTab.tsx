@@ -2,9 +2,20 @@ import { useContext } from "react";
 import { Button, Center, Input, Stack } from "@chakra-ui/react";
 import { SmallAddIcon } from "@chakra-ui/icons";
 import FormInputCard from "./FormInputCard";
+import EditFormContext from "../contexts/EditFormContext";
+import CreateFormContext from "../contexts/CreateFormContext";
 
-const FormQuestionsTab = ({ context }) => {
+type Props = {
+  context: typeof CreateFormContext | typeof EditFormContext;
+};
+
+const FormQuestionsTab: React.FC<Props> = ({ context }) => {
+  // @ts-ignore
   const { formInput, setFormInput } = useContext(context);
+
+  if (!formInput) {
+    return <></>;
+  }
 
   const handleAddQuestionClick = () => {
     setFormInput({

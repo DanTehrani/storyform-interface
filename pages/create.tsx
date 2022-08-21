@@ -158,6 +158,7 @@ const Create: NextPage = () => {
               icon={<ExternalLinkIcon></ExternalLinkIcon>}
               onClick={() => {
                 if (url) {
+                  // eslint-disable-next-line security/detect-non-literal-fs-filename
                   window.open(url);
                 }
               }}

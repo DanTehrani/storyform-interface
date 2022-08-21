@@ -17,7 +17,8 @@ const defaultState = {
       }
     ],
     settings: {
-      requireEthereumWallet: false
+      requireEthereumWallet: false,
+      requireZkMembershipProof: false
     }
   },
   setFormInput: () => null,

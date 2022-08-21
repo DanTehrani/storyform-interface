@@ -10,13 +10,8 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  MenuItemOption,
-  MenuGroup,
-  MenuOptionGroup,
-  MenuDivider,
   useColorModeValue,
-  useDisclosure,
-  LinkOverlay
+  useDisclosure
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { useAccount, useDisconnect } from "wagmi";
@@ -52,7 +47,7 @@ const Navbar = () => {
       url: "/create"
     },
     {
-      label: t("forms"),
+      label: "Explore",
       url: "/forms"
     }
   ];

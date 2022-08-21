@@ -8,66 +8,57 @@ import {
 import { getForm as _getForm } from "../lib/form";
 
 const defaultState = {
-  formInput: {
-    title: "",
-    questions: [
-      {
-        label: "",
-        type: "text",
-        customAttributes: []
-      }
-    ],
-    settings: {
-      requireEthereumWallet: false
-    }
-  },
+  formInput: null,
   setFormInput: () => null,
   updateQuestion: () => null,
   updateSettings: () => null,
   getForm: () => null,
   formNotFound: false,
-  formUpdating: false
+  gettingForm: false
 };
 
 const EditFormContext = createContext<IEditFormContext>(defaultState);
 
 export const EditFormContextProvider = ({ children }) => {
-  const [formInput, setFormInput] = useState<FormInput>(defaultState.formInput);
+  const [formInput, setFormInput] = useState<FormInput | null>();
   const [formNotFound, setFormNotFound] = useState<boolean>(false);
-  const [formUpdating, setFormUpdating] = useState<boolean>(false);
 
   const updateQuestion = useCallback(
     (question: FormQuestion, questionIndex) => {
-      setFormInput(_formInput => ({
-        ..._formInput,
-        questions: _formInput.questions.map((q, i) =>
-          i === questionIndex ? question : q
-        )
-      }));
+      setFormInput(
+        _formInput =>
+          _formInput && {
+            ..._formInput,
+            questions: _formInput.questions.map((q, i) =>
+              i === questionIndex ? question : q
+            )
+          }
+      );
     },
     [setFormInput]
   );
 
   const updateSettings = useCallback(
     (settings: FormSettings) => {
-      setFormInput(_formInput => ({
-        ..._formInput,
-        settings
-      }));
+      setFormInput(
+        _formInput =>
+          _formInput && {
+            ..._formInput,
+            settings
+          }
+      );
     },
     [setFormInput]
   );
 
   const getForm = useCallback(async (formId: string) => {
     const _form = await _getForm(formId);
-    if (_form?.title && _form?.questions && _form.settings) {
+    if (_form) {
       setFormInput({
         title: _form.title,
         questions: _form.questions,
         settings: _form.settings || {}
       });
-    } else if (_form?.txStatus === 202) {
-      setFormUpdating(true);
     } else {
       setFormNotFound(true);
     }
@@ -81,8 +72,7 @@ export const EditFormContextProvider = ({ children }) => {
         updateQuestion,
         updateSettings,
         getForm,
-        formNotFound,
-        formUpdating
+        formNotFound
       }}
     >
       {children}

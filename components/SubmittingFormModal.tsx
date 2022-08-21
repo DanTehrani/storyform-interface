@@ -10,7 +10,7 @@ import {
   HStack,
   VStack
 } from "@chakra-ui/react";
-import { FormContext } from "../types";
+import { FormSettings } from "../types";
 import { CheckIcon } from "@chakra-ui/icons";
 import useTranslation from "next-translate/useTranslation";
 
@@ -24,14 +24,14 @@ type Props = {
   isOpen: boolean;
   generatingProof: boolean;
   submittingForm: boolean;
-  formContext: FormContext;
+  formSettings: FormSettings;
 };
 
 const SubmittingFormModal = ({
   isOpen,
   generatingProof,
   submittingForm,
-  formContext
+  formSettings
 }: Props) => {
   const { t } = useTranslation("Form");
   return (
@@ -48,7 +48,7 @@ const SubmittingFormModal = ({
           <ModalHeader></ModalHeader>
           <ModalBody>
             <VStack align="left">
-              {formContext.requireZkMembershipProof ? (
+              {formSettings.requireZkMembershipProof ? (
                 <HStack>
                   {generatingProof ? (
                     <StyledCircularProgress></StyledCircularProgress>

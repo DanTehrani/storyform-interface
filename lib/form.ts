@@ -1,4 +1,4 @@
-import { Form, Pagination, FormWithTxStatus } from "../types";
+import { Form, Pagination } from "../types";
 import arweaveGraphQl from "../lib/arweaveGraphQl";
 import arweave from "./arweave";
 import { gql } from "@apollo/client";
@@ -10,11 +10,8 @@ import {
   getLatestByTagValue
 } from "../utils";
 
-export const getForm = async (
-  formId: string
-): Promise<FormWithTxStatus | null> => {
+export const getForm = async (formId: string): Promise<Form | null> => {
   // sort is HEIGHT_DESC by default
-  // TODO: Get the latest two, so in case the latest one is being uploaded the last version can be shown.
   const result = await arweaveGraphQl.query({
     query: gql`
       query transactions($first: Int!, $after: String, $tags: [TagFilter!]) {
@@ -63,8 +60,6 @@ export const getForm = async (
     return null;
   }
 
-  const txStatusCode = await arweave.transactions.getStatus(txId);
-
   let data;
   try {
     data = (
@@ -83,12 +78,9 @@ export const getForm = async (
         context: {},
         arweaveTxId: txId
       }
-    : {};
+    : null;
 
-  return {
-    txStatus: txStatusCode.status,
-    ...form
-  };
+  return form;
 };
 
 export const getForms = async ({
@@ -98,7 +90,7 @@ export const getForms = async ({
 }: Pagination & {
   owner?: string;
   // TODO Return last  and first cursor
-}): Promise<FormWithTxStatus[]> => {
+}): Promise<Form[]> => {
   const tags = [
     {
       name: "App-Id",
@@ -118,14 +110,11 @@ export const getForms = async ({
   ];
 
   if (owner) {
-    // Temporary
-    /*
     tags.push({
       name: "Owner",
       values: [owner],
       op: "EQ"
     });
-    */
   }
 
   const result = await arweaveGraphQl.query({
@@ -151,13 +140,12 @@ export const getForms = async ({
     }
   });
 
-  // Get pending transactions and return
   const transactions = getLatestByTagValue(result, "Form-Id");
 
-  const forms: FormWithTxStatus[] = (
+  const forms: Form[] = (
     await Promise.all(
       transactions.map(tx =>
-        (async (): Promise<FormWithTxStatus | null> => {
+        (async (): Promise<Form | null> => {
           let data: string | null;
           try {
             data = (
@@ -172,22 +160,19 @@ export const getForms = async ({
             data = null;
           }
 
-          const { status } = await arweave.transactions.getStatus(tx.id);
-
           const form: Form = data ? JSON.parse(data) : null;
 
           return {
-            txStatus: status,
             id: getArweaveTxTagValue(tx, "Form-Id"),
             questions: form?.questions,
             settings: form?.settings || {},
             title: form?.title,
-            context: form.context || {},
             owner: form?.owner,
             unixTime: form?.unixTime,
             arweaveTxId: tx.id
           };
         })().catch(err => {
+          // eslint-disable-next-line no-console
           console.error(err);
         })
       )
@@ -200,7 +185,7 @@ export const getForms = async ({
         console.log(`Invalid form ${JSON.stringify(form)}`);
       return form;
     })
-    .filter(formSchemeValid);
+    .filter(formSchemeValid); // Also filters out forms with data still unavailable.
 
   return forms;
 };

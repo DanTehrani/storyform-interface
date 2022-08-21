@@ -16,7 +16,7 @@ import {
   useGenerateProof,
   useGetSubmissionId
 } from "../../hooks";
-import FormNotFound from "../../components/FormNotFound";
+import FormNotFoundOrUploading from "../../components/FormNotFoundOrUploading";
 import { useRouter } from "next/router";
 import { SEMAPHORE_GROUP_ID } from "../../config";
 import FormSkeleton from "../../components/FormSkeleton";
@@ -40,13 +40,13 @@ const FormPage: NextPage = () => {
 
   const { group } = useGroup(SEMAPHORE_GROUP_ID);
   const formId = query.formId?.toString();
-  const { form, formNotFound, formUpdating } = useForm(formId);
+  const { form, formNotFound } = useForm(formId);
   const { submitForm, submissionComplete, submittingForm } = useSubmitForm();
   const { generatingProof, generateProof } = useGenerateProof();
   const getSubmissionId = useGetSubmissionId();
 
   if (formNotFound) {
-    return <FormNotFound></FormNotFound>;
+    return <FormNotFoundOrUploading></FormNotFoundOrUploading>;
   }
 
   if (!form) {
@@ -96,7 +96,8 @@ const FormPage: NextPage = () => {
         isClosable: true
       });
     } else if (address) {
-      if (form.context.requireZkMembershipProof) {
+      if (form.settings.requireZkMembershipProof) {
+        // Generate zk ECDSA signature proof?
         const { submissionId, membershipFullProof, dataSubmissionFullProof } =
           await generateProof(formId, group);
 
@@ -108,10 +109,8 @@ const FormPage: NextPage = () => {
           answers,
           unixTime: Math.floor(Date.now() / 1000)
         });
-      } else if (form.context.requireSignature) {
-        // Submit with a signature
-        // TODO: Implement this
       } else {
+        // Just submit, without requiring anything else.
         const submissionId = await getSubmissionId(formId);
 
         submitForm({
@@ -173,7 +172,7 @@ const FormPage: NextPage = () => {
         generatingProof={generatingProof}
         submittingForm={submittingForm}
         isOpen={generatingProof || submittingForm}
-        formContext={form.context}
+        formSettings={form.settings}
       ></SubmittingFormModal>
     </Center>
   );

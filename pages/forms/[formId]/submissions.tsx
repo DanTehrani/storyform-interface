@@ -15,7 +15,7 @@ import {
 import { CheckCircleIcon, MinusIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import type { NextPage } from "next";
 import { useForm, useSubmissions } from "../../../hooks";
-import IndexPageSkeleton from "../../../components/IndexPageSkeleton";
+import FormsPageSkeleton from "../../../components/FormsPageSkeleton";
 import { useRouter } from "next/router";
 import {
   getEtherscanLogPageUrl,
@@ -42,11 +42,11 @@ const Submission: NextPage = () => {
   }
 
   if (!form || !submissions) {
-    return <IndexPageSkeleton></IndexPageSkeleton>;
+    return <FormsPageSkeleton></FormsPageSkeleton>;
   }
 
   const questions = form.questions;
-  const context = form.context;
+  const settings = form.settings;
 
   return (
     <>
@@ -64,7 +64,7 @@ const Submission: NextPage = () => {
                 <Th key={i}>{question.label}</Th>
               ))}
               <Th>Arweave</Th>
-              {context.requireZkMembershipProof ? (
+              {settings.requireZkMembershipProof ? (
                 <Th>{t("zk-verification-log")}</Th>
               ) : (
                 <></>
@@ -98,7 +98,7 @@ const Submission: NextPage = () => {
                   </Link>
                   &nbsp; {submission.arweaveTxStatus === 202 ? "(Pending)" : ""}
                 </Td>
-                {context.requireZkMembershipProof ? (
+                {settings.requireZkMembershipProof ? (
                   <Td>
                     <Link
                       href={getEtherscanLogPageUrl(submission.verificationTx)}
