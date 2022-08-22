@@ -163,7 +163,16 @@ export const useUploadForm = () => {
       primaryType: "Form"
     };
 
-    const signature = await signTypedDataAsync(eip712TypedMessage);
+    let signature;
+    try {
+      signature = await signTypedDataAsync(eip712TypedMessage);
+    } catch (err) {
+      setUploading(false);
+    }
+
+    if (!signature) {
+      return;
+    }
 
     const formInput = {
       signature,
