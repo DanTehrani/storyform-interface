@@ -28,7 +28,7 @@ export const SIGNATURE_DOMAIN = {
 export const SIGNATURE_DATA_TYPES = {
   Setting: [
     {
-      name: "requireEthereumWallet",
+      name: "requireZkMembershipProof",
       type: "bool"
     }
   ],

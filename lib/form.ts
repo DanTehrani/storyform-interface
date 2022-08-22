@@ -106,6 +106,11 @@ export const getForms = async ({
       name: "Type",
       values: ["Form"],
       op: "EQ"
+    },
+    {
+      name: "Status",
+      values: ["active"],
+      op: "EQ"
     }
   ];
 
@@ -169,7 +174,8 @@ export const getForms = async ({
             title: form?.title,
             owner: form?.owner,
             unixTime: form?.unixTime,
-            arweaveTxId: tx.id
+            arweaveTxId: tx.id,
+            status: form?.status
           };
         })().catch(err => {
           // eslint-disable-next-line no-console

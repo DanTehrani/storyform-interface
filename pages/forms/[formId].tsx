@@ -28,6 +28,7 @@ import { motion } from "framer-motion";
 import useTranslation from "next-translate/useTranslation";
 import Trans from "next-translate/Trans";
 import Form from "../../components/Form";
+import FormDeleted from "../../components/FormDeleted";
 
 const FormPage: NextPage = () => {
   const { query } = useRouter();
@@ -53,7 +54,11 @@ const FormPage: NextPage = () => {
     return <FormSkeleton></FormSkeleton>;
   }
 
-  const questions = form.questions;
+  if (form.status === "deleted") {
+    return <FormDeleted></FormDeleted>;
+  }
+
+  const { questions, settings } = form;
 
   if (submissionComplete) {
     return (
@@ -96,7 +101,7 @@ const FormPage: NextPage = () => {
         isClosable: true
       });
     } else if (address) {
-      if (form.settings.requireZkMembershipProof) {
+      if (settings.requireZkMembershipProof) {
         // Generate zk ECDSA signature proof?
         const { submissionId, membershipFullProof, dataSubmissionFullProof } =
           await generateProof(formId, group);
@@ -123,7 +128,10 @@ const FormPage: NextPage = () => {
     }
   };
 
-  const isEligibleToAnswer = address && eligibleToAnswer(address, formId);
+  const isEligibleToAnswer =
+    settings.requireZkMembershipProof &&
+    address &&
+    eligibleToAnswer(address, formId);
 
   return (
     <Center width="100%" display={"flex"} flexDirection="column" p={6}>
@@ -137,7 +145,7 @@ const FormPage: NextPage = () => {
               information to enter.
             </Text>
           </Alert>
-          {!isConnected ? (
+          {settings.requireZkMembershipProof && !isConnected ? (
             <Alert status="warning">
               <AlertIcon />
               <Trans

@@ -18,7 +18,7 @@ export type FormIdPreImage = {
   questions: FormQuestion[];
   settings: FormSettings;
   owner: string;
-  status: "active" | "deleted";
+  status: string;
 };
 
 export type FormUploadInput = {
@@ -33,6 +33,7 @@ export type Form = {
   settings: FormSettings;
   owner: string;
   arweaveTxId: string;
+  status: string;
 };
 
 export type FormAnswer = {
@@ -100,8 +101,8 @@ export type FormJsonInput = {
 };
 
 export type FormSettings = {
-  requireEthereumWallet: boolean;
   requireZkMembershipProof: boolean;
+  erc721TokenAddress: string;
 };
 
 export type FormInput = {

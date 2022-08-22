@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useCallback, useState } from "react";
 import type { NextPage } from "next";
 import {
   Container,
@@ -41,6 +41,8 @@ const ManageForm: NextPage = () => {
     onClose: closeUpdateSuccessAlert,
     onOpen: openUpdateSuccessAlert
   } = useDisclosure({ defaultIsOpen: false });
+  const [showFormDeletedAlert, setShowFormDeletedAlert] =
+    useState<boolean>(false);
 
   useEffect(() => {
     if (formId) {
@@ -69,6 +71,22 @@ const ManageForm: NextPage = () => {
     }
   };
 
+  const handleDeleteFormClick = useCallback(async () => {
+    const unixTime = getCurrentUnixTime();
+    if (address && formId && formInput) {
+      await uploadForm({
+        id: formId,
+        owner: address,
+        unixTime,
+        title: formInput.title,
+        questions: formInput.questions,
+        settings: formInput.settings,
+        status: "deleted"
+      });
+      setShowFormDeletedAlert(true);
+    }
+  }, [address, formId, formInput, uploadForm]);
+
   // TODO: Check form ownership
 
   if (!isConnected) {
@@ -86,6 +104,8 @@ const ManageForm: NextPage = () => {
   if (!formInput) {
     return <FormSkeleton></FormSkeleton>;
   }
+
+  // TODO Create a UpdatingFormAlert and DeletingFormAlert components
 
   return (
     <Container mt={10} maxW={[700]}>
@@ -115,10 +135,17 @@ const ManageForm: NextPage = () => {
           <AlertIcon />
           <AlertTitle>Success!</AlertTitle>
           <AlertDescription>
-            <Text>
-              Your form is being updated! It will take a few minutes for the
-              update to be reflected.
-            </Text>
+            {showFormDeletedAlert ? (
+              <Text>
+                Your form is being deleted! It will take a few minutes for the
+                update to be reflected.
+              </Text>
+            ) : (
+              <Text>
+                Your form is being updated! It will take a few minutes for the
+                update to be reflected.
+              </Text>
+            )}
           </AlertDescription>
         </Alert>
       ) : (
@@ -138,7 +165,11 @@ const ManageForm: NextPage = () => {
             <FormSettingsTab context={EditFormContext}></FormSettingsTab>
           </TabPanel>
           <TabPanel>
-            <Button variant="outline" colorScheme="red">
+            <Button
+              variant="outline"
+              colorScheme="red"
+              onClick={handleDeleteFormClick}
+            >
               Delete from
             </Button>
           </TabPanel>
