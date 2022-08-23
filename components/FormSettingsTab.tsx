@@ -1,46 +1,46 @@
 import { useContext } from "react";
-import { Stack, Checkbox, Input, Select } from "@chakra-ui/react";
+import { Stack, Text, Input, Select } from "@chakra-ui/react";
 
-const membershipOptions = [
+const respondentCriteriaOptions = [
   {
-    label: "Own a specific ERC721 token",
-    value: "erc721"
+    label: "Anyone",
+    value: "ANYONE"
   }
+  /*
+  {
+    label: "ERC721 token holders",
+    value: "ERC721"
+  }
+  */
 ];
 
+// TBD
 const FormSettingsTab = ({ context }) => {
   const { formInput, updateSettings } = useContext(context);
 
   return (
     <Stack>
-      <Checkbox
-        onChange={e => {
-          updateSettings({
-            ...formInput.settings,
-            requireZkMembershipProof: e.target.checked
-          });
-        }}
-        isChecked={true || formInput.settings.requireZkMembershipProof}
-        disabled
-      >
-        Require membership proof
-      </Checkbox>
+      <Text>Who can answer?</Text>
       <Select>
-        {membershipOptions.map((option, i) => (
+        {respondentCriteriaOptions.map((option, i) => (
           <option value={option.value} key={i}>
             {option.label}
           </option>
         ))}
       </Select>
-      <Input
-        placeholder="ERC721 token address"
-        onChange={e => {
-          updateSettings({
-            ...formInput.settings,
-            erc721TokenAddress: e.target.value
-          });
-        }}
-      ></Input>
+      {formInput.settings.respondentCriteria === "ERC721" ? (
+        <Input
+          placeholder="ERC721 token address"
+          onChange={e => {
+            updateSettings({
+              ...formInput.settings,
+              erc721TokenAddress: e.target.value
+            });
+          }}
+        ></Input>
+      ) : (
+        <></>
+      )}
     </Stack>
   );
 };

@@ -101,8 +101,7 @@ export type FormJsonInput = {
 };
 
 export type FormSettings = {
-  requireZkMembershipProof: boolean;
-  erc721TokenAddress: string;
+  respondentCriteria: "ANYONE" | "ERC721";
 };
 
 export type FormInput = {

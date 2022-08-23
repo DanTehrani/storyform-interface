@@ -101,7 +101,7 @@ const FormPage: NextPage = () => {
         isClosable: true
       });
     } else if (address) {
-      if (settings.requireZkMembershipProof) {
+      if (settings.respondentCriteria === "ERC721") {
         // Generate zk ECDSA signature proof?
         const { submissionId, membershipFullProof, dataSubmissionFullProof } =
           await generateProof(formId, group);
@@ -115,7 +115,7 @@ const FormPage: NextPage = () => {
           unixTime: Math.floor(Date.now() / 1000)
         });
       } else {
-        // Just submit, without requiring anything else.
+        // TODO Generate a submission id randomly
         const submissionId = await getSubmissionId(formId);
 
         submitForm({
@@ -128,10 +128,7 @@ const FormPage: NextPage = () => {
     }
   };
 
-  const isEligibleToAnswer =
-    settings.requireZkMembershipProof &&
-    address &&
-    eligibleToAnswer(address, formId);
+  const isEligibleToAnswer = address && eligibleToAnswer(address, formId);
 
   return (
     <Center width="100%" display={"flex"} flexDirection="column" p={6}>
@@ -145,7 +142,7 @@ const FormPage: NextPage = () => {
               information to enter.
             </Text>
           </Alert>
-          {settings.requireZkMembershipProof && !isConnected ? (
+          {settings.respondentCriteria === "ERC721" && !isConnected ? (
             <Alert status="warning">
               <AlertIcon />
               <Trans

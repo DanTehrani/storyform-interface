@@ -48,7 +48,7 @@ const SubmittingFormModal = ({
           <ModalHeader></ModalHeader>
           <ModalBody>
             <VStack align="left">
-              {formSettings.requireZkMembershipProof ? (
+              {formSettings.respondentCriteria === "ERC721" ? (
                 <HStack>
                   {generatingProof ? (
                     <StyledCircularProgress></StyledCircularProgress>

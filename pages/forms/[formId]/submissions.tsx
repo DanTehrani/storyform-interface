@@ -64,7 +64,7 @@ const Submission: NextPage = () => {
                 <Th key={i}>{question.label}</Th>
               ))}
               <Th>Arweave</Th>
-              {settings.requireZkMembershipProof ? (
+              {settings.respondentCriteria === "ERC721" ? (
                 <Th>{t("zk-verification-log")}</Th>
               ) : (
                 <></>
@@ -98,7 +98,7 @@ const Submission: NextPage = () => {
                   </Link>
                   &nbsp; {submission.arweaveTxStatus === 202 ? "(Pending)" : ""}
                 </Td>
-                {settings.requireZkMembershipProof ? (
+                {settings.respondentCriteria === "ERC721" ? (
                   <Td>
                     <Link
                       href={getEtherscanLogPageUrl(submission.verificationTx)}
