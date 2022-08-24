@@ -180,6 +180,7 @@ const FormPage: NextPage = () => {
         </VStack>
         <Form
           title={form.title}
+          description={form.description}
           questions={form.questions}
           isSubmitDisabled={false}
           onSubmit={handleSubmitClick}

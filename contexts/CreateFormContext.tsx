@@ -9,6 +9,7 @@ import {
 const defaultState = {
   formInput: {
     title: "",
+    description: "",
     questions: [
       {
         label: "",

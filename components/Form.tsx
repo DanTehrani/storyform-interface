@@ -8,7 +8,8 @@ import {
   Heading,
   FormControl,
   FormLabel,
-  Input
+  Input,
+  Text
 } from "@chakra-ui/react";
 import ConnectWalletButton from "./ConnectWalletButton";
 import { useAccount } from "wagmi";
@@ -16,6 +17,7 @@ import { FormQuestion } from "../types";
 
 type Props = {
   title: string;
+  description: string;
   questions: FormQuestion[];
   isSubmitDisabled: boolean;
   onSubmit: (answers: string[]) => void;
@@ -23,6 +25,7 @@ type Props = {
 
 const Form: React.FC<Props> = ({
   title,
+  description,
   questions,
   isSubmitDisabled,
   onSubmit
@@ -46,10 +49,11 @@ const Form: React.FC<Props> = ({
 
   return (
     <Container>
-      <Heading size="md" mb={3} mt={6}>
+      <Heading size="md" mt={6}>
         {title}
       </Heading>
-      <FormControl>
+      <Text mt={4}>{description || "This is the description!"}</Text>
+      <FormControl mt={4}>
         {questions.map((question, i) => (
           <Box
             key={i}

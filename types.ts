@@ -14,6 +14,7 @@ export interface FormQuestion {
 
 export type FormIdPreImage = {
   title: string;
+  description: string;
   unixTime: number;
   questions: FormQuestion[];
   settings: FormSettings;
@@ -110,6 +111,7 @@ export type FormSettings = {
 
 export type FormInput = {
   title: string;
+  description: string;
   questions: FormQuestion[];
   settings: FormSettings;
 };

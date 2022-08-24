@@ -81,26 +81,35 @@ const FormQuestionsTab: React.FC<Props> = ({ context }) => {
     }
   };
 
-  const handleTitleUpdate = (value: string) => {
+  const handleUpdate = (key: string, value: string) => {
     setFormInput({
       ...formInput,
-      title: value
+      [key]: value
     });
   };
 
   return (
     <>
       <Input
-        size="lg"
+        fontSize="2xl"
         mt={4}
-        placeholder="Title of your form"
+        placeholder="Form title"
         value={formInput.title}
         onChange={e => {
-          handleTitleUpdate(e.target.value);
+          handleUpdate("title", e.target.value);
         }}
         variant="flushed"
       ></Input>
-      <Stack gap={4} mt={4}>
+      <Input
+        placeholder="Form description"
+        value={formInput.description}
+        onChange={e => {
+          handleUpdate("description", e.target.value);
+        }}
+        variant="flushed"
+        mt={6}
+      ></Input>
+      <Stack gap={4} mt={6}>
         {formInput.questions.map((formQuestion, i) => (
           <FormInputCard
             context={context}

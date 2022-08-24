@@ -57,6 +57,7 @@ export const EditFormContextProvider = ({ children }) => {
       // Be backward compatible. Set default values of new settings here.
       setFormInput({
         title: _form.title,
+        description: _form.description || "",
         questions: _form.questions,
         settings: {
           respondentCriteria: "ANYONE",
