@@ -33,11 +33,13 @@ const FormSettingsTab: React.FC<Props> = ({ context }) => {
 
   return (
     <Stack spacing={5}>
+      <Text as="i">Coming soon...</Text>
       <Box>
         <Text fontSize="lg" mb={1}>
           Encryption
         </Text>
         <Checkbox
+          disabled
           onChange={e => {
             updateSettings({
               ...settings,
@@ -54,7 +56,7 @@ const FormSettingsTab: React.FC<Props> = ({ context }) => {
         <Text fontSize="lg" mb={1}>
           Who can answer?
         </Text>
-        <Select>
+        <Select disabled>
           {respondentCriteriaOptions.map((option, i) => (
             <option value={option.value} key={i}>
               {option.label}

@@ -61,7 +61,7 @@ export const EditFormContextProvider = ({ children }) => {
         questions: _form.questions,
         settings: {
           respondentCriteria: "ANYONE",
-          encryptAnswers: _form.settings.encryptAnswers || false
+          encryptAnswers: _form.settings.encryptAnswers || false // TODO DRY by creating a DEFAULT_SETTING object
         }
       });
     } else {

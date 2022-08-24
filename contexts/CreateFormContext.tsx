@@ -19,7 +19,7 @@ const defaultState = {
     ],
     settings: {
       respondentCriteria: "ANYONE",
-      encryptAnswers: true
+      encryptAnswers: false
     }
   },
   setFormInput: () => null,
