@@ -97,11 +97,6 @@ export type Pagination = {
   after?: string;
 };
 
-export type FormJsonInput = {
-  title: string;
-  questions: FormQuestion[];
-};
-
 export type FormSettings = {
   respondentCriteria: string;
   encryptAnswers: boolean;
