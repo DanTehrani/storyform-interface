@@ -54,10 +54,14 @@ export const EditFormContextProvider = ({ children }) => {
   const getForm = useCallback(async (formId: string) => {
     const _form = await _getForm(formId);
     if (_form) {
+      // Be backward compatible. Set default values of new settings here.
       setFormInput({
         title: _form.title,
         questions: _form.questions,
-        settings: _form.settings || {}
+        settings: {
+          respondentCriteria: "ANYONE",
+          encryptAnswers: _form.settings.encryptAnswers || false
+        }
       });
     } else {
       setFormNotFound(true);

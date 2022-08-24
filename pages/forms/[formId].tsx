@@ -13,15 +13,14 @@ import {
   useGroup,
   useForm,
   useSubmitForm,
-  useGenerateProof,
-  useGetSubmissionId
+  useGenerateProof
 } from "../../hooks";
 import FormNotFoundOrUploading from "../../components/FormNotFoundOrUploading";
 import { useRouter } from "next/router";
 import { SEMAPHORE_GROUP_ID } from "../../config";
 import FormSkeleton from "../../components/FormSkeleton";
 import { useAccount } from "wagmi";
-import { notEmpty, eligibleToAnswer } from "../../utils";
+import { notEmpty, eligibleToAnswer, getCurrentUnixTime } from "../../utils";
 import ConnectWalletLinkButton from "../../components/ConnectWalletLinkButton";
 import SubmittingFormModal from "../../components/SubmittingFormModal";
 import { motion } from "framer-motion";
@@ -29,6 +28,7 @@ import useTranslation from "next-translate/useTranslation";
 import Trans from "next-translate/Trans";
 import Form from "../../components/Form";
 import FormDeleted from "../../components/FormDeleted";
+import { encryptSafely } from "@metamask/eth-sig-util";
 
 const FormPage: NextPage = () => {
   const { query } = useRouter();
@@ -44,7 +44,6 @@ const FormPage: NextPage = () => {
   const { form, formNotFound } = useForm(formId);
   const { submitForm, submissionComplete, submittingForm } = useSubmitForm();
   const { generatingProof, generateProof } = useGenerateProof();
-  const getSubmissionId = useGetSubmissionId();
 
   if (formNotFound) {
     return <FormNotFoundOrUploading></FormNotFoundOrUploading>;
@@ -87,9 +86,9 @@ const FormPage: NextPage = () => {
     return <></>;
   }
 
-  const handleSubmitClick = async answers => {
+  const handleSubmitClick = async _answers => {
     const allRequiredAnswersProvided = !questions.some(({ required }, i) => {
-      const answer = answers.find((_, index) => index === i);
+      const answer = _answers.find((_, index) => index === i);
       return required && (answer === "" || !notEmpty(answer));
     });
 
@@ -101,6 +100,22 @@ const FormPage: NextPage = () => {
         isClosable: true
       });
     } else if (address) {
+      const { encryptionPubKey, encryptAnswers } = settings;
+
+      if (encryptAnswers && !encryptionPubKey) {
+        // TODO Show error.
+        return;
+      }
+
+      const answers = encryptAnswers
+        ? encryptSafely({
+            data: JSON.stringify(_answers, null, 0),
+            // @ts-ignore
+            publicKey: settings.encryptionPubKey,
+            version: "x25519-xsalsa20-poly1305"
+          })
+        : _answers;
+
       if (settings.respondentCriteria === "ERC721") {
         // Generate zk ECDSA signature proof?
         const { submissionId, membershipFullProof, dataSubmissionFullProof } =
@@ -112,17 +127,14 @@ const FormPage: NextPage = () => {
           membershipProof: JSON.stringify(membershipFullProof, null, 0),
           dataSubmissionProof: JSON.stringify(dataSubmissionFullProof, null, 0),
           answers,
-          unixTime: Math.floor(Date.now() / 1000)
+          unixTime: getCurrentUnixTime()
         });
       } else {
-        // TODO Generate a submission id randomly
-        const submissionId = await getSubmissionId(formId);
-
+        // No need to specify a submission id.
         submitForm({
           formId,
-          submissionId: submissionId.toString(),
           answers,
-          unixTime: Math.floor(Date.now() / 1000)
+          unixTime: getCurrentUnixTime()
         });
       }
     }

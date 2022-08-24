@@ -25,7 +25,11 @@ import {
 } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
-import { useUploadForm } from "../hooks";
+import {
+  useUploadForm,
+  useGetIdentitySecret,
+  useGetEncryptionKeyPair
+} from "../hooks";
 import { getCurrentUnixTime, getFormIdFromForm } from "../utils";
 
 import useTranslation from "next-translate/useTranslation";
@@ -37,6 +41,7 @@ import FormSettingsTab from "../components/FormSettingsTab";
 import ConnectWalletButton from "../components/ConnectWalletButton";
 import { CopyIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { FormIdPreImage } from "../types";
+import { getEncryptionPublicKey } from "@metamask/eth-sig-util";
 
 const CreateFormHeading = () => {
   const { t } = useTranslation("create");
@@ -61,6 +66,7 @@ const Create: NextPage = () => {
     onClose: closeUploadSuccessAlert,
     onOpen: openUploadSuccessAlert
   } = useDisclosure({ defaultIsOpen: false });
+  const getEncryptionKeyPair = useGetEncryptionKeyPair();
 
   useEffect(() => {
     if (hasCopied) {
@@ -95,6 +101,11 @@ const Create: NextPage = () => {
         settings: formInput.settings,
         status: "active"
       };
+
+      if (formInput.settings.encryptAnswers) {
+        const { pubKey } = await getEncryptionKeyPair();
+        formIdPreImage.settings.encryptionPubKey = pubKey;
+      }
 
       const formId = getFormIdFromForm(formIdPreImage);
 

@@ -28,6 +28,7 @@ export type FormUploadInput = {
 export type Form = {
   id: string;
   title: string;
+  description: string;
   unixTime: number;
   questions: FormQuestion[];
   settings: FormSettings;
@@ -77,8 +78,8 @@ export type FormSubmission = {
 
 export type FormSubmissionInput = {
   formId: string;
-  answers: string[];
-  submissionId: string;
+  answers?: string[] | string;
+  submissionId?: string;
   membershipProof?: string;
   dataSubmissionProof?: string;
   unixTime: number;
@@ -101,7 +102,10 @@ export type FormJsonInput = {
 };
 
 export type FormSettings = {
-  respondentCriteria: "ANYONE" | "ERC721";
+  respondentCriteria: string;
+  encryptAnswers: boolean;
+  encryptionPubKey?: string;
+  erc721TokenAddress?: string;
 };
 
 export type FormInput = {

@@ -17,7 +17,8 @@ const defaultState = {
       }
     ],
     settings: {
-      requireZkMembershipProof: true
+      respondentCriteria: "ANYONE",
+      encryptAnswers: true
     }
   },
   setFormInput: () => null,

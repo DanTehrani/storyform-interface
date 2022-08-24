@@ -19,7 +19,7 @@ import {
   AlertDescription,
   useDisclosure
 } from "@chakra-ui/react";
-import { useUploadForm } from "../../../hooks";
+import { useGetEncryptionKeyPair, useUploadForm } from "../../../hooks";
 import FormNotFoundOrUploading from "../../../components/FormNotFoundOrUploading";
 import { useRouter } from "next/router";
 import { useAccount } from "wagmi";
@@ -43,6 +43,7 @@ const ManageForm: NextPage = () => {
   } = useDisclosure({ defaultIsOpen: false });
   const [showFormDeletedAlert, setShowFormDeletedAlert] =
     useState<boolean>(false);
+  const getEncryptionKeyPair = useGetEncryptionKeyPair();
 
   useEffect(() => {
     if (formId) {
@@ -58,7 +59,13 @@ const ManageForm: NextPage = () => {
 
   const handleSaveClick = async () => {
     if (address && formId && formInput) {
+      if (formInput.settings.encryptAnswers) {
+        const { pubKey } = await getEncryptionKeyPair();
+        formInput.settings.encryptionPubKey = pubKey;
+      }
+
       const unixTime = getCurrentUnixTime();
+
       await uploadForm({
         id: formId,
         owner: address,

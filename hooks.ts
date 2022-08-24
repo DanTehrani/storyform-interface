@@ -8,6 +8,7 @@ import {
   useProvider,
   useAccount
 } from "wagmi";
+import { utils } from "ethers";
 import { STORY_FORM_ADDRESS } from "./config";
 import StormFormABI from "./abi/StoryForm.json";
 import { Group } from "@semaphore-protocol/group";
@@ -30,6 +31,8 @@ const {
 } = require("@semaphore-protocol/proof");
 import { groth16Prove as generateDataSubmissionProof } from "./lib/zksnark";
 import ConnectWalletModalContext from "./contexts/ConnectWalletModalContext";
+import { getEncryptionPublicKey, normalize } from "@metamask/eth-sig-util";
+import { keccak256 } from "ethers/lib/utils";
 
 const useStoryForm = () => {
   const provider = useProvider({
@@ -77,11 +80,30 @@ export const useGetIdentitySecret = () => {
     message: "Keep this secret safe"
   });
 
-  const getIdentitySecret = async () => {
+  const getIdentitySecret = async (): Promise<bigint> => {
     return poseidon([await signMessageAsync()]);
   };
 
   return getIdentitySecret;
+};
+
+export const useGetEncryptionKeyPair = () => {
+  const { signMessageAsync } = useSignMessage({
+    message: "Keep this secret safe"
+  });
+
+  const getEncryptionKeyPair = async (): Promise<{
+    privKey: string;
+    pubKey: string;
+  }> => {
+    const privKey = utils.keccak256(
+      utils.toUtf8Bytes(await signMessageAsync())
+    );
+    const pubKey = getEncryptionPublicKey(privKey.replace("0x", ""));
+    return { privKey, pubKey };
+  };
+
+  return getEncryptionKeyPair;
 };
 
 export const useGetIdentity = () => {
@@ -89,7 +111,7 @@ export const useGetIdentity = () => {
 
   const getIdentity = async () => {
     const secret = await getIdentitySecret();
-    const identity = new Identity(secret);
+    const identity = new Identity(secret.toString());
     return identity;
   };
 
@@ -115,6 +137,33 @@ export const useForm = (formId: string | undefined) => {
   }, [formId]);
 
   return { form, formNotFound };
+};
+
+export const useEncryptedSubmissions = (
+  formId: string | undefined,
+  pagination: Pagination
+) => {
+  const { first, after } = pagination;
+  const [submissions, setSubmissions] = useState<FormSubmission[] | null>();
+  const storyForm = useStoryForm();
+
+  useEffect(() => {
+    (async () => {
+      if (formId) {
+        setSubmissions(
+          await getSubmissions({
+            formId,
+            first,
+            after,
+            storyForm
+          })
+        );
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [after, first, formId]);
+
+  return submissions;
 };
 
 export const useSubmissions = (
@@ -151,6 +200,7 @@ export const useUploadForm = () => {
   const provider = useProvider({
     chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "31337")
   });
+
   const { signTypedDataAsync } = useSignTypedData();
 
   const uploadForm = async (form: FormUploadInput) => {
@@ -250,22 +300,6 @@ export const usePagination = (
     pagination,
     setPagination
   };
-};
-
-export const useGetSubmissionId = () => {
-  const getIdentitySecret = useGetIdentitySecret();
-
-  const getSubmissionId = async (formId: string): Promise<bigint> => {
-    const secret = await getIdentitySecret();
-
-    const secretBI = BigInt(secret);
-    const formIdBI = BigInt(`0x${formId.slice(2)}`);
-    const submissionId = poseidon([secretBI, formIdBI]);
-
-    return submissionId;
-  };
-
-  return getSubmissionId;
 };
 
 export const useGenerateProof = () => {

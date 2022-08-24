@@ -119,3 +119,26 @@ export const getSubmissions = async ({
 
   return submissions;
 };
+
+export const getDecryptedSubmissions = async ({
+  formId,
+  first,
+  after,
+  storyForm,
+  privKey
+}: {
+  formId: string;
+  first: number;
+  after?: string;
+  storyForm: any;
+  privKey: string;
+}) => {
+  const submissions = await getSubmissions({
+    formId,
+    first,
+    after,
+    storyForm
+  });
+
+  // TODO: Decrypt answers and return
+};

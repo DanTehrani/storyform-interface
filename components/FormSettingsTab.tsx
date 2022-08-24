@@ -1,5 +1,7 @@
 import { useContext } from "react";
-import { Stack, Text, Input, Select } from "@chakra-ui/react";
+import { Stack, Text, Input, Select, Checkbox, Box } from "@chakra-ui/react";
+import CreateFormContext from "../contexts/CreateFormContext";
+import EditFormContext from "../contexts/EditFormContext";
 
 const respondentCriteriaOptions = [
   {
@@ -14,33 +16,66 @@ const respondentCriteriaOptions = [
   */
 ];
 
+type Props = {
+  context: typeof CreateFormContext | typeof EditFormContext;
+};
+
 // TBD
-const FormSettingsTab = ({ context }) => {
+const FormSettingsTab: React.FC<Props> = ({ context }) => {
+  // @ts-ignore
   const { formInput, updateSettings } = useContext(context);
 
+  if (!formInput) {
+    return <></>;
+  }
+
+  const { settings } = formInput;
+
   return (
-    <Stack>
-      <Text>Who can answer?</Text>
-      <Select>
-        {respondentCriteriaOptions.map((option, i) => (
-          <option value={option.value} key={i}>
-            {option.label}
-          </option>
-        ))}
-      </Select>
-      {formInput.settings.respondentCriteria === "ERC721" ? (
-        <Input
-          placeholder="ERC721 token address"
+    <Stack spacing={5}>
+      <Box>
+        <Text fontSize="lg" mb={1}>
+          Encryption
+        </Text>
+        <Checkbox
           onChange={e => {
             updateSettings({
-              ...formInput.settings,
-              erc721TokenAddress: e.target.value
+              ...settings,
+              encryptAnswers: e.target.checked
             });
           }}
-        ></Input>
-      ) : (
-        <></>
-      )}
+          isChecked={settings.encryptAnswers}
+        >
+          Encrypt answers
+        </Checkbox>
+      </Box>
+      <hr />
+      <Box>
+        <Text fontSize="lg" mb={1}>
+          Who can answer?
+        </Text>
+        <Select>
+          {respondentCriteriaOptions.map((option, i) => (
+            <option value={option.value} key={i}>
+              {option.label}
+            </option>
+          ))}
+        </Select>
+        {settings.respondentCriteria === "ERC721" ? (
+          <Input
+            placeholder="ERC721 token address"
+            onChange={e => {
+              updateSettings({
+                ...settings,
+                erc721TokenAddress: e.target.value
+              });
+            }}
+          ></Input>
+        ) : (
+          <></>
+        )}
+      </Box>
+      <hr />
     </Stack>
   );
 };

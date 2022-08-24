@@ -75,7 +75,6 @@ export const getForm = async (formId: string): Promise<Form | null> => {
   const form = data
     ? {
         ...JSON.parse(data),
-        context: {},
         arweaveTxId: txId
       }
     : null;

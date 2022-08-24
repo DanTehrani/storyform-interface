@@ -25,10 +25,15 @@ export const SIGNATURE_DOMAIN = {
   }
 };
 
+// TODO: Use different data type for different settings (e.g. encryptionPubKey is an optional value)
 export const SIGNATURE_DATA_TYPES = {
   Setting: [
     {
-      name: "requireZkMembershipProof",
+      name: "respondentCriteria",
+      type: "string"
+    },
+    {
+      name: "encryptAnswers",
       type: "bool"
     }
   ],
