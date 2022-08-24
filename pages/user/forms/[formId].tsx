@@ -71,6 +71,7 @@ const ManageForm: NextPage = () => {
         owner: address,
         unixTime,
         title: formInput.title,
+        description: formInput.description,
         questions: formInput.questions,
         settings: formInput.settings,
         status: "active"
@@ -86,6 +87,7 @@ const ManageForm: NextPage = () => {
         owner: address,
         unixTime,
         title: formInput.title,
+        description: formInput.description,
         questions: formInput.questions,
         settings: formInput.settings,
         status: "deleted"
