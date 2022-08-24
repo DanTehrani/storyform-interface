@@ -45,10 +45,6 @@ const Navbar = () => {
     {
       label: t("create-a-form"),
       url: "/create"
-    },
-    {
-      label: "Explore",
-      url: "/forms"
     }
   ];
 
