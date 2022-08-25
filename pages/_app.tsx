@@ -35,7 +35,7 @@ const { provider } = configureChains(chains, [
 ]);
 
 const client = createClient({
-  autoConnect: false,
+  autoConnect: process.env.NODE_ENV !== "development",
   provider,
   connectors: [
     new MetaMaskConnector({ chains }),
