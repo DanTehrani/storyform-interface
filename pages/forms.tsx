@@ -37,6 +37,8 @@ const Forms: NextPage = () => {
     return <FormsPageSkeleton></FormsPageSkeleton>;
   }
 
+  // TODO Show no forms message when no forms
+
   const handleAnswerClick = (formId: string) => {
     router.push(`/forms/${formId}`);
   };
