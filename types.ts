@@ -20,6 +20,7 @@ export type FormIdPreImage = {
   settings: FormSettings;
   owner: string;
   status: string;
+  appId: string;
 };
 
 export type FormUploadInput = {
@@ -84,6 +85,7 @@ export type FormSubmissionInput = {
   membershipProof?: string;
   dataSubmissionProof?: string;
   unixTime: number;
+  appId: string;
 };
 
 export type ProofInputs = {

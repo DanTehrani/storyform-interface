@@ -17,7 +17,7 @@ import {
 } from "../../hooks";
 import FormNotFoundOrUploading from "../../components/FormNotFoundOrUploading";
 import { useRouter } from "next/router";
-import { SEMAPHORE_GROUP_ID } from "../../config";
+import { APP_ID, SEMAPHORE_GROUP_ID } from "../../config";
 import FormSkeleton from "../../components/FormSkeleton";
 import { useAccount } from "wagmi";
 import { notEmpty, eligibleToAnswer, getCurrentUnixTime } from "../../utils";
@@ -127,14 +127,16 @@ const FormPage: NextPage = () => {
           membershipProof: JSON.stringify(membershipFullProof, null, 0),
           dataSubmissionProof: JSON.stringify(dataSubmissionFullProof, null, 0),
           answers,
-          unixTime: getCurrentUnixTime()
+          unixTime: getCurrentUnixTime(),
+          appId: APP_ID
         });
       } else {
         // No need to specify a submission id.
         submitForm({
           formId,
           answers,
-          unixTime: getCurrentUnixTime()
+          unixTime: getCurrentUnixTime(),
+          appId: APP_ID
         });
       }
     }
