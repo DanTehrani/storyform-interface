@@ -58,6 +58,9 @@ const Create: NextPage = () => {
     onOpen: openUploadSuccessAlert
   } = useDisclosure({ defaultIsOpen: false });
   const getEncryptionKeyPair = useGetEncryptionKeyPair();
+  const { isOpen: isWarningOpen, onClose: onWarningClose } = useDisclosure({
+    defaultIsOpen: true
+  });
 
   useEffect(() => {
     if (hasCopied) {
@@ -115,6 +118,21 @@ const Create: NextPage = () => {
 
   return (
     <Container mt={10} maxW={[700]}>
+      {isWarningOpen ? (
+        <Alert status="warning" mt={4} mb={4}>
+          <AlertIcon />
+          <AlertDescription>
+            <Text>
+              The responses <Text as="b">will not be encrypted </Text>. They
+              will be plainly published on Arweave. So please carefully consider
+              what information to collect.
+            </Text>
+          </AlertDescription>
+          <CloseButton onClick={onWarningClose}></CloseButton>
+        </Alert>
+      ) : (
+        <></>
+      )}
       <Box textAlign="right">
         <Button
           isLoading={uploading}
@@ -125,6 +143,7 @@ const Create: NextPage = () => {
           Publish
         </Button>
       </Box>
+
       {isUploadSuccessAlertOpen ? (
         <Alert
           status="success"
