@@ -28,6 +28,7 @@ import FormSettingsTab from "../../../components/FormSettingsTab";
 import FormSkeleton from "../../../components/FormSkeleton";
 import EditFormContext from "../../../contexts/EditFormContext";
 import { getCurrentUnixTime } from "../../../utils";
+import { APP_ID } from "../../../config";
 import ConnectWalletButton from "../../../components/ConnectWalletButton";
 
 const ManageForm: NextPage = () => {
@@ -74,7 +75,8 @@ const ManageForm: NextPage = () => {
         description: formInput.description,
         questions: formInput.questions,
         settings: formInput.settings,
-        status: "active"
+        status: "active",
+        appId: APP_ID
       });
     }
   };
@@ -90,7 +92,8 @@ const ManageForm: NextPage = () => {
         description: formInput.description,
         questions: formInput.questions,
         settings: formInput.settings,
-        status: "deleted"
+        status: "deleted",
+        appId: APP_ID
       });
       setShowFormDeletedAlert(true);
     }

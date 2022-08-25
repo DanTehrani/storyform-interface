@@ -160,6 +160,7 @@ export const getForms = async ({
 
           return {
             id: getArweaveTxTagValue(tx, "Form-Id"),
+            description: form?.description,
             questions: form?.questions,
             settings: form?.settings || {},
             title: form?.title,
