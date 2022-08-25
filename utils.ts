@@ -106,3 +106,6 @@ export const getFormIdFromForm = (form: FormIdPreImage): string =>
 export const sleep = ms => {
   return new Promise(resolve => setTimeout(resolve, ms));
 };
+
+export const getFormUrl = (formId: string) =>
+  `${window.location.origin}/forms/${formId}`;

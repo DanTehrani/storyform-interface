@@ -33,6 +33,7 @@ import { groth16Prove as generateDataSubmissionProof } from "./lib/zksnark";
 import ConnectWalletModalContext from "./contexts/ConnectWalletModalContext";
 import { getEncryptionPublicKey, normalize } from "@metamask/eth-sig-util";
 import { keccak256 } from "ethers/lib/utils";
+import { getFormUrl } from "./utils";
 
 const useStoryForm = () => {
   const provider = useProvider({
@@ -230,7 +231,7 @@ export const useUploadForm = () => {
     };
 
     await axios.post("/forms", formInput);
-    setUrl(`${window.location.origin}/forms/${form.id}`);
+    setUrl(getFormUrl(form.id));
     setUploading(false);
     setUploadComplete(true); // TODO Change the name
   };

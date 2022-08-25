@@ -84,10 +84,6 @@ const Create: NextPage = () => {
   const { formInput } = useContext(CreateFormContext);
 
   const handleCreateClick = async () => {
-    if (!isConnected) {
-      await connectAsync();
-    }
-
     if (address) {
       const formIdPreImage: FormIdPreImage = {
         owner: address,
@@ -163,7 +159,7 @@ const Create: NextPage = () => {
               onClick={onCopy}
             ></IconButton>
             <IconButton
-              aria-label="Copy form url"
+              aria-label="Open form url"
               icon={<ExternalLinkIcon></ExternalLinkIcon>}
               onClick={() => {
                 if (url) {

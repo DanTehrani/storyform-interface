@@ -30,12 +30,15 @@ import EditFormContext from "../../../contexts/EditFormContext";
 import { getCurrentUnixTime } from "../../../utils";
 import { APP_ID } from "../../../config";
 import ConnectWalletButton from "../../../components/ConnectWalletButton";
+import FormShareTab from "../../../components/FormShareTab";
 
 const ManageForm: NextPage = () => {
   const { query } = useRouter();
   const { address, isConnected } = useAccount();
+
   const formId = query.formId?.toString();
-  const { getForm, formInput, formNotFound } = useContext(EditFormContext);
+  const { getForm, formInput, formNotFound, formOwner } =
+    useContext(EditFormContext);
   const { uploadForm, uploadComplete, uploading } = useUploadForm();
   const {
     isOpen: isUpdateSuccessAlertOpen,
@@ -99,7 +102,13 @@ const ManageForm: NextPage = () => {
     }
   }, [address, formId, formInput, uploadForm]);
 
-  // TODO: Check form ownership
+  if (isConnected && address !== formOwner) {
+    return (
+      <Center height="60vh">
+        <Text fontSize="xl">You`re not the owner of this form!🙄</Text>
+      </Center>
+    );
+  }
 
   if (!isConnected) {
     return (
@@ -116,8 +125,6 @@ const ManageForm: NextPage = () => {
   if (!formInput) {
     return <FormSkeleton></FormSkeleton>;
   }
-
-  // TODO Create a UpdatingFormAlert and DeletingFormAlert components
 
   return (
     <Container mt={10} maxW={[700]}>
@@ -167,6 +174,7 @@ const ManageForm: NextPage = () => {
         <TabList>
           <Tab>Questions</Tab>
           <Tab>Settings</Tab>
+          <Tab>Share</Tab>
           <Tab>Others</Tab>
         </TabList>
         <TabPanels>
@@ -175,6 +183,9 @@ const ManageForm: NextPage = () => {
           </TabPanel>
           <TabPanel>
             <FormSettingsTab context={EditFormContext}></FormSettingsTab>
+          </TabPanel>
+          <TabPanel>
+            <FormShareTab formId={formId || ""}></FormShareTab>
           </TabPanel>
           <TabPanel>
             <Button

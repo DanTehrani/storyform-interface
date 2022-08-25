@@ -7,7 +7,7 @@ const IMG_WIDTH = IMG_HEIGHT.map(h => h * IMG_RATIO);
 const FormNotFoundOrUploading = () => (
   <Center height="80vh" alignItems="center" flexDirection="column">
     <Text fontSize="xl">
-      The form is undergoing an update, or it does not exist
+      The form is undergoing an update or upload, or it does not exist
     </Text>
     <Image
       mt={5}
