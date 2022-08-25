@@ -32,12 +32,9 @@ import { encryptSafely } from "@metamask/eth-sig-util";
 
 const FormPage: NextPage = () => {
   const { query } = useRouter();
-  const router = useRouter();
   const { t } = useTranslation("[formId]");
 
   const { address, isConnected } = useAccount();
-
-  const toast = useToast();
 
   const { group } = useGroup(SEMAPHORE_GROUP_ID);
   const formId = query.formId?.toString();
@@ -57,7 +54,7 @@ const FormPage: NextPage = () => {
     return <FormDeleted></FormDeleted>;
   }
 
-  const { questions, settings } = form;
+  const { settings } = form;
   const { encryptionPubKey, encryptAnswers } = settings;
 
   if (submissionComplete) {
@@ -80,19 +77,7 @@ const FormPage: NextPage = () => {
   }
 
   const handleSubmitClick = async _answers => {
-    const allRequiredAnswersProvided = !questions.some(({ required }, i) => {
-      const answer = _answers.find((_, index) => index === i);
-      return required && (answer === "" || !notEmpty(answer));
-    });
-
-    if (!allRequiredAnswersProvided) {
-      toast({
-        title: t("please-fill-required-fields"),
-        status: "warning",
-        duration: 9000,
-        isClosable: true
-      });
-    } else if (encryptAnswers && address) {
+    if (encryptAnswers && address) {
       if (encryptAnswers && !encryptionPubKey) {
         // TODO Show error.
         return;

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import {
+  Stack,
+  Container,
   Text,
   Link,
   TableContainer,
@@ -10,9 +12,26 @@ import {
   Tr,
   Tbody,
   Td,
-  Icon
+  Icon,
+  Box,
+  AccordionPanel,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  Center,
+  AccordionIcon,
+  Heading,
+  ButtonGroup,
+  IconButton
 } from "@chakra-ui/react";
-import { CheckCircleIcon, MinusIcon, ExternalLinkIcon } from "@chakra-ui/icons";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  CheckCircleIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ExternalLinkIcon
+} from "@chakra-ui/icons";
 import type { NextPage } from "next";
 import { useForm, useSubmissions } from "../../../hooks";
 import FormsPageSkeleton from "../../../components/FormsPageSkeleton";
@@ -22,6 +41,24 @@ import {
   getTxArweaveExplorerUrl
 } from "../../../utils";
 import useTranslation from "next-translate/useTranslation";
+
+const StyledBox = props => {
+  return (
+    <Box
+      padding="24px"
+      borderWidth={1}
+      borderRadius={10}
+      mb={3}
+      bgColor="white"
+      borderColor="lightgrey"
+      {...props}
+    >
+      {props.children}
+    </Box>
+  );
+};
+
+const Line = () => <hr style={{ paddingTop: "10px", width: "100%" }}></hr>;
 
 const Submission: NextPage = () => {
   const { t } = useTranslation("form-submissions");
@@ -37,6 +74,14 @@ const Submission: NextPage = () => {
     after
   });
 
+  const onNextPageClick = () => {
+    // TODO: Implement this
+  };
+
+  const onPreviousClick = () => {
+    // TODO: Implement this
+  };
+
   if (formNotFound) {
     return <Text>Form not found</Text>;
   }
@@ -49,15 +94,17 @@ const Submission: NextPage = () => {
   const settings = form.settings;
 
   return (
-    <>
-      <TableContainer mt={5}>
+    <Box p={10}>
+      <Center>
+        <Heading mt={6}>{form.title}</Heading>
+      </Center>
+      <TableContainer mt={6}>
         <Table variant="simple">
           {!submissions.length ? (
             <TableCaption>{t("no-submissions")}</TableCaption>
           ) : (
             <></>
           )}
-          <TableCaption>{form.title}</TableCaption>
           <Thead>
             <Tr>
               {questions.map((question, i) => (
@@ -80,13 +127,14 @@ const Submission: NextPage = () => {
                     // eslint-disable-next-line security/detect-object-injection
                     <Td key={i}>{submission.answers[i] || ""}</Td>
                   ))}
-                <Td textAlign="center">
-                  {submission.verificationTx ? (
+
+                {submission.verificationTx ? (
+                  <Td textAlign="center">
                     <Icon as={CheckCircleIcon} color="green"></Icon>
-                  ) : (
-                    <Icon as={MinusIcon} color="green"></Icon>
-                  )}
-                </Td>
+                  </Td>
+                ) : (
+                  <></>
+                )}
                 <Td>
                   <Link
                     href={getTxArweaveExplorerUrl(submission.txId)}
@@ -98,7 +146,7 @@ const Submission: NextPage = () => {
                   </Link>
                   &nbsp; {submission.arweaveTxStatus === 202 ? "(Pending)" : ""}
                 </Td>
-                {settings.respondentCriteria === "ERC721" ? (
+                {submission.verificationTx ? (
                   <Td>
                     <Link
                       href={getEtherscanLogPageUrl(submission.verificationTx)}
@@ -116,8 +164,47 @@ const Submission: NextPage = () => {
             ))}
           </Tbody>
         </Table>
+        <Box textAlign="right" pr={4}>
+          <ButtonGroup mt={1}>
+            <IconButton
+              size="sm"
+              variant="ghost"
+              aria-label="previous-page"
+              icon={<ChevronLeftIcon></ChevronLeftIcon>}
+              onClick={onPreviousClick}
+            ></IconButton>
+            <IconButton
+              size="sm"
+              variant="ghost"
+              aria-label="next-page"
+              icon={<ChevronRightIcon></ChevronRightIcon>}
+              onClick={onNextPageClick}
+            ></IconButton>
+          </ButtonGroup>
+        </Box>
       </TableContainer>
-    </>
+      <StyledBox mt={8}>
+        <Stack>
+          <Text>Description</Text>
+          <Text>{form.description}</Text>
+          <Line></Line>
+          <Text>Surveyor</Text>
+          <Text>{form.owner}</Text>
+          <Line></Line>
+          <Text>Arweave</Text>
+          <Text>
+            <Link
+              isExternal
+              href={getTxArweaveExplorerUrl(form.arweaveTxId)}
+              textDecor="underline"
+            >
+              {form.arweaveTxId}
+            </Link>
+          </Text>
+          <Line></Line>
+        </Stack>
+      </StyledBox>
+    </Box>
   );
 };
 

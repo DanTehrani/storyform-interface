@@ -17,7 +17,6 @@ export const formSchemeValid = (form: Form): boolean =>
 export const formSubmissionSchemeValid = (
   formSubmission: FormSubmission
 ): boolean =>
-  notEmpty(formSubmission.submissionId) &&
   notEmpty(formSubmission.formId) &&
   notEmpty(formSubmission.unixTime) &&
   typeof formSubmission.answers !== "string";

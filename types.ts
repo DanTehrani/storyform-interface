@@ -71,10 +71,10 @@ export type WagmiEIP712TypedMessage = {
 export type FormSubmission = {
   formId: string;
   answers: string[];
-  submissionId: string;
+  submissionId?: string;
   txId: string;
   arweaveTxStatus: number;
-  verificationTx: string;
+  verificationTx?: string;
   unixTime: number;
 };
 
