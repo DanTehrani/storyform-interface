@@ -35,7 +35,7 @@ const Index: NextPage = () => {
         size="lg"
         variant="link"
         onClick={() => {
-          window.open("https://github.com/DanTehrani/zk-survey");
+          window.open("https://github.com/DanTehrani/storyform-interface");
         }}
       >
         GitHub
