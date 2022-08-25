@@ -19,6 +19,8 @@ import { MetaMaskConnector } from "wagmi/connectors/metaMask";
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 import ConnectWalletModal from "../components/ConnectWalletModal";
 import { ConnectWalletModalProvider } from "../contexts/ConnectWalletModalContext";
+import { CreateFormContextProvider } from "../contexts/CreateFormContext";
+import { EditFormContextProvider } from "../contexts/EditFormContext";
 
 const chains = [chain.hardhat, chain.goerli];
 
@@ -74,9 +76,13 @@ const Provider = ({ Component, pageProps }) => {
   return (
     <ChakraProvider>
       <ConnectWalletModalProvider>
-        <Navbar></Navbar>
-        <Component pageProps={pageProps} />
-        <ConnectWalletModal></ConnectWalletModal>
+        <EditFormContextProvider>
+          <CreateFormContextProvider>
+            <Navbar></Navbar>
+            <Component pageProps={pageProps} />
+            <ConnectWalletModal></ConnectWalletModal>
+          </CreateFormContextProvider>
+        </EditFormContextProvider>
       </ConnectWalletModalProvider>
     </ChakraProvider>
   );

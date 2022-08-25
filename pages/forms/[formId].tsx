@@ -13,47 +13,49 @@ import {
   useGroup,
   useForm,
   useSubmitForm,
-  useGenerateProof,
-  useGetSubmissionId
+  useGenerateProof
 } from "../../hooks";
-import FormNotFound from "../../components/FormNotFound";
+import FormNotFoundOrUploading from "../../components/FormNotFoundOrUploading";
 import { useRouter } from "next/router";
-import { SEMAPHORE_GROUP_ID } from "../../config";
+import { APP_ID, SEMAPHORE_GROUP_ID } from "../../config";
 import FormSkeleton from "../../components/FormSkeleton";
 import { useAccount } from "wagmi";
-import { notEmpty, eligibleToAnswer } from "../../utils";
+import { notEmpty, eligibleToAnswer, getCurrentUnixTime } from "../../utils";
 import ConnectWalletLinkButton from "../../components/ConnectWalletLinkButton";
 import SubmittingFormModal from "../../components/SubmittingFormModal";
 import { motion } from "framer-motion";
 import useTranslation from "next-translate/useTranslation";
 import Trans from "next-translate/Trans";
 import Form from "../../components/Form";
+import FormDeleted from "../../components/FormDeleted";
+import { encryptSafely } from "@metamask/eth-sig-util";
 
 const FormPage: NextPage = () => {
   const { query } = useRouter();
-  const router = useRouter();
   const { t } = useTranslation("[formId]");
 
   const { address, isConnected } = useAccount();
-
-  const toast = useToast();
 
   const { group } = useGroup(SEMAPHORE_GROUP_ID);
   const formId = query.formId?.toString();
   const { form, formNotFound } = useForm(formId);
   const { submitForm, submissionComplete, submittingForm } = useSubmitForm();
   const { generatingProof, generateProof } = useGenerateProof();
-  const getSubmissionId = useGetSubmissionId();
 
   if (formNotFound) {
-    return <FormNotFound></FormNotFound>;
+    return <FormNotFoundOrUploading></FormNotFoundOrUploading>;
   }
 
   if (!form) {
     return <FormSkeleton></FormSkeleton>;
   }
 
-  const questions = form.questions;
+  if (form.status === "deleted") {
+    return <FormDeleted></FormDeleted>;
+  }
+
+  const { settings } = form;
+  const { encryptionPubKey, encryptAnswers } = settings;
 
   if (submissionComplete) {
     return (
@@ -66,14 +68,6 @@ const FormPage: NextPage = () => {
         animate={{ opacity: 1, scale: 1 }}
       >
         <Text fontSize="lg">{t("thank-you-for-answering")}</Text>
-        <Button
-          mt={5}
-          onClick={() => {
-            router.push(`/forms/${formId}/submissions`);
-          }}
-        >
-          {t("view-answers")}
-        </Button>
       </Center>
     );
   }
@@ -82,21 +76,24 @@ const FormPage: NextPage = () => {
     return <></>;
   }
 
-  const handleSubmitClick = async answers => {
-    const allRequiredAnswersProvided = !questions.some(({ required }, i) => {
-      const answer = answers.find((_, index) => index === i);
-      return required && (answer === "" || !notEmpty(answer));
-    });
+  const handleSubmitClick = async _answers => {
+    if (encryptAnswers && address) {
+      if (encryptAnswers && !encryptionPubKey) {
+        // TODO Show error.
+        return;
+      }
 
-    if (!allRequiredAnswersProvided) {
-      toast({
-        title: t("please-fill-required-fields"),
-        status: "warning",
-        duration: 9000,
-        isClosable: true
-      });
-    } else if (address) {
-      if (form.context.requireZkMembershipProof) {
+      const answers = encryptAnswers
+        ? encryptSafely({
+            data: JSON.stringify(_answers, null, 0),
+            // @ts-ignore
+            publicKey: settings.encryptionPubKey,
+            version: "x25519-xsalsa20-poly1305"
+          })
+        : _answers;
+
+      if (settings.respondentCriteria === "ERC721") {
+        // Generate zk ECDSA signature proof?
         const { submissionId, membershipFullProof, dataSubmissionFullProof } =
           await generateProof(formId, group);
 
@@ -106,21 +103,18 @@ const FormPage: NextPage = () => {
           membershipProof: JSON.stringify(membershipFullProof, null, 0),
           dataSubmissionProof: JSON.stringify(dataSubmissionFullProof, null, 0),
           answers,
-          unixTime: Math.floor(Date.now() / 1000)
-        });
-      } else if (form.context.requireSignature) {
-        // Submit with a signature
-        // TODO: Implement this
-      } else {
-        const submissionId = await getSubmissionId(formId);
-
-        submitForm({
-          formId,
-          submissionId: submissionId.toString(),
-          answers,
-          unixTime: Math.floor(Date.now() / 1000)
+          unixTime: getCurrentUnixTime(),
+          appId: APP_ID
         });
       }
+    } else {
+      // No need to specify a submission id.
+      submitForm({
+        formId,
+        answers: _answers,
+        unixTime: getCurrentUnixTime(),
+        appId: APP_ID
+      });
     }
   };
 
@@ -138,7 +132,7 @@ const FormPage: NextPage = () => {
               information to enter.
             </Text>
           </Alert>
-          {!isConnected ? (
+          {settings.respondentCriteria === "ERC721" && !isConnected ? (
             <Alert status="warning">
               <AlertIcon />
               <Trans
@@ -164,6 +158,7 @@ const FormPage: NextPage = () => {
         </VStack>
         <Form
           title={form.title}
+          description={form.description}
           questions={form.questions}
           isSubmitDisabled={false}
           onSubmit={handleSubmitClick}
@@ -173,7 +168,7 @@ const FormPage: NextPage = () => {
         generatingProof={generatingProof}
         submittingForm={submittingForm}
         isOpen={generatingProof || submittingForm}
-        formContext={form.context}
+        formSettings={form.settings}
       ></SubmittingFormModal>
     </Center>
   );

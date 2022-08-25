@@ -1,60 +1,209 @@
-import { useState } from "react";
+import { useContext, useEffect, useCallback, useState } from "react";
 import type { NextPage } from "next";
 import {
-  Link,
-  AlertIcon,
-  Alert,
-  Heading,
-  Box,
-  FormControl,
-  FormLabel,
-  Button,
-  Input,
-  Text,
-  Select,
-  Center,
   Container,
-  ButtonGroup,
-  useToast
+  Tabs,
+  Tab,
+  TabList,
+  TabPanels,
+  TabPanel,
+  Box,
+  Button,
+  Center,
+  Alert,
+  AlertIcon,
+  CloseButton,
+  Stack,
+  AlertTitle,
+  Text,
+  AlertDescription,
+  useDisclosure
 } from "@chakra-ui/react";
-import {
-  useGroup,
-  useForm,
-  useSubmitForm,
-  useGenerateProof
-} from "../../../hooks";
-import FormNotFound from "../../../components/FormNotFound";
+import { useGetEncryptionKeyPair, useUploadForm } from "../../../hooks";
+import FormNotFoundOrUploading from "../../../components/FormNotFoundOrUploading";
 import { useRouter } from "next/router";
 import { useAccount } from "wagmi";
-import useTranslation from "next-translate/useTranslation";
+import FormQuestionsTab from "../../../components/FormTabs/FormQuestionsTab";
+import FormSettingsTab from "../../../components/FormTabs/FormSettingsTab";
+import FormShareTab from "../../../components/FormTabs/FormShareTab";
 import FormSkeleton from "../../../components/FormSkeleton";
-import FormEditor from "../../../components/FormEditor";
-import { Form } from "../../../types";
+import FormResponsesTab from "../../../components/FormTabs/FormResponsesTab";
+import EditFormContext from "../../../contexts/EditFormContext";
+import { getCurrentUnixTime } from "../../../utils";
+import { APP_ID } from "../../../config";
+import ConnectWalletButton from "../../../components/ConnectWalletButton";
 
 const ManageForm: NextPage = () => {
   const { query } = useRouter();
-  const formId = query.formId?.toString();
-  const { form, formNotFound } = useForm(formId);
+  const { address, isConnected } = useAccount();
 
-  const handleSaveClick = (updatedForm: Form) => {
-    // TBD
-    // Need to come up with a form update scheme
+  const formId = query.formId?.toString();
+  const { getForm, formInput, formNotFound, formOwner } =
+    useContext(EditFormContext);
+  const { uploadForm, uploadComplete, uploading } = useUploadForm();
+  const {
+    isOpen: isUpdateSuccessAlertOpen,
+    onClose: closeUpdateSuccessAlert,
+    onOpen: openUpdateSuccessAlert
+  } = useDisclosure({ defaultIsOpen: false });
+  const [showFormDeletedAlert, setShowFormDeletedAlert] =
+    useState<boolean>(false);
+  const getEncryptionKeyPair = useGetEncryptionKeyPair();
+
+  useEffect(() => {
+    if (formId) {
+      getForm(formId);
+    }
+  }, [formId, getForm]);
+
+  useEffect(() => {
+    if (uploadComplete) {
+      openUpdateSuccessAlert();
+    }
+  }, [uploadComplete, openUpdateSuccessAlert]);
+
+  const handleSaveClick = async () => {
+    if (address && formId && formInput) {
+      if (formInput.settings.encryptAnswers) {
+        const { pubKey } = await getEncryptionKeyPair();
+        formInput.settings.encryptionPubKey = pubKey;
+      }
+
+      const unixTime = getCurrentUnixTime();
+
+      await uploadForm({
+        id: formId,
+        owner: address,
+        unixTime,
+        title: formInput.title,
+        description: formInput.description,
+        questions: formInput.questions,
+        settings: formInput.settings,
+        status: "active",
+        appId: APP_ID
+      });
+    }
   };
 
-  if (formNotFound) {
-    return <FormNotFound></FormNotFound>;
+  const handleDeleteFormClick = useCallback(async () => {
+    const unixTime = getCurrentUnixTime();
+    if (address && formId && formInput) {
+      await uploadForm({
+        id: formId,
+        owner: address,
+        unixTime,
+        title: formInput.title,
+        description: formInput.description,
+        questions: formInput.questions,
+        settings: formInput.settings,
+        status: "deleted",
+        appId: APP_ID
+      });
+      setShowFormDeletedAlert(true);
+    }
+  }, [address, formId, formInput, uploadForm]);
+
+  if (isConnected && address !== formOwner) {
+    return (
+      <Center height="60vh">
+        <Text fontSize="xl">You`re not the owner of this form!🙄</Text>
+      </Center>
+    );
   }
 
-  if (!form) {
+  if (!isConnected) {
+    return (
+      <Center mt={4}>
+        <ConnectWalletButton></ConnectWalletButton>
+      </Center>
+    );
+  }
+
+  if (formNotFound) {
+    return <FormNotFoundOrUploading></FormNotFoundOrUploading>;
+  }
+
+  if (!formInput) {
     return <FormSkeleton></FormSkeleton>;
   }
 
   return (
-    <FormEditor
-      form={form}
-      onSave={handleSaveClick}
-      saveButtonLabel="保存"
-    ></FormEditor>
+    <Container mt={10} maxW={[700]}>
+      <Box textAlign="right">
+        <Button
+          isLoading={uploading}
+          variant="solid"
+          colorScheme="teal"
+          onClick={handleSaveClick}
+        >
+          Update
+        </Button>
+      </Box>
+      {isUpdateSuccessAlertOpen ? (
+        <Alert
+          status="success"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          textAlign="center"
+          mt={4}
+          mb={4}
+        >
+          <Stack alignItems="end" width="100%">
+            <CloseButton onClick={closeUpdateSuccessAlert}></CloseButton>
+          </Stack>
+          <AlertIcon />
+          <AlertTitle>Success!</AlertTitle>
+          <AlertDescription>
+            {showFormDeletedAlert ? (
+              <Text>
+                Your form is being deleted! It will take a few minutes for the
+                update to be reflected.
+              </Text>
+            ) : (
+              <Text>
+                Your form is being updated! It will take a few minutes for the
+                update to be reflected.
+              </Text>
+            )}
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <></>
+      )}
+      <Tabs mt={4}>
+        <TabList>
+          <Tab>Questions</Tab>
+          <Tab>Settings</Tab>
+          <Tab>Share</Tab>
+          <Tab>Responses</Tab>
+          <Tab>Others</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            <FormQuestionsTab context={EditFormContext}></FormQuestionsTab>
+          </TabPanel>
+          <TabPanel>
+            <FormSettingsTab context={EditFormContext}></FormSettingsTab>
+          </TabPanel>
+          <TabPanel>
+            <FormShareTab formId={formId || ""}></FormShareTab>
+          </TabPanel>
+          <TabPanel>
+            <FormResponsesTab formId={formId || ""}></FormResponsesTab>
+          </TabPanel>
+          <TabPanel>
+            <Button
+              variant="outline"
+              colorScheme="red"
+              onClick={handleDeleteFormClick}
+            >
+              Delete from
+            </Button>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </Container>
   );
 };
 

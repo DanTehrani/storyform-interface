@@ -11,6 +11,7 @@ import {
 } from "../utils";
 
 export const getForm = async (formId: string): Promise<Form | null> => {
+  // sort is HEIGHT_DESC by default
   const result = await arweaveGraphQl.query({
     query: gql`
       query transactions($first: Int!, $after: String, $tags: [TagFilter!]) {
@@ -44,11 +45,6 @@ export const getForm = async (formId: string): Promise<Form | null> => {
           name: "Type",
           values: ["Form"],
           op: "EQ"
-        },
-        {
-          name: "App-Version",
-          values: ["0.0.1"],
-          op: "EQ"
         }
       ]
     }
@@ -59,30 +55,64 @@ export const getForm = async (formId: string): Promise<Form | null> => {
     return null;
   }
 
-  const data: string | null = (
-    await arweave.transactions.getData(txId, {
-      decode: true,
-      string: true
-    })
-  ).toString();
-
-  if (!data) {
-    return null;
+  let data;
+  try {
+    data = (
+      await arweave.transactions.getData(txId, {
+        decode: true,
+        string: true
+      })
+    ).toString();
+  } catch (err) {
+    ///
   }
 
-  const parsed = JSON.parse(data);
+  // TODO: Filter out data with invalid format
 
-  return {
-    ...parsed,
-    context: {},
-    arweaveTxId: txId
-  };
+  const form = data
+    ? {
+        ...JSON.parse(data),
+        arweaveTxId: txId
+      }
+    : null;
+
+  return form;
 };
 
 export const getForms = async ({
   first,
-  after
-}: Pagination): Promise<Form[]> => {
+  after,
+  owner
+}: Pagination & {
+  owner?: string;
+  // TODO Return last  and first cursor
+}): Promise<Form[]> => {
+  const tags = [
+    {
+      name: "App-Id",
+      values: [APP_ID],
+      op: "EQ"
+    },
+    {
+      name: "Type",
+      values: ["Form"],
+      op: "EQ"
+    },
+    {
+      name: "Status",
+      values: ["active"],
+      op: "EQ"
+    }
+  ];
+
+  if (owner) {
+    tags.push({
+      name: "Owner",
+      values: [owner],
+      op: "EQ"
+    });
+  }
+
   const result = await arweaveGraphQl.query({
     query: gql`
       query transactions($first: Int!, $after: String, $tags: [TagFilter!]) {
@@ -102,23 +132,7 @@ export const getForms = async ({
     variables: {
       first,
       after,
-      tags: [
-        {
-          name: "App-Id",
-          values: [APP_ID],
-          op: "EQ"
-        },
-        {
-          name: "Type",
-          values: ["Form"],
-          op: "EQ"
-        },
-        {
-          name: "App-Version",
-          values: ["0.0.1"],
-          op: "EQ"
-        }
-      ]
+      tags
     }
   });
 
@@ -142,22 +156,23 @@ export const getForms = async ({
             data = null;
           }
 
-          if (!data) {
-            return null;
-          }
-
-          const form: Form = JSON.parse(data);
+          const form: Form = data ? JSON.parse(data) : null;
 
           return {
             id: getArweaveTxTagValue(tx, "Form-Id"),
+            description: form?.description,
             questions: form?.questions,
+            settings: form?.settings || {},
             title: form?.title,
-            context: form.context || {},
             owner: form?.owner,
             unixTime: form?.unixTime,
-            arweaveTxId: tx.id
+            arweaveTxId: tx.id,
+            status: form?.status
           };
-        })().catch(err => err)
+        })().catch(err => {
+          // eslint-disable-next-line no-console
+          console.error(err);
+        })
       )
     )
   )
@@ -168,7 +183,7 @@ export const getForms = async ({
         console.log(`Invalid form ${JSON.stringify(form)}`);
       return form;
     })
-    .filter(formSchemeValid);
+    .filter(formSchemeValid); // Also filters out forms with data still unavailable.
 
   return forms;
 };

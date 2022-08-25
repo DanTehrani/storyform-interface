@@ -12,7 +12,7 @@ import {
 } from "../utils";
 
 export const submitAnswer = async (submission: FormSubmissionInput) => {
-  const res = await axios.post(`/answers`, submission);
+  await axios.post(`/answers`, submission);
 };
 
 export const getSubmissions = async ({
@@ -60,17 +60,13 @@ export const getSubmissions = async ({
           name: "Form-Id",
           values: [formId],
           op: "EQ"
-        },
-        {
-          name: "App-Version",
-          values: ["0.0.1"],
-          op: "EQ"
         }
       ]
     }
   });
 
-  const transactions = getLatestByTagValue(result, "Submission-Id");
+  //  const transactions = getLatestByTagValue(result, "Submission-Id");
+  const transactions = result.data.transactions.edges.map(({ node }) => node);
 
   const submissions: FormSubmission[] = (
     await Promise.all(
@@ -92,6 +88,7 @@ export const getSubmissions = async ({
 
           const transactionStatus = await arweave.transactions.getStatus(tx.id);
 
+          /*
           const submissionId = getArweaveTxTagValue(tx, "Submission-Id");
 
           const verificationLogs = await storyForm.queryFilter(
@@ -100,14 +97,15 @@ export const getSubmissions = async ({
 
           const verificationTx =
             verificationLogs?.length && verificationLogs[0];
+          */
 
           return {
             txId: tx.id,
             formId: getArweaveTxTagValue(tx, "Form-Id"),
             answers: (data && JSON.parse(data).answers) || [],
-            submissionId,
+            // submissionId,
             arweaveTxStatus: transactionStatus.status,
-            verificationTx: verificationTx?.transactionHash,
+            //            verificationTx: verificationTx?.transactionHash,
             unixTime: parseInt(getArweaveTxTagValue(tx, "Unix-Time"))
           };
         })().catch(err => err)
@@ -118,4 +116,27 @@ export const getSubmissions = async ({
     .filter(formSubmissionSchemeValid);
 
   return submissions;
+};
+
+export const getDecryptedSubmissions = async ({
+  formId,
+  first,
+  after,
+  storyForm,
+  privKey
+}: {
+  formId: string;
+  first: number;
+  after?: string;
+  storyForm: any;
+  privKey: string;
+}) => {
+  const submissions = await getSubmissions({
+    formId,
+    first,
+    after,
+    storyForm
+  });
+
+  // TODO: Decrypt answers and return
 };

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Box,
@@ -8,59 +8,126 @@ import {
   Heading,
   FormControl,
   FormLabel,
-  Input
+  Input,
+  Text,
+  Center,
+  Link,
+  useToast
 } from "@chakra-ui/react";
-import ConnectWalletButton from "./ConnectWalletButton";
-import { useAccount } from "wagmi";
-import useTranslation from "next-translate/useTranslation";
+import { ArrowBackIcon } from "@chakra-ui/icons";
 import { FormQuestion } from "../types";
+import { notEmpty } from "../utils";
+import MadeWithStoryForm from "./MadeWithStoryForm";
 
 type Props = {
   title: string;
+  description: string;
   questions: FormQuestion[];
   isSubmitDisabled: boolean;
   onSubmit: (answers: string[]) => void;
 };
 
+const StyledBox = props => {
+  return (
+    <Box
+      padding="24px"
+      borderWidth={1}
+      borderRadius={10}
+      mb={3}
+      bgColor="white"
+      borderColor="lightgrey"
+      {...props}
+    >
+      {props.children}
+    </Box>
+  );
+};
+
 const Form: React.FC<Props> = ({
   title,
+  description,
   questions,
   isSubmitDisabled,
   onSubmit
 }) => {
-  const { isConnected } = useAccount();
   const [answers, setAnswers] = useState<string[]>([]);
   const [showOtherInput, setShowOtherInput] = useState<boolean>(false);
-  const { t } = useTranslation("Form");
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+  const toast = useToast();
 
   const handleInputChange = async (value: string, inputIndex: number) => {
     const newValues = new Array(questions.length)
       .fill("")
+      // eslint-disable-next-line security/detect-object-injection
       .map((_, i) => (i === inputIndex ? value : answers[i] || ""));
 
     setAnswers(newValues);
+  };
+
+  const handleNextClick = () => {
+    const allRequiredAnswersProvided = !questions.some(({ required }, i) => {
+      const answer = answers.find((_, index) => index === i);
+      return required && (answer === "" || !notEmpty(answer));
+    });
+
+    if (allRequiredAnswersProvided) {
+      setShowConfirmation(true);
+    } else {
+      toast({
+        title: "Please fill the required fields",
+        status: "warning",
+        duration: 9000,
+        isClosable: true
+      });
+    }
   };
 
   const handleSubmitClick = () => {
     onSubmit(answers);
   };
 
+  if (showConfirmation) {
+    return (
+      <Container>
+        <Heading size="md" mt={6}>
+          Confirm submission
+        </Heading>
+        <Box mt={4}>
+          {questions.map((question, i) => (
+            <StyledBox key={i}>
+              <Text>{question.label}</Text>
+              <Text as="b">{answers[i]}</Text>
+            </StyledBox>
+          ))}
+          <ButtonGroup mt={4}>
+            <Button
+              onClick={() => {
+                setShowConfirmation(false);
+              }}
+              leftIcon={<ArrowBackIcon fontSize="sm"></ArrowBackIcon>}
+              iconSpacing={1}
+            >
+              Back
+            </Button>
+            <Button onClick={handleSubmitClick} isDisabled={isSubmitDisabled}>
+              Submit
+            </Button>
+          </ButtonGroup>
+        </Box>
+        <MadeWithStoryForm></MadeWithStoryForm>
+      </Container>
+    );
+  }
+
   return (
     <Container>
-      <Heading size="md" mb={3} mt={6}>
+      <Heading size="md" mt={6}>
         {title}
       </Heading>
-      <FormControl>
+      <Text mt={4}>{description}</Text>
+      <FormControl mt={4}>
         {questions.map((question, i) => (
-          <Box
-            key={i}
-            padding="24px"
-            borderWidth={1}
-            borderRadius={10}
-            mb={3}
-            bgColor="white"
-            borderColor="lightgrey"
-          >
+          <StyledBox key={i} mb={3}>
             <FormLabel mb={4}>
               {question.label}
               {question.required ? " *" : ""}
@@ -76,6 +143,7 @@ const Form: React.FC<Props> = ({
                 }}
                 required={question.required}
                 placeholder="Enter here"
+                value={answers[i]}
               ></Input>
             ) : question.type === "select" ? (
               <>
@@ -93,6 +161,7 @@ const Form: React.FC<Props> = ({
                       setShowOtherInput(false);
                     }
                   }}
+                  value={answers[i]}
                 >
                   {question.options?.map(option => (
                     <option key={option} value={option}>
@@ -119,6 +188,7 @@ const Form: React.FC<Props> = ({
                     }}
                     required={question.required}
                     placeholder="Enter here"
+                    value={answers[i]}
                   ></Input>
                 ) : (
                   <></>
@@ -127,15 +197,15 @@ const Form: React.FC<Props> = ({
             ) : (
               <></>
             )}
-          </Box>
+          </StyledBox>
         ))}
       </FormControl>
       <ButtonGroup mt={4}>
-        <Button onClick={handleSubmitClick} isDisabled={isSubmitDisabled}>
-          Submit
+        <Button onClick={handleNextClick} isDisabled={isSubmitDisabled}>
+          Next
         </Button>
-        {!isConnected ? <ConnectWalletButton></ConnectWalletButton> : <></>}
       </ButtonGroup>
+      <MadeWithStoryForm></MadeWithStoryForm>
     </Container>
   );
 };

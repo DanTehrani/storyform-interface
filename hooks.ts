@@ -5,8 +5,10 @@ import {
   useContract,
   useSignMessage,
   useSignTypedData,
-  useProvider
+  useProvider,
+  useAccount
 } from "wagmi";
+import { utils } from "ethers";
 import { STORY_FORM_ADDRESS } from "./config";
 import StormFormABI from "./abi/StoryForm.json";
 import { Group } from "@semaphore-protocol/group";
@@ -14,11 +16,11 @@ import { poseidon } from "circomlibjs";
 import { Identity } from "@semaphore-protocol/identity";
 import {
   Form,
-  FormInput,
   FormSubmission,
   WagmiEIP712TypedMessage,
   Pagination,
-  FormSubmissionInput
+  FormSubmissionInput,
+  FormUploadInput
 } from "./types";
 import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN } from "./config";
 import axios from "./lib/axios";
@@ -29,13 +31,14 @@ const {
 } = require("@semaphore-protocol/proof");
 import { groth16Prove as generateDataSubmissionProof } from "./lib/zksnark";
 import ConnectWalletModalContext from "./contexts/ConnectWalletModalContext";
+import { getEncryptionPublicKey, normalize } from "@metamask/eth-sig-util";
+import { keccak256 } from "ethers/lib/utils";
+import { getFormUrl } from "./utils";
 
 const useStoryForm = () => {
   const provider = useProvider({
     chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "31337")
   });
-  // eslint-disable-next-line no-console
-  console.log(`Provider network ${provider.network}`);
   const contract = useContract({
     addressOrName: STORY_FORM_ADDRESS[provider.network.name],
     contractInterface: StormFormABI.abi,
@@ -60,8 +63,6 @@ export const useGroup = (groupId: number) => {
         const events = await storyForm.queryFilter(
           storyForm.filters.MemberAdded(groupId, null, null)
         );
-        // eslint-disable-next-line no-console
-        console.log(events);
 
         const members = events.map(({ args }) => args[1].toString());
         const _group = new Group(16);
@@ -80,11 +81,30 @@ export const useGetIdentitySecret = () => {
     message: "Keep this secret safe"
   });
 
-  const getIdentitySecret = async () => {
+  const getIdentitySecret = async (): Promise<bigint> => {
     return poseidon([await signMessageAsync()]);
   };
 
   return getIdentitySecret;
+};
+
+export const useGetEncryptionKeyPair = () => {
+  const { signMessageAsync } = useSignMessage({
+    message: "Keep this secret safe"
+  });
+
+  const getEncryptionKeyPair = async (): Promise<{
+    privKey: string;
+    pubKey: string;
+  }> => {
+    const privKey = utils.keccak256(
+      utils.toUtf8Bytes(await signMessageAsync())
+    );
+    const pubKey = getEncryptionPublicKey(privKey.replace("0x", ""));
+    return { privKey, pubKey };
+  };
+
+  return getEncryptionKeyPair;
 };
 
 export const useGetIdentity = () => {
@@ -92,7 +112,7 @@ export const useGetIdentity = () => {
 
   const getIdentity = async () => {
     const secret = await getIdentitySecret();
-    const identity = new Identity(secret);
+    const identity = new Identity(secret.toString());
     return identity;
   };
 
@@ -107,6 +127,7 @@ export const useForm = (formId: string | undefined) => {
     (async () => {
       if (formId) {
         const _form = await getForm(formId);
+
         if (!_form) {
           setFormNotFound(true);
         } else {
@@ -117,6 +138,33 @@ export const useForm = (formId: string | undefined) => {
   }, [formId]);
 
   return { form, formNotFound };
+};
+
+export const useEncryptedSubmissions = (
+  formId: string | undefined,
+  pagination: Pagination
+) => {
+  const { first, after } = pagination;
+  const [submissions, setSubmissions] = useState<FormSubmission[] | null>();
+  const storyForm = useStoryForm();
+
+  useEffect(() => {
+    (async () => {
+      if (formId) {
+        setSubmissions(
+          await getSubmissions({
+            formId,
+            first,
+            after,
+            storyForm
+          })
+        );
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [after, first, formId]);
+
+  return submissions;
 };
 
 export const useSubmissions = (
@@ -147,12 +195,18 @@ export const useSubmissions = (
 };
 
 export const useUploadForm = () => {
+  const [uploading, setUploading] = useState<boolean>(false);
+  const [uploadComplete, setUploadComplete] = useState<boolean>(false);
+  const [url, setUrl] = useState<string | null>();
   const provider = useProvider({
     chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "31337")
   });
+
   const { signTypedDataAsync } = useSignTypedData();
 
-  const uploadForm = async form => {
+  const uploadForm = async (form: FormUploadInput) => {
+    setUploading(true);
+
     const eip712TypedMessage: WagmiEIP712TypedMessage = {
       domain: SIGNATURE_DOMAIN[provider.network.name],
       types: SIGNATURE_DATA_TYPES,
@@ -160,17 +214,29 @@ export const useUploadForm = () => {
       primaryType: "Form"
     };
 
-    const signature = await signTypedDataAsync(eip712TypedMessage);
+    let signature;
+    try {
+      signature = await signTypedDataAsync(eip712TypedMessage);
+    } catch (err) {
+      setUploading(false);
+    }
 
-    const formInput: FormInput = {
+    if (!signature) {
+      return;
+    }
+
+    const formInput = {
       signature,
       eip712TypedMessage
     };
 
     await axios.post("/forms", formInput);
+    setUrl(getFormUrl(form.id));
+    setUploading(false);
+    setUploadComplete(true); // TODO Change the name
   };
 
-  return uploadForm;
+  return { uploading, uploadForm, uploadComplete, url };
 };
 
 export const useForms = (pagination: Pagination): Form[] | undefined => {
@@ -183,6 +249,21 @@ export const useForms = (pagination: Pagination): Form[] | undefined => {
       }
     })();
   }, [pagination]);
+
+  return forms;
+};
+
+export const useUserForms = (pagination: Pagination): Form[] | undefined => {
+  const { address } = useAccount();
+  const [forms, setForms] = useState<Form[] | undefined>();
+
+  useEffect(() => {
+    (async () => {
+      if (pagination && address) {
+        setForms(await getForms({ ...pagination, owner: address }));
+      }
+    })();
+  }, [pagination, address]);
 
   return forms;
 };
@@ -220,22 +301,6 @@ export const usePagination = (
     pagination,
     setPagination
   };
-};
-
-export const useGetSubmissionId = () => {
-  const getIdentitySecret = useGetIdentitySecret();
-
-  const getSubmissionId = async (formId: string): Promise<bigint> => {
-    const secret = await getIdentitySecret();
-
-    const secretBI = BigInt(secret);
-    const formIdBI = BigInt(`0x${formId.slice(2)}`);
-    const submissionId = poseidon([secretBI, formIdBI]);
-
-    return submissionId;
-  };
-
-  return getSubmissionId;
 };
 
 export const useGenerateProof = () => {
