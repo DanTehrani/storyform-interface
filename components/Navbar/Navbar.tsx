@@ -82,7 +82,7 @@ const Navbar = () => {
         <Flex justify={{ base: "center", md: "start" }} align="center">
           <Text display={{ base: "none", md: "flex" }} fontWeight={600}>
             <Link
-              href="/forms"
+              href="/"
               _hover={{
                 textDecoration: "none"
               }}
