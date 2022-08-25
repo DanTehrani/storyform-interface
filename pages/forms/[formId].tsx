@@ -58,6 +58,7 @@ const FormPage: NextPage = () => {
   }
 
   const { questions, settings } = form;
+  const { encryptionPubKey, encryptAnswers } = settings;
 
   if (submissionComplete) {
     return (
@@ -70,14 +71,6 @@ const FormPage: NextPage = () => {
         animate={{ opacity: 1, scale: 1 }}
       >
         <Text fontSize="lg">{t("thank-you-for-answering")}</Text>
-        <Button
-          mt={5}
-          onClick={() => {
-            router.push(`/forms/${formId}/submissions`);
-          }}
-        >
-          {t("view-answers")}
-        </Button>
       </Center>
     );
   }
@@ -99,9 +92,7 @@ const FormPage: NextPage = () => {
         duration: 9000,
         isClosable: true
       });
-    } else if (address) {
-      const { encryptionPubKey, encryptAnswers } = settings;
-
+    } else if (encryptAnswers && address) {
       if (encryptAnswers && !encryptionPubKey) {
         // TODO Show error.
         return;
@@ -130,15 +121,15 @@ const FormPage: NextPage = () => {
           unixTime: getCurrentUnixTime(),
           appId: APP_ID
         });
-      } else {
-        // No need to specify a submission id.
-        submitForm({
-          formId,
-          answers,
-          unixTime: getCurrentUnixTime(),
-          appId: APP_ID
-        });
       }
+    } else {
+      // No need to specify a submission id.
+      submitForm({
+        formId,
+        answers: _answers,
+        unixTime: getCurrentUnixTime(),
+        appId: APP_ID
+      });
     }
   };
 

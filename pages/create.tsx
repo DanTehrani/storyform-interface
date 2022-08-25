@@ -29,8 +29,6 @@ import { useUploadForm, useGetEncryptionKeyPair } from "../hooks";
 import { getCurrentUnixTime, getFormIdFromForm } from "../utils";
 
 import useTranslation from "next-translate/useTranslation";
-import { useConnect } from "wagmi";
-import { InjectedConnector } from "wagmi/connectors/injected";
 import CreateFormContext from "../contexts/CreateFormContext";
 import FormQuestionsTab from "../components/FormQuestionsTab";
 import FormSettingsTab from "../components/FormSettingsTab";
@@ -52,9 +50,6 @@ const CreateFormHeading = () => {
 const Create: NextPage = () => {
   const { isConnected, address } = useAccount();
   const { uploadForm, uploadComplete, uploading, url } = useUploadForm();
-  const { connectAsync } = useConnect({
-    connector: new InjectedConnector()
-  });
   const { hasCopied, onCopy } = useClipboard(url || "");
   const toast = useToast();
   const {

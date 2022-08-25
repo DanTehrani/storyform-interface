@@ -9,10 +9,10 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Text
+  Text,
+  Center,
+  Link
 } from "@chakra-ui/react";
-import ConnectWalletButton from "./ConnectWalletButton";
-import { useAccount } from "wagmi";
 import { FormQuestion } from "../types";
 
 type Props = {
@@ -30,7 +30,6 @@ const Form: React.FC<Props> = ({
   isSubmitDisabled,
   onSubmit
 }) => {
-  const { isConnected } = useAccount();
   const [answers, setAnswers] = useState<string[]>([]);
   const [showOtherInput, setShowOtherInput] = useState<boolean>(false);
 
@@ -52,7 +51,7 @@ const Form: React.FC<Props> = ({
       <Heading size="md" mt={6}>
         {title}
       </Heading>
-      <Text mt={4}>{description || "This is the description!"}</Text>
+      <Text mt={4}>{description}</Text>
       <FormControl mt={4}>
         {questions.map((question, i) => (
           <Box
@@ -137,8 +136,19 @@ const Form: React.FC<Props> = ({
         <Button onClick={handleSubmitClick} isDisabled={isSubmitDisabled}>
           Submit
         </Button>
-        {!isConnected ? <ConnectWalletButton></ConnectWalletButton> : <></>}
       </ButtonGroup>
+      <Center mt={4}>
+        <Text as="i" color="blackAlpha.400">
+          Made with&nbsp;
+          <Link
+            href={window.location.origin}
+            isExternal
+            textDecoration="underline"
+          >
+            Storyform
+          </Link>
+        </Text>
+      </Center>
     </Container>
   );
 };
