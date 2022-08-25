@@ -109,3 +109,6 @@ export const sleep = ms => {
 
 export const getFormUrl = (formId: string) =>
   `${window.location.origin}/forms/${formId}`;
+
+export const getFormResponsesUrl = (formId: string) =>
+  `${window.location.origin}/forms/${formId}/submissions`;

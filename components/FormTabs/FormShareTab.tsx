@@ -7,8 +7,8 @@ import {
   IconButton,
   Text
 } from "@chakra-ui/react";
-import { CopyIcon, LinkIcon } from "@chakra-ui/icons";
-import { getFormUrl } from "../utils";
+import { CopyIcon } from "@chakra-ui/icons";
+import { getFormUrl } from "../../utils";
 
 type Props = {
   formId: string;
@@ -33,7 +33,6 @@ const FormShareTab: React.FC<Props> = ({ formId }) => {
   return (
     <Stack spacing={5}>
       <Stack direction="row" alignItems="center">
-        <LinkIcon></LinkIcon>
         <Text>Get the link</Text>
       </Stack>
       <Stack direction="row">

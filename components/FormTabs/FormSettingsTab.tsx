@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { Stack, Text, Input, Select, Checkbox, Box } from "@chakra-ui/react";
-import CreateFormContext from "../contexts/CreateFormContext";
-import EditFormContext from "../contexts/EditFormContext";
+import CreateFormContext from "../../contexts/CreateFormContext";
+import EditFormContext from "../../contexts/EditFormContext";
 
 const respondentCriteriaOptions = [
   {

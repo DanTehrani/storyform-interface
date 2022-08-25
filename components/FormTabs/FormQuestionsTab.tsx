@@ -1,9 +1,9 @@
 import { useContext } from "react";
 import { Button, Center, Input, Stack } from "@chakra-ui/react";
 import { SmallAddIcon } from "@chakra-ui/icons";
-import FormInputCard from "./FormInputCard";
-import EditFormContext from "../contexts/EditFormContext";
-import CreateFormContext from "../contexts/CreateFormContext";
+import FormInputCard from "../FormInputCard";
+import EditFormContext from "../../contexts/EditFormContext";
+import CreateFormContext from "../../contexts/CreateFormContext";
 
 type Props = {
   context: typeof CreateFormContext | typeof EditFormContext;

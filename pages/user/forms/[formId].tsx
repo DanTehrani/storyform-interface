@@ -23,14 +23,15 @@ import { useGetEncryptionKeyPair, useUploadForm } from "../../../hooks";
 import FormNotFoundOrUploading from "../../../components/FormNotFoundOrUploading";
 import { useRouter } from "next/router";
 import { useAccount } from "wagmi";
-import FormQuestionsTab from "../../../components/FormQuestionsTab";
-import FormSettingsTab from "../../../components/FormSettingsTab";
+import FormQuestionsTab from "../../../components/FormTabs/FormQuestionsTab";
+import FormSettingsTab from "../../../components/FormTabs/FormSettingsTab";
+import FormShareTab from "../../../components/FormTabs/FormShareTab";
 import FormSkeleton from "../../../components/FormSkeleton";
+import FormResponsesTab from "../../../components/FormTabs/FormResponsesTab";
 import EditFormContext from "../../../contexts/EditFormContext";
 import { getCurrentUnixTime } from "../../../utils";
 import { APP_ID } from "../../../config";
 import ConnectWalletButton from "../../../components/ConnectWalletButton";
-import FormShareTab from "../../../components/FormShareTab";
 
 const ManageForm: NextPage = () => {
   const { query } = useRouter();
@@ -175,6 +176,7 @@ const ManageForm: NextPage = () => {
           <Tab>Questions</Tab>
           <Tab>Settings</Tab>
           <Tab>Share</Tab>
+          <Tab>Responses</Tab>
           <Tab>Others</Tab>
         </TabList>
         <TabPanels>
@@ -186,6 +188,9 @@ const ManageForm: NextPage = () => {
           </TabPanel>
           <TabPanel>
             <FormShareTab formId={formId || ""}></FormShareTab>
+          </TabPanel>
+          <TabPanel>
+            <FormResponsesTab formId={formId || ""}></FormResponsesTab>
           </TabPanel>
           <TabPanel>
             <Button

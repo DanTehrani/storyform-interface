@@ -30,8 +30,8 @@ import { getCurrentUnixTime, getFormIdFromForm } from "../utils";
 
 import useTranslation from "next-translate/useTranslation";
 import CreateFormContext from "../contexts/CreateFormContext";
-import FormQuestionsTab from "../components/FormQuestionsTab";
-import FormSettingsTab from "../components/FormSettingsTab";
+import FormQuestionsTab from "../components/FormTabs/FormQuestionsTab";
+import FormSettingsTab from "../components/FormTabs/FormSettingsTab";
 import ConnectWalletButton from "../components/ConnectWalletButton";
 import { CopyIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { FormIdPreImage } from "../types";
