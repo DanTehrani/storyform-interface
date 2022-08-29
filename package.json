@@ -17,6 +17,7 @@
     "@metamask/eth-sig-util": "^4.0.1",
     "@semaphore-protocol/identity": "^2.0.0",
     "@semaphore-protocol/proof": "^2.2.0",
+    "@sentry/nextjs": "^7.11.1",
     "arweave": "^1.11.4",
     "axios": "^0.27.2",
     "circomlibjs": "^0.0.8",
@@ -33,6 +34,7 @@
     "wagmi": "^0.6.0"
   },
   "devDependencies": {
+    "@sentry/wizard": "^2.0.2",
     "@types/node": "18.0.3",
     "@types/react": "18.0.15",
     "@types/react-dom": "18.0.6",

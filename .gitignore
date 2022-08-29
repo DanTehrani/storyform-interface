@@ -36,3 +36,6 @@ cache/
 .npm/
 
 .eslintcache
+
+# Sentry
+.sentryclirc

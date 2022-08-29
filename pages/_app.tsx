@@ -21,6 +21,17 @@ import ConnectWalletModal from "../components/ConnectWalletModal";
 import { ConnectWalletModalProvider } from "../contexts/ConnectWalletModalContext";
 import { CreateFormContextProvider } from "../contexts/CreateFormContext";
 import { EditFormContextProvider } from "../contexts/EditFormContext";
+import * as Sentry from "@sentry/nextjs";
+
+Sentry.init({
+  dsn: "https://afa37196f4324ff8950f0baa5f4a29f5@o1348995.ingest.sentry.io/6628427",
+  // Adjust this value in production, or use tracesSampler for greater control
+  tracesSampleRate: 1.0
+  // ...
+  // Note: if you want to override the automatic release value, do not set a
+  // `release` value here - use the environment variable `SENTRY_RELEASE`, so
+  // that it will also get attached to your source maps
+});
 
 const chains = [chain.hardhat, chain.goerli];
 
