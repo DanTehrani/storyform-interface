@@ -1,19 +1,7 @@
 import { useContext, useState } from "react";
 import { useEffect } from "react";
 import { getSubmissions } from "./lib/formSubmission";
-import {
-  useContract,
-  useSignMessage,
-  useSignTypedData,
-  useProvider,
-  useAccount
-} from "wagmi";
-import { utils } from "ethers";
-import { STORY_FORM_ADDRESS } from "./config";
-import StormFormABI from "./abi/StoryForm.json";
-import { Group } from "@semaphore-protocol/group";
-import { poseidon } from "circomlibjs";
-import { Identity } from "@semaphore-protocol/identity";
+import { useSignTypedData, useProvider, useAccount } from "wagmi";
 import {
   Form,
   FormSubmission,
@@ -26,98 +14,8 @@ import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN } from "./config";
 import axios from "./lib/axios";
 import { getForm, getForms } from "./lib/form";
 import { submitAnswer } from "./lib/formSubmission";
-const {
-  generateProof: generateSemaphoreMembershipProof
-} = require("@semaphore-protocol/proof");
-import { groth16Prove as generateDataSubmissionProof } from "./lib/zksnark";
 import ConnectWalletModalContext from "./contexts/ConnectWalletModalContext";
-import { getEncryptionPublicKey, normalize } from "@metamask/eth-sig-util";
-import { keccak256 } from "ethers/lib/utils";
 import { getFormUrl } from "./utils";
-
-const useStoryForm = () => {
-  const provider = useProvider({
-    chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "31337")
-  });
-  const contract = useContract({
-    addressOrName: STORY_FORM_ADDRESS[provider.network.name],
-    contractInterface: StormFormABI.abi,
-    signerOrProvider: provider
-  });
-
-  return contract;
-};
-
-export const useJoinGroup = (groupId: number) => {
-  // Post to gateway
-};
-
-export const useGroup = (groupId: number) => {
-  const [group, setGroup] = useState<Group | null>();
-
-  const storyForm = useStoryForm();
-
-  useEffect(() => {
-    (async () => {
-      if (storyForm) {
-        const events = await storyForm.queryFilter(
-          storyForm.filters.MemberAdded(groupId, null, null)
-        );
-
-        const members = events.map(({ args }) => args[1].toString());
-        const _group = new Group(16);
-        _group.addMembers(members);
-        setGroup(_group);
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return { group };
-};
-
-export const useGetIdentitySecret = () => {
-  const { signMessageAsync } = useSignMessage({
-    message: "Keep this secret safe"
-  });
-
-  const getIdentitySecret = async (): Promise<bigint> => {
-    return poseidon([await signMessageAsync()]);
-  };
-
-  return getIdentitySecret;
-};
-
-export const useGetEncryptionKeyPair = () => {
-  const { signMessageAsync } = useSignMessage({
-    message: "Keep this secret safe"
-  });
-
-  const getEncryptionKeyPair = async (): Promise<{
-    privKey: string;
-    pubKey: string;
-  }> => {
-    const privKey = utils.keccak256(
-      utils.toUtf8Bytes(await signMessageAsync())
-    );
-    const pubKey = getEncryptionPublicKey(privKey.replace("0x", ""));
-    return { privKey, pubKey };
-  };
-
-  return getEncryptionKeyPair;
-};
-
-export const useGetIdentity = () => {
-  const getIdentitySecret = useGetIdentitySecret();
-
-  const getIdentity = async () => {
-    const secret = await getIdentitySecret();
-    const identity = new Identity(secret.toString());
-    return identity;
-  };
-
-  return getIdentity;
-};
 
 export const useForm = (formId: string | undefined) => {
   const [form, setForm] = useState<Form | null>();
@@ -140,40 +38,12 @@ export const useForm = (formId: string | undefined) => {
   return { form, formNotFound };
 };
 
-export const useEncryptedSubmissions = (
-  formId: string | undefined,
-  pagination: Pagination
-) => {
-  const { first, after } = pagination;
-  const [submissions, setSubmissions] = useState<FormSubmission[] | null>();
-  const storyForm = useStoryForm();
-
-  useEffect(() => {
-    (async () => {
-      if (formId) {
-        setSubmissions(
-          await getSubmissions({
-            formId,
-            first,
-            after,
-            storyForm
-          })
-        );
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [after, first, formId]);
-
-  return submissions;
-};
-
 export const useSubmissions = (
   formId: string | undefined,
   pagination: Pagination
 ) => {
   const { first, after } = pagination;
   const [submissions, setSubmissions] = useState<FormSubmission[] | null>();
-  const storyForm = useStoryForm();
 
   useEffect(() => {
     (async () => {
@@ -182,8 +52,7 @@ export const useSubmissions = (
           await getSubmissions({
             formId,
             first,
-            after,
-            storyForm
+            after
           })
         );
       }
@@ -239,20 +108,6 @@ export const useUploadForm = () => {
   return { uploading, uploadForm, uploadComplete, url };
 };
 
-export const useForms = (pagination: Pagination): Form[] | undefined => {
-  const [forms, setForms] = useState<Form[] | undefined>();
-
-  useEffect(() => {
-    (async () => {
-      if (pagination) {
-        setForms(await getForms(pagination));
-      }
-    })();
-  }, [pagination]);
-
-  return forms;
-};
-
 export const useUserForms = (pagination: Pagination): Form[] | undefined => {
   const { address } = useAccount();
   const [forms, setForms] = useState<Form[] | undefined>();
@@ -301,54 +156,6 @@ export const usePagination = (
     pagination,
     setPagination
   };
-};
-
-export const useGenerateProof = () => {
-  const [generatingProof, setGeneratingProof] = useState<boolean>(false);
-  const getIdentitySecret = useGetIdentitySecret();
-
-  const generateProof = async (formId, group) => {
-    const secret = await getIdentitySecret();
-    const semaphoreIdentity = new Identity(secret.toString());
-
-    setGeneratingProof(true);
-
-    // Reference: https://github.com/semaphore-protocol/boilerplate/blob/450248d33406a31b16f987c655cbe07a2ee9873d/apps/web-app/src/components/ProofStep.tsx#L48
-    const externalNullifier = BigInt(1); // Group Id
-    const signal = "0";
-
-    // Re-construct group from on-chain data.
-    const membershipFullProof = await generateSemaphoreMembershipProof(
-      semaphoreIdentity,
-      group,
-      externalNullifier,
-      signal,
-      {
-        wasmFilePath: "/semaphore.wasm",
-        zkeyFilePath: "/semaphore.zkey"
-      }
-    );
-
-    const secretBI = BigInt(secret);
-    const formIdBI = BigInt(`0x${formId.slice(2)}`);
-    const submissionId = poseidon([secretBI, formIdBI]);
-
-    const dataSubmissionFullProof = await generateDataSubmissionProof({
-      secret: secretBI,
-      formId: formIdBI,
-      submissionId
-    });
-
-    setGeneratingProof(false);
-
-    return {
-      submissionId,
-      dataSubmissionFullProof,
-      membershipFullProof
-    };
-  };
-
-  return { generatingProof, generateProof };
 };
 
 export const useConnectWallet = () => {

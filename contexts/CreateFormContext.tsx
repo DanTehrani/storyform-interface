@@ -17,10 +17,7 @@ const defaultState = {
         customAttributes: []
       }
     ],
-    settings: {
-      respondentCriteria: "ANYONE",
-      encryptAnswers: false
-    }
+    settings: {}
   },
   setFormInput: () => null,
   updateQuestion: () => null,

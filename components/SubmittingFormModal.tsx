@@ -10,7 +10,6 @@ import {
   HStack,
   VStack
 } from "@chakra-ui/react";
-import { FormSettings } from "../types";
 import { CheckIcon } from "@chakra-ui/icons";
 import useTranslation from "next-translate/useTranslation";
 
@@ -22,17 +21,10 @@ const StyledCheckIcon = () => <CheckIcon color="purple.300"></CheckIcon>;
 
 type Props = {
   isOpen: boolean;
-  generatingProof: boolean;
   submittingForm: boolean;
-  formSettings: FormSettings;
 };
 
-const SubmittingFormModal = ({
-  isOpen,
-  generatingProof,
-  submittingForm,
-  formSettings
-}: Props) => {
+const SubmittingFormModal = ({ isOpen, submittingForm }: Props) => {
   const { t } = useTranslation("Form");
   return (
     <>
@@ -48,22 +40,8 @@ const SubmittingFormModal = ({
           <ModalHeader></ModalHeader>
           <ModalBody>
             <VStack align="left">
-              {formSettings.respondentCriteria === "ERC721" ? (
-                <HStack>
-                  {generatingProof ? (
-                    <StyledCircularProgress></StyledCircularProgress>
-                  ) : (
-                    <StyledCheckIcon></StyledCheckIcon>
-                  )}
-                  <Text>{t("generating-zk-proof")}</Text>
-                </HStack>
-              ) : (
-                <></>
-              )}
               <HStack>
-                {generatingProof ? (
-                  <></>
-                ) : submittingForm ? (
+                {submittingForm ? (
                   <>
                     <StyledCircularProgress></StyledCircularProgress>
                     <Text>{t("submitting")}</Text>

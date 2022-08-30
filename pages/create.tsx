@@ -25,7 +25,7 @@ import {
 } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
-import { useUploadForm, useGetEncryptionKeyPair } from "../hooks";
+import { useUploadForm } from "../hooks";
 import { getCurrentUnixTime, getFormIdFromForm } from "../utils";
 
 import useTranslation from "next-translate/useTranslation";
@@ -57,7 +57,6 @@ const Create: NextPage = () => {
     onClose: closeUploadSuccessAlert,
     onOpen: openUploadSuccessAlert
   } = useDisclosure({ defaultIsOpen: false });
-  const getEncryptionKeyPair = useGetEncryptionKeyPair();
   const { isOpen: isWarningOpen, onClose: onWarningClose } = useDisclosure({
     defaultIsOpen: true
   });
@@ -93,11 +92,6 @@ const Create: NextPage = () => {
         status: "active",
         appId: APP_ID
       };
-
-      if (formInput.settings.encryptAnswers) {
-        const { pubKey } = await getEncryptionKeyPair();
-        formIdPreImage.settings.encryptionPubKey = pubKey;
-      }
 
       const formId = getFormIdFromForm(formIdPreImage);
 

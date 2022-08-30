@@ -36,10 +36,7 @@ import type { NextPage } from "next";
 import { useForm, useSubmissions } from "../../../hooks";
 import FormsPageSkeleton from "../../../components/FormsPageSkeleton";
 import { useRouter } from "next/router";
-import {
-  getEtherscanLogPageUrl,
-  getTxArweaveExplorerUrl
-} from "../../../utils";
+import { getTxArweaveExplorerUrl } from "../../../utils";
 import useTranslation from "next-translate/useTranslation";
 
 const StyledBox = props => {
@@ -91,7 +88,6 @@ const Submission: NextPage = () => {
   }
 
   const questions = form.questions;
-  const settings = form.settings;
 
   return (
     <Box p={10}>
@@ -111,11 +107,6 @@ const Submission: NextPage = () => {
                 <Th key={i}>{question.label}</Th>
               ))}
               <Th>Arweave</Th>
-              {settings.respondentCriteria === "ERC721" ? (
-                <Th>{t("zk-verification-log")}</Th>
-              ) : (
-                <></>
-              )}
             </Tr>
           </Thead>
           <Tbody>
@@ -128,13 +119,6 @@ const Submission: NextPage = () => {
                     <Td key={i}>{submission.answers[i] || ""}</Td>
                   ))}
 
-                {submission.verificationTx ? (
-                  <Td textAlign="center">
-                    <Icon as={CheckCircleIcon} color="green"></Icon>
-                  </Td>
-                ) : (
-                  <></>
-                )}
                 <Td>
                   <Link
                     href={getTxArweaveExplorerUrl(submission.txId)}
@@ -145,20 +129,6 @@ const Submission: NextPage = () => {
                     <ExternalLinkIcon mx="1px" mt="-1px" />
                   </Link>
                 </Td>
-                {submission.verificationTx ? (
-                  <Td>
-                    <Link
-                      href={getEtherscanLogPageUrl(submission.verificationTx)}
-                      isExternal
-                      textDecoration="underline"
-                    >
-                      {t("zk-verification-log")}
-                      <ExternalLinkIcon mx="1px" mt="-1px" />
-                    </Link>
-                  </Td>
-                ) : (
-                  <></>
-                )}
               </Tr>
             ))}
           </Tbody>

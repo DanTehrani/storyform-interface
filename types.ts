@@ -49,11 +49,6 @@ export type Submission = {
   formId: string[];
 };
 
-export type Proof = {
-  proof: any;
-  publicSignals: any;
-};
-
 export type WagmiEIP712TypedMessage = {
   domain: {
     [additionalProperties: string]: string;
@@ -71,7 +66,6 @@ export type WagmiEIP712TypedMessage = {
 export type FormSubmission = {
   formId: string;
   answers: string[];
-  submissionId?: string;
   txId: string;
   verificationTx?: string;
   unixTime: number;
@@ -80,17 +74,8 @@ export type FormSubmission = {
 export type FormSubmissionInput = {
   formId: string;
   answers?: string[] | string;
-  submissionId?: string;
-  membershipProof?: string;
-  dataSubmissionProof?: string;
   unixTime: number;
   appId: string;
-};
-
-export type ProofInputs = {
-  secret: bigint;
-  formId: bigint;
-  submissionId: bigint;
 };
 
 export type Pagination = {
@@ -99,10 +84,7 @@ export type Pagination = {
 };
 
 export type FormSettings = {
-  respondentCriteria: string;
-  encryptAnswers: boolean;
-  encryptionPubKey?: string;
-  erc721TokenAddress?: string;
+  // TBD
 };
 
 export type FormInput = {

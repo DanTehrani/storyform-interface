@@ -92,14 +92,6 @@ export const getEtherscanUrl = (id: string) =>
     parseInt(NEXT_PUBLIC_CHAIN_ID)
   )}.etherscan.io/search?q=${id}`;
 
-export const getEtherscanLogPageUrl = (txId: string) =>
-  NEXT_PUBLIC_CHAIN_ID &&
-  `https://${getNetworkNameFromChainId(
-    parseInt(NEXT_PUBLIC_CHAIN_ID)
-  )}.etherscan.io/tx/${txId}#eventlog`;
-
-export const eligibleToAnswer = (address: string, formId: string) => true;
-
 export const getFormIdFromForm = (form: FormIdPreImage): string =>
   sha256(new TextEncoder().encode(JSON.stringify(form)));
 
