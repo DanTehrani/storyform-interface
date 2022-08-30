@@ -161,8 +161,7 @@ const Create: NextPage = () => {
           <AlertTitle>Success!</AlertTitle>
           <AlertDescription>
             <Text>
-              Your form is being published! It will take a few minutes for it to
-              become visible.
+              Your form is being published! Your form will be available soon.
             </Text>
           </AlertDescription>
           <Stack direction="row" justify="center" mt={4}>

@@ -1,13 +1,13 @@
 import { Form, Pagination } from "../types";
 import arweaveGraphQl from "../lib/arweaveGraphQl";
-import arweave from "./arweave";
 import { gql } from "@apollo/client";
 import { APP_ID } from "../config";
 import {
   notEmpty,
   formSchemeValid,
   getArweaveTxTagValue,
-  getLatestByTagValue
+  getLatestByTagValue,
+  getArweaveTxData
 } from "../utils";
 
 export const getForm = async (formId: string): Promise<Form | null> => {
@@ -55,14 +55,9 @@ export const getForm = async (formId: string): Promise<Form | null> => {
     return null;
   }
 
-  let data;
+  let data: Form | undefined;
   try {
-    data = (
-      await arweave.transactions.getData(txId, {
-        decode: true,
-        string: true
-      })
-    ).toString();
+    data = await getArweaveTxData(txId);
   } catch (err) {
     ///
   }
@@ -71,7 +66,7 @@ export const getForm = async (formId: string): Promise<Form | null> => {
 
   const form = data
     ? {
-        ...JSON.parse(data),
+        ...data,
         arweaveTxId: txId
       }
     : null;
@@ -142,21 +137,17 @@ export const getForms = async ({
     await Promise.all(
       transactions.map(tx =>
         (async (): Promise<Form | null> => {
-          let data: string | null;
+          let form: Form | undefined;
           try {
-            data = (
-              await arweave.transactions.getData(tx.id, {
-                decode: true,
-                string: true
-              })
-            ).toString();
+            form = await getArweaveTxData(tx.id);
           } catch (err) {
             // eslint-disable-next-line no-console
             console.error(err);
-            data = null;
           }
 
-          const form: Form = data ? JSON.parse(data) : null;
+          if (!form) {
+            return null;
+          }
 
           return {
             id: getArweaveTxTagValue(tx, "Form-Id"),

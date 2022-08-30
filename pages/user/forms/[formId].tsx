@@ -157,13 +157,11 @@ const ManageForm: NextPage = () => {
           <AlertDescription>
             {showFormDeletedAlert ? (
               <Text>
-                Your form is being deleted! It will take a few minutes for the
-                update to be reflected.
+                Your form is being deleted! The update will be reflected soon.
               </Text>
             ) : (
               <Text>
-                Your form is being updated! It will take a few minutes for the
-                update to be reflected.
+                Your form is being updated! The update will be reflected soon.
               </Text>
             )}
           </AlertDescription>
