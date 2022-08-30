@@ -11,7 +11,6 @@ import {
   VStack
 } from "@chakra-ui/react";
 import { CheckIcon } from "@chakra-ui/icons";
-import useTranslation from "next-translate/useTranslation";
 
 const StyledCircularProgress = () => (
   <CircularProgress size={5} isIndeterminate color="purple.300" />
@@ -25,7 +24,6 @@ type Props = {
 };
 
 const SubmittingFormModal = ({ isOpen, submittingForm }: Props) => {
-  const { t } = useTranslation("Form");
   return (
     <>
       <Modal
@@ -44,12 +42,12 @@ const SubmittingFormModal = ({ isOpen, submittingForm }: Props) => {
                 {submittingForm ? (
                   <>
                     <StyledCircularProgress></StyledCircularProgress>
-                    <Text>{t("submitting")}</Text>
+                    <Text>Submitting your answer</Text>
                   </>
                 ) : (
                   <>
                     <StyledCheckIcon></StyledCheckIcon>
-                    <Text>{t("submitting")}</Text>
+                    <Text>Submitting your answer</Text>
                   </>
                 )}
               </HStack>

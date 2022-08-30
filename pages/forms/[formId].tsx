@@ -15,13 +15,11 @@ import FormSkeleton from "../../components/FormSkeleton";
 import { getCurrentUnixTime } from "../../utils";
 import SubmittingFormModal from "../../components/SubmittingFormModal";
 import { motion } from "framer-motion";
-import useTranslation from "next-translate/useTranslation";
 import Form from "../../components/Form";
 import FormDeleted from "../../components/FormDeleted";
 
 const FormPage: NextPage = () => {
   const { query } = useRouter();
-  const { t } = useTranslation("[formId]");
 
   const formId = query.formId?.toString();
   const { form, formNotFound } = useForm(formId);
@@ -49,7 +47,7 @@ const FormPage: NextPage = () => {
         initial={{ opacity: 0, scale: 1 }}
         animate={{ opacity: 1, scale: 1 }}
       >
-        <Text fontSize="lg">{t("thank-you-for-answering")}</Text>
+        <Text fontSize="lg">Thank you for completing our survey.</Text>
       </Center>
     );
   }

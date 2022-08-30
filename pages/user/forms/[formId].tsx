@@ -35,7 +35,7 @@ import ConnectWalletButton from "../../../components/ConnectWalletButton";
 
 const ManageForm: NextPage = () => {
   const { query } = useRouter();
-  const { address, isConnected } = useAccount();
+  const { address } = useAccount();
 
   const formId = query.formId?.toString();
   const { getForm, formInput, formNotFound, formOwner } =
@@ -97,7 +97,7 @@ const ManageForm: NextPage = () => {
     }
   }, [address, formId, formInput, uploadForm]);
 
-  if (isConnected && address !== formOwner) {
+  if (address && formOwner && address !== formOwner) {
     return (
       <Center height="60vh">
         <Text fontSize="xl">You`re not the owner of this form!🙄</Text>
@@ -105,7 +105,11 @@ const ManageForm: NextPage = () => {
     );
   }
 
-  if (!isConnected) {
+  if (!formInput) {
+    return <FormSkeleton></FormSkeleton>;
+  }
+
+  if (!address) {
     return (
       <Center mt={4}>
         <ConnectWalletButton></ConnectWalletButton>
@@ -115,10 +119,6 @@ const ManageForm: NextPage = () => {
 
   if (formNotFound) {
     return <FormNotFoundOrUploading></FormNotFoundOrUploading>;
-  }
-
-  if (!formInput) {
-    return <FormSkeleton></FormSkeleton>;
   }
 
   return (

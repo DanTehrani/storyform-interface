@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   Stack,
-  Container,
   Text,
   Link,
   TableContainer,
@@ -12,22 +11,13 @@ import {
   Tr,
   Tbody,
   Td,
-  Icon,
   Box,
-  AccordionPanel,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
   Center,
-  AccordionIcon,
   Heading,
   ButtonGroup,
   IconButton
 } from "@chakra-ui/react";
 import {
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  CheckCircleIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ExternalLinkIcon
@@ -37,7 +27,6 @@ import { useForm, useSubmissions } from "../../../hooks";
 import FormsPageSkeleton from "../../../components/FormsPageSkeleton";
 import { useRouter } from "next/router";
 import { getTxArweaveExplorerUrl } from "../../../utils";
-import useTranslation from "next-translate/useTranslation";
 
 const StyledBox = props => {
   return (
@@ -58,7 +47,6 @@ const StyledBox = props => {
 const Line = () => <hr style={{ paddingTop: "10px", width: "100%" }}></hr>;
 
 const Submission: NextPage = () => {
-  const { t } = useTranslation("form-submissions");
   const { query } = useRouter();
   const [first, setFirst] = useState<number>(10);
   const [after, setAfter] = useState<string | undefined>();
@@ -97,7 +85,7 @@ const Submission: NextPage = () => {
       <TableContainer mt={6}>
         <Table variant="simple">
           {!submissions.length ? (
-            <TableCaption>{t("no-submissions")}</TableCaption>
+            <TableCaption>No submissions</TableCaption>
           ) : (
             <></>
           )}

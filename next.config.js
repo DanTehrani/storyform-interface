@@ -1,6 +1,4 @@
 /** @type {import('next').NextConfig} */
-// eslint-disable-next-line no-undef
-const nextTranslate = require("next-translate");
 
 const nextConfig = {
   reactStrictMode: true,
@@ -14,4 +12,4 @@ const nextConfig = {
 };
 
 // eslint-disable-next-line no-undef
-module.exports = nextTranslate(nextConfig);
+module.exports = nextConfig;
