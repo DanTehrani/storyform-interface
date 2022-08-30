@@ -73,7 +73,6 @@ export type FormSubmission = {
   answers: string[];
   submissionId?: string;
   txId: string;
-  arweaveTxStatus: number;
   verificationTx?: string;
   unixTime: number;
 };

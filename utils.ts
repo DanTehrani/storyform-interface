@@ -2,6 +2,7 @@ import { Form, FormSubmission, FormIdPreImage } from "./types";
 import type { ApolloQueryResult } from "@apollo/client";
 const { NEXT_PUBLIC_CHAIN_ID } = process.env;
 import { sha256 } from "ethers/lib/utils";
+import axios from "axios";
 
 export const notEmpty = (value: any): boolean =>
   value === null || value === undefined ? false : true;
@@ -111,3 +112,10 @@ export const getFormUrl = (formId: string) =>
 
 export const getFormResponsesUrl = (formId: string) =>
   `${window.location.origin}/forms/${formId}/submissions`;
+
+export const getArweaveTxData = async (txId: string) => {
+  const result = await axios.get(`https://arweave.net/${txId}`);
+  const data = result.data;
+
+  return data;
+};

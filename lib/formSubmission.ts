@@ -1,6 +1,5 @@
 import axios from "./axios";
 import arweaveGraphQl from "./arweaveGraphQl";
-import arweave from "./arweave";
 import { FormSubmission, FormSubmissionInput } from "../types";
 import { gql } from "@apollo/client";
 import { APP_ID } from "../config";
@@ -8,7 +7,8 @@ import {
   notEmpty,
   formSubmissionSchemeValid,
   getArweaveTxTagValue,
-  getLatestByTagValue
+  getLatestByTagValue,
+  getArweaveTxData
 } from "../utils";
 
 export const submitAnswer = async (submission: FormSubmissionInput) => {
@@ -72,21 +72,14 @@ export const getSubmissions = async ({
     await Promise.all(
       transactions.map(tx =>
         (async (): Promise<FormSubmission | null> => {
-          let data: string | null;
+          let data: FormSubmission | null;
           try {
-            data = (
-              await arweave.transactions.getData(tx.id, {
-                decode: true,
-                string: true
-              })
-            ).toString();
+            data = await getArweaveTxData(tx.id);
           } catch (err) {
             // eslint-disable-next-line no-console
             console.error(err);
             data = null;
           }
-
-          const transactionStatus = await arweave.transactions.getStatus(tx.id);
 
           /*
           const submissionId = getArweaveTxTagValue(tx, "Submission-Id");
@@ -102,9 +95,8 @@ export const getSubmissions = async ({
           return {
             txId: tx.id,
             formId: getArweaveTxTagValue(tx, "Form-Id"),
-            answers: (data && JSON.parse(data).answers) || [],
+            answers: data?.answers || [],
             // submissionId,
-            arweaveTxStatus: transactionStatus.status,
             //            verificationTx: verificationTx?.transactionHash,
             unixTime: parseInt(getArweaveTxTagValue(tx, "Unix-Time"))
           };

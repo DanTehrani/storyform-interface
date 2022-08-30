@@ -144,7 +144,6 @@ const Submission: NextPage = () => {
                     Arweave
                     <ExternalLinkIcon mx="1px" mt="-1px" />
                   </Link>
-                  &nbsp; {submission.arweaveTxStatus === 202 ? "(Pending)" : ""}
                 </Td>
                 {submission.verificationTx ? (
                   <Td>
