@@ -19,7 +19,7 @@ import {
   AlertDescription,
   useDisclosure
 } from "@chakra-ui/react";
-import { useGetEncryptionKeyPair, useUploadForm } from "../../../hooks";
+import { useUploadForm } from "../../../hooks";
 import FormNotFoundOrUploading from "../../../components/FormNotFoundOrUploading";
 import { useRouter } from "next/router";
 import { useAccount } from "wagmi";
@@ -35,7 +35,7 @@ import ConnectWalletButton from "../../../components/ConnectWalletButton";
 
 const ManageForm: NextPage = () => {
   const { query } = useRouter();
-  const { address, isConnected } = useAccount();
+  const { address } = useAccount();
 
   const formId = query.formId?.toString();
   const { getForm, formInput, formNotFound, formOwner } =
@@ -48,7 +48,6 @@ const ManageForm: NextPage = () => {
   } = useDisclosure({ defaultIsOpen: false });
   const [showFormDeletedAlert, setShowFormDeletedAlert] =
     useState<boolean>(false);
-  const getEncryptionKeyPair = useGetEncryptionKeyPair();
 
   useEffect(() => {
     if (formId) {
@@ -64,11 +63,6 @@ const ManageForm: NextPage = () => {
 
   const handleSaveClick = async () => {
     if (address && formId && formInput) {
-      if (formInput.settings.encryptAnswers) {
-        const { pubKey } = await getEncryptionKeyPair();
-        formInput.settings.encryptionPubKey = pubKey;
-      }
-
       const unixTime = getCurrentUnixTime();
 
       await uploadForm({
@@ -103,7 +97,7 @@ const ManageForm: NextPage = () => {
     }
   }, [address, formId, formInput, uploadForm]);
 
-  if (isConnected && address !== formOwner) {
+  if (address && formOwner && address !== formOwner) {
     return (
       <Center height="60vh">
         <Text fontSize="xl">You`re not the owner of this form!🙄</Text>
@@ -111,7 +105,11 @@ const ManageForm: NextPage = () => {
     );
   }
 
-  if (!isConnected) {
+  if (!formInput) {
+    return <FormSkeleton></FormSkeleton>;
+  }
+
+  if (!address) {
     return (
       <Center mt={4}>
         <ConnectWalletButton></ConnectWalletButton>
@@ -121,10 +119,6 @@ const ManageForm: NextPage = () => {
 
   if (formNotFound) {
     return <FormNotFoundOrUploading></FormNotFoundOrUploading>;
-  }
-
-  if (!formInput) {
-    return <FormSkeleton></FormSkeleton>;
   }
 
   return (

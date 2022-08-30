@@ -61,10 +61,7 @@ export const EditFormContextProvider = ({ children }) => {
         title: _form.title,
         description: _form.description || "",
         questions: _form.questions,
-        settings: {
-          respondentCriteria: "ANYONE",
-          encryptAnswers: _form.settings.encryptAnswers || false // TODO DRY by creating a DEFAULT_SETTING object
-        }
+        settings: {}
       });
 
       setFormOwner(_form.owner);

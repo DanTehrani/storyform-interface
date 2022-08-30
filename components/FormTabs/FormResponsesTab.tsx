@@ -1,4 +1,4 @@
-import { Link, Button } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { getFormResponsesUrl } from "../../utils";
 
@@ -11,6 +11,7 @@ const FormResponsesTab: React.FC<Props> = ({ formId }) => {
     <Button
       rightIcon={<ExternalLinkIcon></ExternalLinkIcon>}
       onClick={() => {
+        // eslint-disable-next-line security/detect-non-literal-fs-filename
         window.open(getFormResponsesUrl(formId));
       }}
     >

@@ -16,14 +16,14 @@ import ConnectWalletButton from "../../components/ConnectWalletButton";
 const UserFormsHeading = () => <Heading m={4}>Your forms</Heading>;
 
 const UserForms: NextPage = () => {
-  const { isConnected } = useAccount();
+  const { address } = useAccount();
   const { pagination } = usePagination({
     first: 20,
     after: ""
   });
   const forms = useUserForms(pagination);
 
-  if (!isConnected) {
+  if (!address) {
     return (
       <Container maxW={[700]}>
         <Center mt={4} flexDirection="column">

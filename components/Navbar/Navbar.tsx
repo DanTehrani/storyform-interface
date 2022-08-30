@@ -16,9 +16,7 @@ import {
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { useAccount, useDisconnect } from "wagmi";
 import ConnectWalletButton from "../ConnectWalletButton";
-import useTranslation from "next-translate/useTranslation";
 import { useRouter } from "next/router";
-import path from "path";
 
 const StyledLink = props => {
   return (
@@ -37,16 +35,15 @@ const getShortenAddress = (account: string) =>
   `${account.slice(0, 6)}...${account.slice(7, 11)}`;
 
 const Navbar = () => {
-  const { t } = useTranslation("common");
   const { isOpen, onToggle } = useDisclosure();
   const { pathname } = useRouter();
 
-  const { isConnected, address } = useAccount();
+  const { address } = useAccount();
   const { disconnect } = useDisconnect();
 
   const NAV_ITEMS = [
     {
-      label: t("create-a-form"),
+      label: "Create a form",
       url: "/create"
     }
   ];
@@ -100,7 +97,7 @@ const Navbar = () => {
         </Flex>
         <Flex>
           <Box mr={4}>
-            {isConnected ? (
+            {address ? (
               <Button
                 variant="outline"
                 onClick={() => {
@@ -113,7 +110,7 @@ const Navbar = () => {
               <ConnectWalletButton></ConnectWalletButton>
             )}
           </Box>
-          {isConnected ? (
+          {address ? (
             <Menu>
               <MenuButton
                 bgColor="transparent"

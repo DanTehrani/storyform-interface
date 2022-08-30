@@ -25,10 +25,9 @@ import {
 } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
-import { useUploadForm, useGetEncryptionKeyPair } from "../hooks";
+import { useUploadForm } from "../hooks";
 import { getCurrentUnixTime, getFormIdFromForm } from "../utils";
 
-import useTranslation from "next-translate/useTranslation";
 import CreateFormContext from "../contexts/CreateFormContext";
 import FormQuestionsTab from "../components/FormTabs/FormQuestionsTab";
 import FormSettingsTab from "../components/FormTabs/FormSettingsTab";
@@ -38,17 +37,19 @@ import { FormIdPreImage } from "../types";
 import { APP_ID } from "../config";
 
 const CreateFormHeading = () => {
-  const { t } = useTranslation("create");
-
   return (
     <Center>
-      <Heading>{t("create-a-form")}</Heading>
+      <Heading>Create a form</Heading>
     </Center>
   );
 };
 
 const Create: NextPage = () => {
-  const { isConnected, address } = useAccount();
+  const account = useAccount();
+  const { address } = account;
+  // eslint-disable-next-line no-console
+  console.log({ account });
+
   const { uploadForm, uploadComplete, uploading, url } = useUploadForm();
   const { hasCopied, onCopy } = useClipboard(url || "");
   const toast = useToast();
@@ -57,7 +58,6 @@ const Create: NextPage = () => {
     onClose: closeUploadSuccessAlert,
     onOpen: openUploadSuccessAlert
   } = useDisclosure({ defaultIsOpen: false });
-  const getEncryptionKeyPair = useGetEncryptionKeyPair();
   const { isOpen: isWarningOpen, onClose: onWarningClose } = useDisclosure({
     defaultIsOpen: true
   });
@@ -94,18 +94,13 @@ const Create: NextPage = () => {
         appId: APP_ID
       };
 
-      if (formInput.settings.encryptAnswers) {
-        const { pubKey } = await getEncryptionKeyPair();
-        formIdPreImage.settings.encryptionPubKey = pubKey;
-      }
-
       const formId = getFormIdFromForm(formIdPreImage);
 
       await uploadForm({ id: formId, ...formIdPreImage });
     }
   };
 
-  if (!isConnected) {
+  if (!address) {
     return (
       <Container mt={10} maxW={[700]}>
         <CreateFormHeading></CreateFormHeading>

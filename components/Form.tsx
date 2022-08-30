@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Container,
   Box,
@@ -10,8 +10,6 @@ import {
   FormLabel,
   Input,
   Text,
-  Center,
-  Link,
   useToast
 } from "@chakra-ui/react";
 import { ArrowBackIcon } from "@chakra-ui/icons";
@@ -96,7 +94,12 @@ const Form: React.FC<Props> = ({
           {questions.map((question, i) => (
             <StyledBox key={i}>
               <Text>{question.label}</Text>
-              <Text as="b">{answers[i]}</Text>
+              <Text as="b">
+                {
+                  // eslint-disable-next-line security/detect-object-injection
+                  answers[i]
+                }
+              </Text>
             </StyledBox>
           ))}
           <ButtonGroup mt={4}>
@@ -143,7 +146,10 @@ const Form: React.FC<Props> = ({
                 }}
                 required={question.required}
                 placeholder="Enter here"
-                value={answers[i]}
+                value={
+                  // eslint-disable-next-line security/detect-object-injection
+                  answers[i]
+                }
               ></Input>
             ) : question.type === "select" ? (
               <>
@@ -161,7 +167,10 @@ const Form: React.FC<Props> = ({
                       setShowOtherInput(false);
                     }
                   }}
-                  value={answers[i]}
+                  value={
+                    // eslint-disable-next-line security/detect-object-injection
+                    answers[i]
+                  }
                 >
                   {question.options?.map(option => (
                     <option key={option} value={option}>
@@ -188,7 +197,10 @@ const Form: React.FC<Props> = ({
                     }}
                     required={question.required}
                     placeholder="Enter here"
-                    value={answers[i]}
+                    value={
+                      // eslint-disable-next-line security/detect-object-injection
+                      answers[i]
+                    }
                   ></Input>
                 ) : (
                   <></>

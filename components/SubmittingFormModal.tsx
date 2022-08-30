@@ -10,9 +10,7 @@ import {
   HStack,
   VStack
 } from "@chakra-ui/react";
-import { FormSettings } from "../types";
 import { CheckIcon } from "@chakra-ui/icons";
-import useTranslation from "next-translate/useTranslation";
 
 const StyledCircularProgress = () => (
   <CircularProgress size={5} isIndeterminate color="purple.300" />
@@ -22,18 +20,10 @@ const StyledCheckIcon = () => <CheckIcon color="purple.300"></CheckIcon>;
 
 type Props = {
   isOpen: boolean;
-  generatingProof: boolean;
   submittingForm: boolean;
-  formSettings: FormSettings;
 };
 
-const SubmittingFormModal = ({
-  isOpen,
-  generatingProof,
-  submittingForm,
-  formSettings
-}: Props) => {
-  const { t } = useTranslation("Form");
+const SubmittingFormModal = ({ isOpen, submittingForm }: Props) => {
   return (
     <>
       <Modal
@@ -48,30 +38,16 @@ const SubmittingFormModal = ({
           <ModalHeader></ModalHeader>
           <ModalBody>
             <VStack align="left">
-              {formSettings.respondentCriteria === "ERC721" ? (
-                <HStack>
-                  {generatingProof ? (
-                    <StyledCircularProgress></StyledCircularProgress>
-                  ) : (
-                    <StyledCheckIcon></StyledCheckIcon>
-                  )}
-                  <Text>{t("generating-zk-proof")}</Text>
-                </HStack>
-              ) : (
-                <></>
-              )}
               <HStack>
-                {generatingProof ? (
-                  <></>
-                ) : submittingForm ? (
+                {submittingForm ? (
                   <>
                     <StyledCircularProgress></StyledCircularProgress>
-                    <Text>{t("submitting")}</Text>
+                    <Text>Submitting your answer</Text>
                   </>
                 ) : (
                   <>
                     <StyledCheckIcon></StyledCheckIcon>
-                    <Text>{t("submitting")}</Text>
+                    <Text>Submitting your answer</Text>
                   </>
                 )}
               </HStack>
