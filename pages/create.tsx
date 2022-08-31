@@ -47,8 +47,6 @@ const CreateFormHeading = () => {
 const Create: NextPage = () => {
   const account = useAccount();
   const { address } = account;
-  // eslint-disable-next-line no-console
-  console.log({ account });
 
   const { uploadForm, uploadComplete, uploading, url } = useUploadForm();
   const { hasCopied, onCopy } = useClipboard(url || "");
