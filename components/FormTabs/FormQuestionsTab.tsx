@@ -24,8 +24,7 @@ const FormQuestionsTab: React.FC<Props> = ({ context }) => {
         ...formInput.questions,
         {
           label: "",
-          type: "text",
-          customAttributes: []
+          type: "text"
         }
       ]
     });
