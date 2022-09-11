@@ -5,7 +5,7 @@ import EditFormContext from "../../contexts/EditFormContext";
 
 type Props = {
   context: typeof CreateFormContext | typeof EditFormContext;
-  onDeleteFormClick: () => void;
+  onDeleteFormClick?: () => void; // Not required in form creation
 };
 
 // TBD
