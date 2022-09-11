@@ -68,7 +68,9 @@ export const useUploadForm = () => {
   const [uploadComplete, setUploadComplete] = useState<boolean>(false);
   const [url, setUrl] = useState<string | null>();
   const provider = useProvider({
-    chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "31337")
+    // @ts-ignore
+    // NEXT_PUBLIC_CHAIN_ID is set to 5 (Goerli) in env.development
+    chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID)
   });
 
   const { signTypedDataAsync } = useSignTypedData();

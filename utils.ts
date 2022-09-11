@@ -64,8 +64,6 @@ export const getNetworkNameFromChainId = (chainId: number): string => {
   switch (chainId) {
     case 5:
       return "goerli";
-    case 31337:
-      return "hardhat";
     default:
       return "";
   }

@@ -96,6 +96,17 @@ const Navbar = () => {
           </Box>
         </Flex>
         <Flex>
+          {address ? (
+            <StyledLink
+              href="/user/forms"
+              display={{ base: "none", md: "block" }}
+              mr={4}
+            >
+              <Text color="blackAlpha.700">Your forms</Text>
+            </StyledLink>
+          ) : (
+            <></>
+          )}
           <Box mr={4}>
             {address ? (
               <Button
@@ -110,28 +121,30 @@ const Navbar = () => {
               <ConnectWalletButton></ConnectWalletButton>
             )}
           </Box>
-          {address ? (
-            <Menu>
-              <MenuButton
-                bgColor="transparent"
-                _active={{
-                  bgColor: "transparent"
-                }}
-                _hover={{
-                  bgColor: "transparent"
-                }}
-                as={IconButton}
-                icon={<HamburgerIcon />}
-              ></MenuButton>
-              <MenuList>
-                <Link href="/user/forms">
-                  <MenuItem>Your forms</MenuItem>
-                </Link>
-              </MenuList>
-            </Menu>
-          ) : (
-            <></>
-          )}
+          <Box display={{ base: "block", md: "none" }}>
+            {address ? (
+              <Menu>
+                <MenuButton
+                  bgColor="transparent"
+                  _active={{
+                    bgColor: "transparent"
+                  }}
+                  _hover={{
+                    bgColor: "transparent"
+                  }}
+                  as={IconButton}
+                  icon={<HamburgerIcon />}
+                ></MenuButton>
+                <MenuList>
+                  <Link href="/user/forms">
+                    <MenuItem>Your forms</MenuItem>
+                  </Link>
+                </MenuList>
+              </Menu>
+            ) : (
+              <></>
+            )}
+          </Box>
         </Flex>
       </Flex>
 

@@ -33,7 +33,7 @@ Sentry.init({
   // that it will also get attached to your source maps
 });
 
-const chains = [chain.hardhat, chain.goerli];
+const chains = [chain.goerli];
 
 const { provider } = configureChains(chains, [
   jsonRpcProvider({
@@ -77,7 +77,9 @@ const Provider = ({ Component, pageProps }) => {
 
   useEffect(() => {
     if (switchNetwork) {
-      const chainId = process.env.NEXT_PUBLIC_CHAIN_ID || "31337";
+      // @ts-ignore
+      // NEXT_PUBLIC_CHAIN_ID is set to 5 (Goerli) in env.development
+      const chainId: string = process.env.NEXT_PUBLIC_CHAIN_ID;
       if (chainId) {
         switchNetwork(parseInt(chainId));
       }
