@@ -32,6 +32,7 @@ import EditFormContext from "../../../contexts/EditFormContext";
 import { getCurrentUnixTime } from "../../../utils";
 import { APP_ID } from "../../../config";
 import ConnectWalletButton from "../../../components/ConnectWalletButton";
+import FormPublishButton from "../../../components/FormPublishButton";
 
 const ManageForm: NextPage = () => {
   const { query } = useRouter();
@@ -124,14 +125,12 @@ const ManageForm: NextPage = () => {
   return (
     <Container mt={10} maxW={[700]}>
       <Box textAlign="right">
-        <Button
+        <FormPublishButton
           isLoading={uploading}
-          variant="solid"
-          colorScheme="teal"
+          buttonLabel="Update"
           onClick={handleSaveClick}
-        >
-          Update
-        </Button>
+          context={EditFormContext}
+        ></FormPublishButton>
       </Box>
       {isUpdateSuccessAlertOpen ? (
         <Alert

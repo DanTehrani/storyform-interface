@@ -8,7 +8,6 @@ export type FormCustomAttribute = {
 export interface FormQuestion {
   label: string;
   type: string; // text, select, checkbox
-  customAttributes: FormCustomAttribute[];
   required?: boolean;
   options?: string[];
   other?: boolean;

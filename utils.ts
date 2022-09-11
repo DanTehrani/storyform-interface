@@ -1,4 +1,4 @@
-import { Form, FormSubmission, FormIdPreImage } from "./types";
+import { Form, FormSubmission, FormIdPreImage, FormQuestion } from "./types";
 import type { ApolloQueryResult } from "@apollo/client";
 const { NEXT_PUBLIC_CHAIN_ID } = process.env;
 import { sha256 } from "ethers/lib/utils";
