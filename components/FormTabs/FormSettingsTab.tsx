@@ -21,9 +21,13 @@ const FormSettingsTab: React.FC<Props> = ({ context, onDeleteFormClick }) => {
 
   return (
     <Stack spacing={5}>
-      <Button variant="outline" colorScheme="red" onClick={onDeleteFormClick}>
-        Delete from
-      </Button>
+      {onDeleteFormClick ? ( // If onDeleteFormClick is defined, then we are in edit mode
+        <Button variant="outline" colorScheme="red" onClick={onDeleteFormClick}>
+          Delete from
+        </Button>
+      ) : (
+        <>Coming soon...</>
+      )}
     </Stack>
   );
 };

@@ -17,7 +17,6 @@ import {
   Stack,
   IconButton,
   useClipboard,
-  useToast,
   AlertTitle,
   Text,
   useDisclosure,
@@ -35,6 +34,8 @@ import ConnectWalletButton from "../components/ConnectWalletButton";
 import { CopyIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { FormIdPreImage } from "../types";
 import { APP_ID } from "../config";
+import { useToast } from "@chakra-ui/react";
+import FormPublishButton from "../components/FormPublishButton";
 
 const CreateFormHeading = () => {
   return (
@@ -47,12 +48,10 @@ const CreateFormHeading = () => {
 const Create: NextPage = () => {
   const account = useAccount();
   const { address } = account;
-  // eslint-disable-next-line no-console
-  console.log({ account });
+  const toast = useToast();
 
   const { uploadForm, uploadComplete, uploading, url } = useUploadForm();
   const { hasCopied, onCopy } = useClipboard(url || "");
-  const toast = useToast();
   const {
     isOpen: isUploadSuccessAlertOpen,
     onClose: closeUploadSuccessAlert,
@@ -82,14 +81,16 @@ const Create: NextPage = () => {
   const { formInput } = useContext(CreateFormContext);
 
   const handleCreateClick = async () => {
+    const { title, description, questions, settings } = formInput;
+
     if (address) {
       const formIdPreImage: FormIdPreImage = {
         owner: address,
         unixTime: getCurrentUnixTime(),
-        title: formInput.title,
-        description: formInput.description,
-        questions: formInput.questions,
-        settings: formInput.settings,
+        title: title,
+        description: description,
+        questions: questions,
+        settings: settings,
         status: "active",
         appId: APP_ID
       };
@@ -129,16 +130,13 @@ const Create: NextPage = () => {
         <></>
       )}
       <Box textAlign="right">
-        <Button
+        <FormPublishButton
           isLoading={uploading}
-          variant="solid"
-          colorScheme="teal"
           onClick={handleCreateClick}
-        >
-          Publish
-        </Button>
+          buttonLabel="Publish"
+          context={CreateFormContext}
+        ></FormPublishButton>
       </Box>
-
       {isUploadSuccessAlertOpen ? (
         <Alert
           status="success"

@@ -8,7 +8,6 @@ export type FormCustomAttribute = {
 export interface FormQuestion {
   label: string;
   type: string; // text, select, checkbox
-  customAttributes: FormCustomAttribute[];
   required?: boolean;
   options?: string[];
   other?: boolean;
@@ -83,6 +82,10 @@ export type FormSubmissionInput = {
 export type Pagination = {
   first: number;
   after?: string;
+};
+
+export type PageInfo = {
+  hasNextPage: boolean;
 };
 
 export type FormSettings = {
