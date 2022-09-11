@@ -11,7 +11,8 @@ import {
   MenuList,
   MenuItem,
   useColorModeValue,
-  useDisclosure
+  useDisclosure,
+  Image
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { useAccount, useDisconnect } from "wagmi";
@@ -77,16 +78,25 @@ const Navbar = () => {
           />
         </Flex>
         <Flex justify={{ base: "center", md: "start" }} align="center">
-          <Text display={{ base: "none", md: "flex" }} fontWeight={600}>
-            <Link
-              href="/"
-              _hover={{
-                textDecoration: "none"
-              }}
+          <Link
+            href="/"
+            _hover={{
+              textDecoration: "none"
+            }}
+            display="flex"
+            flexDirection="row"
+            alignItems="center"
+          >
+            <Image src="/storyform.svg" width="70px" ml={-3}></Image>
+            <Text
+              display={{ base: "none", md: "flex" }}
+              fontWeight={600}
+              ml={-3}
             >
               Storyform
-            </Link>
-          </Text>
+            </Text>
+          </Link>
+
           <Box ml={4} display={{ base: "none", md: "flex" }} p="4px" gap={1}>
             {NAV_ITEMS.map(({ label, url }, i) => (
               <StyledLink key={i} href={url}>
