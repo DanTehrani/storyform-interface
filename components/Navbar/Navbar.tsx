@@ -99,7 +99,7 @@ const Navbar = () => {
           {address ? (
             <StyledLink
               href="/user/forms"
-              display={{ sm: "none", md: "block" }}
+              display={{ base: "none", md: "block" }}
               mr={4}
             >
               <Text color="blackAlpha.700">Your forms</Text>
@@ -121,7 +121,7 @@ const Navbar = () => {
               <ConnectWalletButton></ConnectWalletButton>
             )}
           </Box>
-          <Box display={{ sm: "block", md: "none" }}>
+          <Box display={{ base: "block", md: "none" }}>
             {address ? (
               <Menu>
                 <MenuButton
