@@ -48,23 +48,19 @@ const Line = () => <hr style={{ paddingTop: "10px", width: "100%" }}></hr>;
 
 const Submission: NextPage = () => {
   const { query } = useRouter();
-  const [first, setFirst] = useState<number>(10);
-  const [after, setAfter] = useState<string | undefined>();
 
   const formId = query?.formId?.toString();
   const { form, formNotFound } = useForm(formId);
 
-  const submissions = useSubmissions(formId, {
-    first,
-    after
-  });
+  const { submissions, getNext, getPrevious, hasNextPage, hasPreviousPage } =
+    useSubmissions(formId);
 
   const onNextPageClick = () => {
-    // TODO: Implement this
+    getNext();
   };
 
   const onPreviousClick = () => {
-    // TODO: Implement this
+    getPrevious();
   };
 
   if (formNotFound) {
@@ -129,6 +125,7 @@ const Submission: NextPage = () => {
               aria-label="previous-page"
               icon={<ChevronLeftIcon></ChevronLeftIcon>}
               onClick={onPreviousClick}
+              isDisabled={!hasPreviousPage}
             ></IconButton>
             <IconButton
               size="sm"
@@ -136,6 +133,7 @@ const Submission: NextPage = () => {
               aria-label="next-page"
               icon={<ChevronRightIcon></ChevronRightIcon>}
               onClick={onNextPageClick}
+              isDisabled={!hasNextPage}
             ></IconButton>
           </ButtonGroup>
         </Box>

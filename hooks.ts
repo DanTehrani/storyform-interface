@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { useEffect } from "react";
 import { getSubmissions } from "./lib/formSubmission";
 import { useSignTypedData, useProvider, useAccount } from "wagmi";
@@ -8,7 +8,8 @@ import {
   WagmiEIP712TypedMessage,
   Pagination,
   FormSubmissionInput,
-  FormUploadInput
+  FormUploadInput,
+  PageInfo
 } from "./types";
 import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN } from "./config";
 import axios from "./lib/axios";
@@ -38,29 +39,80 @@ export const useForm = (formId: string | undefined) => {
   return { form, formNotFound };
 };
 
+const first = 1;
 export const useSubmissions = (
-  formId: string | undefined,
-  pagination: Pagination
-) => {
-  const { first, after } = pagination;
-  const [submissions, setSubmissions] = useState<FormSubmission[] | null>();
+  formId: string | undefined
+): {
+  submissions: FormSubmission[];
+  getNext: () => void;
+  getPrevious: () => void;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+} => {
+  const [submissions, setSubmissions] = useState<FormSubmission[]>([]);
+  const [cursors, setCursors] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [pageInfo, setPageInfo] = useState<PageInfo>({
+    hasNextPage: false
+  });
 
   useEffect(() => {
     (async () => {
       if (formId) {
-        setSubmissions(
-          await getSubmissions({
-            formId,
-            first,
-            after
-          })
-        );
+        const result = await getSubmissions({
+          formId,
+          first
+        });
+
+        setSubmissions(result.submissions);
+        setPageInfo(result.pageInfo);
+        setCursors(result.cursors);
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [after, first, formId]);
+  }, [first, formId]);
 
-  return submissions;
+  const getNext = useCallback(() => {
+    (async () => {
+      if (formId) {
+        const result = await getSubmissions({
+          formId,
+          first,
+          after: cursors[cursors.length - 1]
+        });
+
+        setCursors([...cursors, ...result.cursors]);
+        setCurrentPage(currentPage + 1);
+        setPageInfo(result.pageInfo);
+        setSubmissions(result.submissions);
+      }
+    })();
+  }, [currentPage, cursors, formId]);
+
+  const getPrevious = useCallback(() => {
+    (async () => {
+      if (formId) {
+        const result = await getSubmissions({
+          formId,
+          first,
+          after: currentPage === 1 ? "" : cursors[currentPage * first - 1]
+        });
+
+        setCursors([...cursors, ...result.cursors]);
+        setCurrentPage(currentPage - 1);
+        setPageInfo(result.pageInfo);
+        setSubmissions(result.submissions);
+      }
+    })();
+  }, [currentPage, cursors, formId]);
+
+  return {
+    submissions,
+    getNext,
+    getPrevious,
+    hasNextPage: pageInfo.hasNextPage,
+    hasPreviousPage: currentPage !== 0
+  };
 };
 
 export const useUploadForm = () => {

@@ -1,6 +1,6 @@
 import axios from "./axios";
 import arweaveGraphQl from "./arweaveGraphQl";
-import { FormSubmission, FormSubmissionInput } from "../types";
+import { FormSubmission, FormSubmissionInput, PageInfo } from "../types";
 import { gql } from "@apollo/client";
 import { APP_ID } from "../config";
 import {
@@ -22,12 +22,20 @@ export const getSubmissions = async ({
   formId: string;
   first: number;
   after?: string;
-}) => {
+}): Promise<{
+  submissions: FormSubmission[];
+  cursors: string[];
+  pageInfo: PageInfo;
+}> => {
   const result = await arweaveGraphQl.query({
     query: gql`
       query transactions($first: Int!, $after: String, $tags: [TagFilter!]) {
         transactions(first: $first, after: $after, tags: $tags) {
+          pageInfo {
+            hasNextPage
+          }
           edges {
+            cursor
             node {
               id
               tags {
@@ -90,5 +98,9 @@ export const getSubmissions = async ({
     .filter(notEmpty)
     .filter(formSubmissionSchemeValid);
 
-  return submissions;
+  return {
+    submissions,
+    cursors: result.data.transactions.edges.map(({ cursor }) => cursor),
+    pageInfo: result.data.transactions.pageInfo
+  };
 };

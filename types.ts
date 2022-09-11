@@ -84,6 +84,10 @@ export type Pagination = {
   after?: string;
 };
 
+export type PageInfo = {
+  hasNextPage: boolean;
+};
+
 export type FormSettings = {
   // TBD
 };
