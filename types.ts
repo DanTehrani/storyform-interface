@@ -1,3 +1,5 @@
+import type { Dispatch, SetStateAction } from "react";
+
 export type FormCustomAttribute = {
   key: string;
   value: string;

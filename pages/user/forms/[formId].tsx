@@ -164,34 +164,27 @@ const ManageForm: NextPage = () => {
         <></>
       )}
       <Tabs mt={4}>
-        <TabList>
+        <TabList overflow="auto">
           <Tab>Questions</Tab>
           <Tab>Settings</Tab>
           <Tab>Share</Tab>
           <Tab>Responses</Tab>
-          <Tab>Others</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
             <FormQuestionsTab context={EditFormContext}></FormQuestionsTab>
           </TabPanel>
           <TabPanel>
-            <FormSettingsTab context={EditFormContext}></FormSettingsTab>
+            <FormSettingsTab
+              context={EditFormContext}
+              onDeleteFormClick={handleDeleteFormClick}
+            ></FormSettingsTab>
           </TabPanel>
           <TabPanel>
             <FormShareTab formId={formId || ""}></FormShareTab>
           </TabPanel>
           <TabPanel>
             <FormResponsesTab formId={formId || ""}></FormResponsesTab>
-          </TabPanel>
-          <TabPanel>
-            <Button
-              variant="outline"
-              colorScheme="red"
-              onClick={handleDeleteFormClick}
-            >
-              Delete from
-            </Button>
           </TabPanel>
         </TabPanels>
       </Tabs>

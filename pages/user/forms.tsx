@@ -43,7 +43,7 @@ const UserForms: NextPage = () => {
   return (
     <Container maxW={[700]}>
       <UserFormsHeading></UserFormsHeading>
-      <Grid templateColumns="repeat(3, 1fr)" gap={6}>
+      <Grid templateColumns={["repeat(1, 1fr)", "repeat(3, 1fr)"]} gap={6}>
         {forms.map((form, i) => (
           <GridItem key={i}>
             <Link

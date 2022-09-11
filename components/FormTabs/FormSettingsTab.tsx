@@ -1,14 +1,15 @@
 import { useContext } from "react";
-import { Stack, Text } from "@chakra-ui/react";
+import { Stack, Button } from "@chakra-ui/react";
 import CreateFormContext from "../../contexts/CreateFormContext";
 import EditFormContext from "../../contexts/EditFormContext";
 
 type Props = {
   context: typeof CreateFormContext | typeof EditFormContext;
+  onDeleteFormClick: () => void;
 };
 
 // TBD
-const FormSettingsTab: React.FC<Props> = ({ context }) => {
+const FormSettingsTab: React.FC<Props> = ({ context, onDeleteFormClick }) => {
   // @ts-ignore
   const { formInput, updateSettings } = useContext(context);
 
@@ -20,7 +21,9 @@ const FormSettingsTab: React.FC<Props> = ({ context }) => {
 
   return (
     <Stack spacing={5}>
-      <Text as="i">Coming soon...</Text>
+      <Button variant="outline" colorScheme="red" onClick={onDeleteFormClick}>
+        Delete from
+      </Button>
     </Stack>
   );
 };
