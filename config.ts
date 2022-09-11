@@ -7,12 +7,6 @@ export const SIGNATURE_DOMAIN = {
     version: "1",
     chainId: "5", // 4 = Rinkeby
     verifyingContract: "0xB8F8D1AD7A8D8161223AC1276D8a361faC2534f9"
-  },
-  hardhat: {
-    name: "Storyform-dev",
-    version: "1",
-    chainId: "31337", // 4 = Rinkeby
-    verifyingContract: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
   }
 };
 
