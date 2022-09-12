@@ -36,50 +36,52 @@ const FormPublishButton: React.FC<Props> = ({
   // @ts-ignore
   const { formInput } = useContext(context);
 
-  const { title, questions } = formInput;
-
   const toast = useToast();
 
   const handlePublishClick = useCallback(() => {
-    if (!title) {
-      toast({
-        title: "Please enter a title",
-        status: "warning",
-        duration: 5000,
-        isClosable: true
-      });
-    } else if (questions.length < 1) {
-      toast({
-        title: "Please add at least one question",
-        status: "warning",
-        duration: 5000,
-        isClosable: true
-      });
-    } else if (questionWithEmptyLabelExist(questions)) {
-      toast({
-        title: "Please enter labels for all questions",
-        status: "warning",
-        duration: 5000,
-        isClosable: true
-      });
-    } else if (selectQuestionWithNoOptionsExist(questions)) {
-      toast({
-        title: "Please enter options for all select questions",
-        status: "warning",
-        duration: 5000,
-        isClosable: true
-      });
-    } else if (selectQuestionWithEmptyOptionExist(questions)) {
-      toast({
-        title: "Please enter option values for all select questions",
-        status: "warning",
-        duration: 5000,
-        isClosable: true
-      });
-    } else {
-      onClick();
+    if (formInput) {
+      const { title, questions } = formInput;
+
+      if (!title) {
+        toast({
+          title: "Please enter a title",
+          status: "warning",
+          duration: 5000,
+          isClosable: true
+        });
+      } else if (questions.length < 1) {
+        toast({
+          title: "Please add at least one question",
+          status: "warning",
+          duration: 5000,
+          isClosable: true
+        });
+      } else if (questionWithEmptyLabelExist(questions)) {
+        toast({
+          title: "Please enter labels for all questions",
+          status: "warning",
+          duration: 5000,
+          isClosable: true
+        });
+      } else if (selectQuestionWithNoOptionsExist(questions)) {
+        toast({
+          title: "Please enter options for all select questions",
+          status: "warning",
+          duration: 5000,
+          isClosable: true
+        });
+      } else if (selectQuestionWithEmptyOptionExist(questions)) {
+        toast({
+          title: "Please enter option values for all select questions",
+          status: "warning",
+          duration: 5000,
+          isClosable: true
+        });
+      } else {
+        onClick();
+      }
     }
-  }, [onClick, questions, title, toast]);
+  }, [formInput, onClick, toast]);
 
   return (
     <Button variant="solid" colorScheme="teal" onClick={handlePublishClick}>
