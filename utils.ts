@@ -3,6 +3,12 @@ import type { ApolloQueryResult } from "@apollo/client";
 const { NEXT_PUBLIC_CHAIN_ID } = process.env;
 import { sha256 } from "ethers/lib/utils";
 import axios from "axios";
+import {
+  MessageTypes,
+  recoverTypedSignature,
+  SignTypedDataVersion
+} from "@metamask/eth-sig-util";
+import { EIP712TypedMessage } from "./types";
 
 export const notEmpty = (value: any): boolean =>
   value === null || value === undefined ? false : true;
@@ -93,4 +99,31 @@ export const getArweaveTxData = async (txId: string) => {
   const data = result.data;
 
   return data;
+};
+
+export const isFormSignatureValid = (message, signature, formOwner) => {
+  const data: EIP712TypedMessage = {
+    ...message,
+    types: {
+      ...message.types,
+      EIP712Domain: [
+        { name: "name", type: "string" },
+        { name: "version", type: "string" },
+        { name: "chainId", type: "uint256" },
+        { name: "verifyingContract", type: "address" }
+      ]
+    },
+    message: message.value
+  };
+
+  const recoveredAddr = recoverTypedSignature<
+    SignTypedDataVersion.V4,
+    MessageTypes
+  >({
+    data,
+    signature,
+    version: SignTypedDataVersion.V4
+  });
+
+  return recoveredAddr.toUpperCase() === formOwner.toUpperCase();
 };

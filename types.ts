@@ -30,6 +30,7 @@ export type Form = {
   settings: FormSettings;
   owner: string;
   arweaveTxId: string;
+  signatureValid?: boolean;
   status: string;
 };
 
@@ -56,6 +57,20 @@ export type WagmiEIP712TypedMessage = {
   value: FormUploadInput;
   primaryType: string;
 };
+
+export type EIP712TypedMessage = {
+  types: {
+    EIP712Domain: {
+      name: string;
+      type: string;
+    }[];
+    [additionalProperties: string]: {
+      name: string;
+      type: string;
+    }[];
+  };
+  message: FormUploadInput;
+} & WagmiEIP712TypedMessage;
 
 export type FormSubmission = {
   formId: string;

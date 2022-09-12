@@ -1,13 +1,14 @@
 import { Form, Pagination } from "../types";
 import arweaveGraphQl from "../lib/arweaveGraphQl";
 import { gql } from "@apollo/client";
-import { APP_ID } from "../config";
+import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN, APP_ID } from "../config";
 import {
   notEmpty,
   formSchemeValid,
   getArweaveTxTagValue,
   getLatestByTagValue,
-  getArweaveTxData
+  getArweaveTxData,
+  isFormSignatureValid
 } from "../utils";
 
 export const getForm = async (formId: string): Promise<Form | null> => {
@@ -62,11 +63,23 @@ export const getForm = async (formId: string): Promise<Form | null> => {
     ///
   }
 
-  // TODO: Filter out data with invalid format
+  // Verify the signature
+
+  const tx = result.data.transactions.edges[0].node;
+  const signature = getArweaveTxTagValue(tx, "Signature");
+  const formOwner = getArweaveTxTagValue(tx, "Owner");
+
+  const message = {
+    domain: SIGNATURE_DOMAIN["goerli"],
+    types: SIGNATURE_DATA_TYPES,
+    value: data,
+    primaryType: "Form"
+  };
 
   const form = data
     ? {
         ...data,
+        signatureValid: isFormSignatureValid(message, signature, formOwner),
         arweaveTxId: txId
       }
     : null;
@@ -80,7 +93,6 @@ export const getForms = async ({
   owner
 }: Pagination & {
   owner?: string;
-  // TODO Return last  and first cursor
 }): Promise<Form[]> => {
   const tags = [
     {

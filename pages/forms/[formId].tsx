@@ -37,6 +37,14 @@ const FormPage: NextPage = () => {
     return <FormDeleted></FormDeleted>;
   }
 
+  if (!form.signatureValid) {
+    return (
+      <Center height="60vh">
+        <Text fontSize="xl">The form signature is invalid. 😕</Text>
+      </Center>
+    );
+  }
+
   if (submissionComplete) {
     return (
       <Center
