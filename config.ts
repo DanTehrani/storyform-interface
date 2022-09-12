@@ -23,10 +23,6 @@ export const SIGNATURE_DATA_TYPES = {
     {
       name: "type",
       type: "string"
-    },
-    {
-      name: "customAttributes",
-      type: "string[]"
     }
   ],
   Form: [

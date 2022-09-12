@@ -13,8 +13,7 @@ const defaultState = {
     questions: [
       {
         label: "",
-        type: "text",
-        customAttributes: []
+        type: "text"
       }
     ],
     settings: {}
