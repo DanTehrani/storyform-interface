@@ -1,5 +1,4 @@
-export const APP_ID =
-  process.env.NEXT_PUBLIC_STORY_FORM_ARWEAVE_APP_ID || "StoryForm-dev";
+export const APP_ID = process.env.NEXT_PUBLIC_STORY_FORM_ARWEAVE_APP_ID;
 
 export const SIGNATURE_DOMAIN = {
   goerli: {
