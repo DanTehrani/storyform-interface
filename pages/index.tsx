@@ -22,6 +22,14 @@ const Index: NextPage = () => {
       >
         Create a form
       </Button>
+      <button
+        onClick={() => {
+          throw new Error("Something went wrong");
+        }}
+      >
+        Break the world
+      </button>
+      ;
       <Button
         size="lg"
         variant="link"
