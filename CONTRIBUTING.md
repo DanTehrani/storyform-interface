@@ -21,6 +21,7 @@ yarn dev
 ```
 
 In development mode, the frontend will connect to the gateway at https://dev.gateway.storyform.xyz/.
+The gateway is responsible for uploading data to Arweave and paying the fees through the Bundlr Network.
 
 ### About the dev gateway
 
