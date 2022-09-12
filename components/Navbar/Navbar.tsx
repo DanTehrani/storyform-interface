@@ -17,6 +17,7 @@ import {
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { useAccount, useDisconnect } from "wagmi";
 import ConnectWalletButton from "../ConnectWalletButton";
+import { FaDiscord, FaGithub, FaTwitter } from "react-icons/fa";
 import { useRouter } from "next/router";
 
 const StyledLink = props => {
@@ -130,29 +131,46 @@ const Navbar = () => {
               <ConnectWalletButton></ConnectWalletButton>
             )}
           </Box>
-          <Box display={{ base: "block", md: "none" }}>
-            {address ? (
-              <Menu>
-                <MenuButton
-                  bgColor="transparent"
-                  _active={{
-                    bgColor: "transparent"
-                  }}
-                  _hover={{
-                    bgColor: "transparent"
-                  }}
-                  as={IconButton}
-                  icon={<HamburgerIcon />}
-                ></MenuButton>
-                <MenuList>
-                  <Link href="/user/forms">
-                    <MenuItem>Your forms</MenuItem>
+          <Box>
+            <Menu>
+              <MenuButton
+                bgColor="transparent"
+                _active={{
+                  bgColor: "transparent"
+                }}
+                _hover={{
+                  bgColor: "transparent"
+                }}
+                as={IconButton}
+                icon={<HamburgerIcon />}
+              ></MenuButton>
+              <MenuList>
+                <MenuItem display={{ base: "block", md: "none" }} mb={3}>
+                  <Link href="/user/forms">Your forms</Link>
+                </MenuItem>
+                <Flex
+                  width="100%"
+                  justifyContent="space-evenly"
+                  mt={2}
+                  mb={2}
+                  gap={2}
+                  pl={4}
+                >
+                  <Link href="https://twitter.com/storyformxyz" isExternal>
+                    <FaTwitter size={20}></FaTwitter>
                   </Link>
-                </MenuList>
-              </Menu>
-            ) : (
-              <></>
-            )}
+                  <Link href="https://discord.gg/6HezQVqX" isExternal>
+                    <FaDiscord size={20}></FaDiscord>
+                  </Link>
+                  <Link
+                    href="https://github.com/DanTehrani/storyform-interface"
+                    isExternal
+                  >
+                    <FaGithub size={20}></FaGithub>
+                  </Link>
+                </Flex>
+              </MenuList>
+            </Menu>
           </Box>
         </Flex>
       </Flex>
