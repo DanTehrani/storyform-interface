@@ -87,17 +87,9 @@ const Navbar = () => {
             flexDirection="row"
             alignItems="center"
           >
-            <Image src="/storyform.svg" width="70px" ml={-3}></Image>
-            <Text
-              display={{ base: "none", md: "flex" }}
-              fontWeight={600}
-              ml={-3}
-            >
-              Storyform
-            </Text>
+            <Image src="/storyform.svg" width="90px" ml={-5}></Image>
           </Link>
-
-          <Box ml={4} display={{ base: "none", md: "flex" }} p="4px" gap={1}>
+          <Box ml={-10} display={{ base: "none", md: "flex" }} gap={1}>
             {NAV_ITEMS.map(({ label, url }, i) => (
               <StyledLink key={i} href={url}>
                 <Text color="blackAlpha.700">{label}</Text>
