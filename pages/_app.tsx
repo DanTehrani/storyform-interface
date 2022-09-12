@@ -32,7 +32,6 @@ Sentry.init({
   // of transactions for performance monitoring.
   // We recommend adjusting this value in production
   tracesSampleRate: 1.0,
-  environment: process.env.VERCEL_ENV,
   beforeSend: (event, hint) => {
     if (process.env.NODE_ENV === "development") {
       // eslint-disable-next-line no-console
@@ -43,9 +42,6 @@ Sentry.init({
     return event;
   }
 });
-
-// eslint-disable-next-line no-console
-console.log("VERCEL_ENV", process.env.VERCEL_ENV);
 
 const chains = [chain.goerli];
 
