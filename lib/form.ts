@@ -1,4 +1,4 @@
-import { Form, Pagination } from "../types";
+import { Form } from "../types";
 import arweaveGraphQl from "../lib/arweaveGraphQl";
 import { gql } from "@apollo/client";
 import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN, APP_ID } from "../config";
