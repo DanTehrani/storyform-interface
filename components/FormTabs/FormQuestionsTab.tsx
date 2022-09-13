@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Button, Center, Input, Stack } from "@chakra-ui/react";
+import { Textarea, Button, Center, Input, Stack } from "@chakra-ui/react";
 import { SmallAddIcon } from "@chakra-ui/icons";
 import FormInputCard from "../FormInputCard";
 import EditFormContext from "../../contexts/EditFormContext";
@@ -99,7 +99,7 @@ const FormQuestionsTab: React.FC<Props> = ({ context }) => {
         }}
         variant="flushed"
       ></Input>
-      <Input
+      <Textarea
         placeholder="Form description"
         value={formInput.description}
         onChange={e => {
@@ -107,7 +107,7 @@ const FormQuestionsTab: React.FC<Props> = ({ context }) => {
         }}
         variant="flushed"
         mt={6}
-      ></Input>
+      ></Textarea>
       <Stack gap={4} mt={6}>
         {formInput.questions.map((formQuestion, i) => (
           <FormInputCard

@@ -25,7 +25,7 @@ const UserForms: NextPage = () => {
 
   if (!address) {
     return (
-      <Container maxW={[700]}>
+      <Container maxW={[850]}>
         <Center mt={4} flexDirection="column">
           <UserFormsHeading></UserFormsHeading>
           <Box mt={4}>
@@ -41,7 +41,7 @@ const UserForms: NextPage = () => {
   }
 
   return (
-    <Container maxW={[700]}>
+    <Container maxW={[850]}>
       <UserFormsHeading></UserFormsHeading>
       <Grid templateColumns={["repeat(1, 1fr)", "repeat(3, 1fr)"]} gap={6}>
         {forms.map((form, i) => (

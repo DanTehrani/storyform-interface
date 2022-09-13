@@ -103,7 +103,7 @@ const Create: NextPage = () => {
 
   if (!address) {
     return (
-      <Container mt={10} maxW={[700]}>
+      <Container mt={10} maxW={[850]}>
         <CreateFormHeading></CreateFormHeading>
         <Center mt={4}>
           <ConnectWalletButton></ConnectWalletButton>
@@ -113,7 +113,7 @@ const Create: NextPage = () => {
   }
 
   return (
-    <Container mt={10} maxW={[700]}>
+    <Container mt={10} maxW={[850]}>
       {isWarningOpen ? (
         <Alert status="warning" mt={4} mb={4}>
           <AlertIcon />

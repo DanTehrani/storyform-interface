@@ -123,7 +123,7 @@ const ManageForm: NextPage = () => {
   }
 
   return (
-    <Container mt={10} maxW={[700]}>
+    <Container mt={10} maxW={[850]}>
       <Box textAlign="right">
         <FormPublishButton
           isLoading={uploading}

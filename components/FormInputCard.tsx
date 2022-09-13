@@ -7,7 +7,8 @@ import {
   Select,
   IconButton,
   Switch,
-  Text
+  Text,
+  Textarea
 } from "@chakra-ui/react";
 import {
   DeleteIcon,
@@ -172,9 +173,10 @@ const CreateFormQuestionCard: React.FC<Props> = ({
   return (
     <Box borderWidth="2px" borderRadius="lg" p={6} boxShadow="sm">
       <Stack direction="row" justify="end"></Stack>
-      <Stack direction="row" mt={4}>
-        <Input
-          variant="flushed"
+      <Stack direction="row" mt={4} alignItems="start">
+        <Textarea
+          overflow=""
+          variant="outline"
           borderBottom="1px"
           borderColor="gray.500"
           placeholder="Question"
