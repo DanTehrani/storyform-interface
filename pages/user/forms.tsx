@@ -8,7 +8,7 @@ import {
   GridItem
 } from "@chakra-ui/react";
 import type { NextPage } from "next";
-import { useUserForms, usePagination } from "../../hooks";
+import { useUserForms } from "../../hooks";
 import { useAccount } from "wagmi";
 import FormsPageSkeleton from "../../components/FormsPageSkeleton";
 import ConnectWalletButton from "../../components/ConnectWalletButton";
@@ -17,11 +17,7 @@ const UserFormsHeading = () => <Heading m={4}>Your forms</Heading>;
 
 const UserForms: NextPage = () => {
   const { address } = useAccount();
-  const { pagination } = usePagination({
-    first: 20,
-    after: ""
-  });
-  const forms = useUserForms(pagination);
+  const forms = useUserForms();
 
   if (!address) {
     return (

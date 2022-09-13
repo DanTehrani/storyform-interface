@@ -87,11 +87,6 @@ export type FormSubmissionInput = {
   appId: string;
 };
 
-export type Pagination = {
-  first: number;
-  after?: string;
-};
-
 export type PageInfo = {
   hasNextPage: boolean;
 };

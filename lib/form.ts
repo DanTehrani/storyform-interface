@@ -88,10 +88,8 @@ export const getForm = async (formId: string): Promise<Form | null> => {
 };
 
 export const getForms = async ({
-  first,
-  after,
   owner
-}: Pagination & {
+}: {
   owner?: string;
 }): Promise<Form[]> => {
   const tags = [
@@ -122,8 +120,8 @@ export const getForms = async ({
 
   const result = await arweaveGraphQl.query({
     query: gql`
-      query transactions($first: Int!, $after: String, $tags: [TagFilter!]) {
-        transactions(first: $first, after: $after, tags: $tags) {
+      query transactions($first: Int!, $tags: [TagFilter!]) {
+        transactions(first: $first, tags: $tags) {
           edges {
             node {
               id
@@ -137,8 +135,7 @@ export const getForms = async ({
       }
     `,
     variables: {
-      first,
-      after,
+      first: 30,
       tags
     }
   });
@@ -180,6 +177,7 @@ export const getForms = async ({
     )
   )
     .filter(notEmpty)
+    .filter(status => status.status === "active")
     .map(form => {
       !formSchemeValid(form) &&
         // eslint-disable-next-line no-console

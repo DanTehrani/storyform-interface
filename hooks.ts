@@ -6,7 +6,6 @@ import {
   Form,
   FormSubmission,
   WagmiEIP712TypedMessage,
-  Pagination,
   FormSubmissionInput,
   FormUploadInput,
   PageInfo
@@ -162,17 +161,17 @@ export const useUploadForm = () => {
   return { uploading, uploadForm, uploadComplete, url };
 };
 
-export const useUserForms = (pagination: Pagination): Form[] | undefined => {
+export const useUserForms = (): Form[] | undefined => {
   const { address } = useAccount();
   const [forms, setForms] = useState<Form[] | undefined>();
 
   useEffect(() => {
     (async () => {
-      if (pagination && address) {
-        setForms(await getForms({ ...pagination, owner: address }));
+      if (address) {
+        setForms(await getForms({ owner: address }));
       }
     })();
-  }, [pagination, address]);
+  }, [address]);
 
   return forms;
 };
@@ -192,23 +191,6 @@ export const useSubmitForm = () => {
     submittingForm,
     submitForm,
     submissionComplete
-  };
-};
-
-export const usePagination = (
-  initPagination: Pagination = {
-    first: 10,
-    after: ""
-  }
-): {
-  pagination: Pagination;
-  setPagination: (_pagination: Pagination) => void;
-} => {
-  const [pagination, setPagination] = useState(initPagination);
-
-  return {
-    pagination,
-    setPagination
   };
 };
 
