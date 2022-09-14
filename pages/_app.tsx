@@ -136,6 +136,7 @@ const MyApp = ({ Component, pageProps }) => {
         <Feedback
           projectId="63218fdbbcec77000438beb0"
           projectName="Storyform"
+          primaryColor="#9b59b6"
         />
       ) : (
         <></>
