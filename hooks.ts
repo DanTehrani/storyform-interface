@@ -12,7 +12,7 @@ import {
 } from "./types";
 import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN } from "./config";
 import axios from "./lib/axios";
-import { getForm, getForms } from "./lib/form";
+import { getForm, getForms, getUserFormCount } from "./lib/form";
 import { submitAnswer } from "./lib/formSubmission";
 import ConnectWalletModalContext from "./contexts/ConnectWalletModalContext";
 import { getFormUrl } from "./utils";
@@ -117,7 +117,6 @@ export const useSubmissions = (
 export const useUploadForm = () => {
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadComplete, setUploadComplete] = useState<boolean>(false);
-  const [url, setUrl] = useState<string | null>();
   const provider = useProvider({
     // @ts-ignore
     // NEXT_PUBLIC_CHAIN_ID is set to 5 (Goerli) in env.development
@@ -153,12 +152,11 @@ export const useUploadForm = () => {
     };
 
     await axios.post("/forms", formInput);
-    setUrl(getFormUrl(form.id));
     setUploading(false);
     setUploadComplete(true); // TODO Change the name
   };
 
-  return { uploading, uploadForm, uploadComplete, url };
+  return { uploading, uploadForm, uploadComplete };
 };
 
 export const useUserForms = (): Form[] | undefined => {
@@ -202,4 +200,20 @@ export const useConnectWallet = () => {
   };
 
   return connect;
+};
+
+export const useUserFormCount = () => {
+  const [formCount, setFormCount] = useState<number>();
+  const { address } = useAccount();
+  useEffect(() => {
+    (async () => {
+      if (address) {
+        setFormCount(await getUserFormCount(address));
+      }
+    })();
+  }, [address]);
+
+  return {
+    formCount
+  };
 };

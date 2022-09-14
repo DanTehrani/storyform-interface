@@ -174,7 +174,6 @@ const Navbar = () => {
           </Box>
         </Flex>
       </Flex>
-
       <Collapse in={isOpen} animateOpacity>
         {NAV_ITEMS.map(({ label, url }, i) => (
           <Box p={4} display={{ md: "none" }} key={i}>

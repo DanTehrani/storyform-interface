@@ -1,4 +1,4 @@
-import { createContext, useCallback, useState } from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
 import {
   FormInput,
   FormQuestion,
@@ -26,7 +26,26 @@ const defaultState = {
 const CreateFormContext = createContext<ICreateFormContext>(defaultState);
 
 export const CreateFormContextProvider = ({ children }) => {
+  const [formInputRestored, setFormInputRestored] = useState<boolean>(false);
   const [formInput, setFormInput] = useState<FormInput>(defaultState.formInput);
+
+  // Save changes to localStorage (as the form's draft)
+  // But don't until the currently stored localStorage values are restored.
+  useEffect(() => {
+    if (formInputRestored) {
+      localStorage.setItem("formInput", JSON.stringify(formInput));
+    }
+  }, [formInput, formInputRestored]);
+
+  // Restore localStorage values
+  useEffect(() => {
+    const formInput = localStorage.getItem("formInput");
+    if (formInput) {
+      setFormInput(JSON.parse(formInput));
+    }
+
+    setFormInputRestored(true);
+  }, []);
 
   const updateQuestion = useCallback(
     (question: FormQuestion, questionIndex) => {

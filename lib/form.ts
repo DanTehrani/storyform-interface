@@ -1,15 +1,65 @@
-import { Form, Pagination } from "../types";
+import { Form, EIP712TypedMessage } from "../types";
 import arweaveGraphQl from "../lib/arweaveGraphQl";
 import { gql } from "@apollo/client";
-import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN, APP_ID } from "../config";
+import {
+  SIGNATURE_DATA_TYPES,
+  SIGNATURE_DOMAIN,
+  APP_ID,
+  MAX_ALLOWED_FORMS_PER_USER,
+  MAX_UPDATES_PER_FORM_PER_USER
+} from "../config";
 import {
   notEmpty,
-  formSchemeValid,
   getArweaveTxTagValue,
-  getLatestByTagValue,
+  getArweaveTxUnixTime,
   getArweaveTxData,
-  isFormSignatureValid
+  getNodesFromArweaveGraphQLResult,
+  removeDuplicates
 } from "../utils";
+import {
+  MessageTypes,
+  recoverTypedSignature,
+  SignTypedDataVersion
+} from "@metamask/eth-sig-util";
+
+const verifyFormTxSignature = (tx, txData): boolean => {
+  const signature = getArweaveTxTagValue(tx, "Signature");
+  const formOwner = getArweaveTxTagValue(tx, "Owner");
+
+  const message = {
+    domain: SIGNATURE_DOMAIN["goerli"],
+    types: SIGNATURE_DATA_TYPES,
+    value: txData,
+    primaryType: "Form"
+  };
+
+  const data: EIP712TypedMessage = {
+    ...message,
+    types: {
+      ...message.types,
+      EIP712Domain: [
+        { name: "name", type: "string" },
+        { name: "version", type: "string" },
+        { name: "chainId", type: "uint256" },
+        { name: "verifyingContract", type: "address" }
+      ]
+    },
+    message: message.value
+  };
+
+  const recoveredAddr = recoverTypedSignature<
+    SignTypedDataVersion.V4,
+    MessageTypes
+  >({
+    data,
+    signature,
+    version: SignTypedDataVersion.V4
+  });
+
+  const isSigValid = recoveredAddr.toUpperCase() === formOwner.toUpperCase();
+
+  return isSigValid;
+};
 
 export const getForm = async (formId: string): Promise<Form | null> => {
   // sort is HEIGHT_DESC by default
@@ -63,23 +113,12 @@ export const getForm = async (formId: string): Promise<Form | null> => {
     ///
   }
 
-  // Verify the signature
-
   const tx = result.data.transactions.edges[0].node;
-  const signature = getArweaveTxTagValue(tx, "Signature");
-  const formOwner = getArweaveTxTagValue(tx, "Owner");
-
-  const message = {
-    domain: SIGNATURE_DOMAIN["goerli"],
-    types: SIGNATURE_DATA_TYPES,
-    value: data,
-    primaryType: "Form"
-  };
 
   const form = data
     ? {
         ...data,
-        signatureValid: isFormSignatureValid(message, signature, formOwner),
+        signatureValid: verifyFormTxSignature(tx, data),
         arweaveTxId: txId
       }
     : null;
@@ -101,11 +140,6 @@ export const getForms = async ({
     {
       name: "Type",
       values: ["Form"],
-      op: "EQ"
-    },
-    {
-      name: "Status",
-      values: ["active"],
       op: "EQ"
     }
   ];
@@ -135,16 +169,39 @@ export const getForms = async ({
       }
     `,
     variables: {
-      first: 30,
+      first: MAX_UPDATES_PER_FORM_PER_USER * MAX_ALLOWED_FORMS_PER_USER,
       tags
     }
   });
 
-  const transactions = getLatestByTagValue(result, "Form-Id");
+  const allTxs = getNodesFromArweaveGraphQLResult(result);
 
+  // Form ids no duplicate
+  const formIds = removeDuplicates(
+    allTxs.map(tx => getArweaveTxTagValue(tx, "Form-Id"))
+  );
+
+  // Get the latest form version for each form id
+  const latestFormTxs = formIds
+    .map(formId => {
+      const formTxs = allTxs.filter(
+        tx => getArweaveTxTagValue(tx, "Form-Id") === formId
+      );
+      const txSortedByUnixTime = formTxs.sort(
+        (tx1, tx2) => getArweaveTxUnixTime(tx2) - getArweaveTxUnixTime(tx1)
+      );
+
+      const latestFormTx = txSortedByUnixTime[0];
+
+      return latestFormTx;
+    })
+    // Filter out deleted forms
+    .filter(tx => getArweaveTxTagValue(tx, "Status") === "active");
+
+  // @ts-ignore
   const forms: Form[] = (
     await Promise.all(
-      transactions.map(tx =>
+      latestFormTxs.map(tx =>
         (async (): Promise<Form | null> => {
           let form: Form | undefined;
           try {
@@ -175,16 +232,60 @@ export const getForms = async ({
         })
       )
     )
-  )
-    .filter(notEmpty)
-    .filter(status => status.status === "active")
-    .map(form => {
-      !formSchemeValid(form) &&
-        // eslint-disable-next-line no-console
-        console.log(`Invalid form ${JSON.stringify(form)}`);
-      return form;
-    })
-    .filter(formSchemeValid); // Also filters out forms with data still unavailable.
+  ).filter(notEmpty);
 
   return forms;
+};
+
+export const getUserFormCount = async (address: string): Promise<number> => {
+  const tags = [
+    {
+      name: "App-Id",
+      values: [APP_ID],
+      op: "EQ"
+    },
+    {
+      name: "Type",
+      values: ["Form"],
+      op: "EQ"
+    },
+    {
+      name: "Owner",
+      values: [address],
+      op: "EQ"
+    }
+  ];
+
+  const result = await arweaveGraphQl.query({
+    query: gql`
+      query transactions($first: Int!, $tags: [TagFilter!]) {
+        transactions(first: $first, tags: $tags) {
+          edges {
+            node {
+              id
+              tags {
+                value
+                name
+              }
+            }
+          }
+        }
+      }
+    `,
+    variables: {
+      first: MAX_UPDATES_PER_FORM_PER_USER * MAX_ALLOWED_FORMS_PER_USER,
+      tags
+    }
+  });
+
+  const allTxs = getNodesFromArweaveGraphQLResult(result);
+
+  // Form ids no duplicate
+  const formIds = removeDuplicates(
+    allTxs.map(tx => getArweaveTxTagValue(tx, "Form-Id"))
+  );
+
+  const formCount = formIds.length;
+
+  return formCount;
 };

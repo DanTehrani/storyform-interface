@@ -6,7 +6,9 @@ import {
   createClient,
   useSwitchNetwork,
   chain,
-  configureChains
+  configureChains,
+  useConnect,
+  useAccount
 } from "wagmi";
 import { useEffect } from "react";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
@@ -23,6 +25,10 @@ import { CreateFormContextProvider } from "../contexts/CreateFormContext";
 import { EditFormContextProvider } from "../contexts/EditFormContext";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
+import loadable from "@loadable/component"; // npm install @loadable/component
+const Feedback = loadable(() => import("feeder-react-feedback/dist/Feedback")); // dynamically load Feedback component
+import "feeder-react-feedback/dist/feeder-react-feedback.css"; // import stylesheet
+import { useRouter } from "next/router";
 
 Sentry.init({
   dsn: "https://afa37196f4324ff8950f0baa5f4a29f5@o1348995.ingest.sentry.io/6628427",
@@ -84,6 +90,7 @@ const client = createClient({
 
 const Provider = ({ Component, pageProps }) => {
   const { switchNetwork } = useSwitchNetwork();
+  const { address } = useAccount();
 
   useEffect(() => {
     if (switchNetwork) {
@@ -112,6 +119,8 @@ const Provider = ({ Component, pageProps }) => {
 };
 
 const MyApp = ({ Component, pageProps }) => {
+  const { pathname } = useRouter();
+
   return (
     <ErrorBoundary
       FallbackComponent={ErrorFallback}
@@ -123,6 +132,14 @@ const MyApp = ({ Component, pageProps }) => {
         // TODO Report to Sentry
       }}
     >
+      {pathname !== "/forms/[formId]" ? ( // Don't show feedback on the form page
+        <Feedback
+          projectId="63218fdbbcec77000438beb0"
+          projectName="Storyform"
+        />
+      ) : (
+        <></>
+      )}
       <WagmiConfig client={client}>
         <Provider Component={Component} pageProps={pageProps}></Provider>
       </WagmiConfig>

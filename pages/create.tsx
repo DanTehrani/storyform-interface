@@ -1,6 +1,5 @@
 import { useContext, useEffect } from "react";
 import {
-  Button,
   Heading,
   Center,
   Container,
@@ -20,22 +19,30 @@ import {
   AlertTitle,
   Text,
   useDisclosure,
-  CloseButton
+  CloseButton,
+  Button
 } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
-import { useUploadForm } from "../hooks";
-import { getCurrentUnixTime, getFormIdFromForm } from "../utils";
-
+import { useUploadForm, useUserFormCount } from "../hooks";
+import { getCurrentUnixTime, getFormIdFromForm, getFormUrl } from "../utils";
 import CreateFormContext from "../contexts/CreateFormContext";
 import FormQuestionsTab from "../components/FormTabs/FormQuestionsTab";
 import FormSettingsTab from "../components/FormTabs/FormSettingsTab";
 import ConnectWalletButton from "../components/ConnectWalletButton";
+import NotInAlphaWhitelistCard from "../components/NotInAlphaWhitelistCard";
 import { CopyIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { FormIdPreImage } from "../types";
-import { APP_ID } from "../config";
+import {
+  ALPHA_WHITELIST_ADDRESSES,
+  APP_ID,
+  MAX_ALLOWED_FORMS_PER_USER
+} from "../config";
 import { useToast } from "@chakra-ui/react";
 import FormPublishButton from "../components/FormPublishButton";
+import FormSkeleton from "../components/FormSkeleton";
+import { useRouter } from "next/router";
+import { useState } from "react";
 
 const CreateFormHeading = () => {
   return (
@@ -50,16 +57,19 @@ const Create: NextPage = () => {
   const { address } = account;
   const toast = useToast();
 
-  const { uploadForm, uploadComplete, uploading, url } = useUploadForm();
-  const { hasCopied, onCopy } = useClipboard(url || "");
-  const {
-    isOpen: isUploadSuccessAlertOpen,
-    onClose: closeUploadSuccessAlert,
-    onOpen: openUploadSuccessAlert
-  } = useDisclosure({ defaultIsOpen: false });
+  const { uploadForm, uploadComplete, uploading } = useUploadForm();
+  const { isOpen: isUploadSuccessAlertOpen, onOpen: openUploadSuccessAlert } =
+    useDisclosure({ defaultIsOpen: false });
   const { isOpen: isWarningOpen, onClose: onWarningClose } = useDisclosure({
     defaultIsOpen: true
   });
+  const [formId, setFormId] = useState<string | null>();
+  const formUrl: string = formId ? getFormUrl(formId) : "";
+
+  const router = useRouter();
+  const { hasCopied, onCopy } = useClipboard(formUrl);
+
+  const { formCount } = useUserFormCount();
 
   useEffect(() => {
     if (hasCopied) {
@@ -75,6 +85,8 @@ const Create: NextPage = () => {
   useEffect(() => {
     if (uploadComplete) {
       openUploadSuccessAlert();
+      // Clear the formInput from localStorage (which was used to store the form draft)
+      localStorage.setItem("formInput", "");
     }
   }, [uploadComplete, openUploadSuccessAlert]);
 
@@ -96,6 +108,7 @@ const Create: NextPage = () => {
       };
 
       const formId = getFormIdFromForm(formIdPreImage);
+      setFormId(formId);
 
       await uploadForm({ id: formId, ...formIdPreImage });
     }
@@ -112,8 +125,80 @@ const Create: NextPage = () => {
     );
   }
 
+  if (!ALPHA_WHITELIST_ADDRESSES.includes(address)) {
+    return <NotInAlphaWhitelistCard></NotInAlphaWhitelistCard>;
+  }
+
+  if (formCount == null) {
+    return <FormSkeleton></FormSkeleton>;
+  }
+
+  if (formCount != null && formCount > MAX_ALLOWED_FORMS_PER_USER) {
+    return (
+      <Center height="60vh">
+        <Text fontSize="lg">
+          Form creation limit reached ({MAX_ALLOWED_FORMS_PER_USER} forms per
+          user)
+        </Text>
+      </Center>
+    );
+  }
+
+  if (isUploadSuccessAlertOpen) {
+    return (
+      <Container maxW={[850]}>
+        <Center height="70vh">
+          <Alert
+            status="success"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            textAlign="center"
+            mt={4}
+            mb={4}
+            p={20}
+          >
+            <AlertIcon />
+            <AlertTitle>Success!</AlertTitle>
+            <AlertDescription>
+              <Text>
+                Your form is being published! Your form will be available soon.
+              </Text>
+            </AlertDescription>
+            <Stack direction="row" justify="center" mt={4}>
+              <Input isReadOnly variant="filled" value={formUrl}></Input>
+              <IconButton
+                aria-label="Copy form url"
+                icon={<CopyIcon></CopyIcon>}
+                onClick={onCopy}
+              ></IconButton>
+              <IconButton
+                aria-label="Open form url"
+                icon={<ExternalLinkIcon></ExternalLinkIcon>}
+                onClick={() => {
+                  // eslint-disable-next-line security/detect-non-literal-fs-filename
+                  window.open(formUrl);
+                }}
+              ></IconButton>
+            </Stack>
+            <Stack mt={4}>
+              <Button
+                colorScheme="green"
+                onClick={() => {
+                  router.push(`/user/forms/${formId}`);
+                }}
+              >
+                Manage form
+              </Button>
+            </Stack>
+          </Alert>
+        </Center>
+      </Container>
+    );
+  }
+
   return (
-    <Container mt={10} maxW={[850]}>
+    <Container mt={10} maxW={[850]} mb={200}>
       {isWarningOpen ? (
         <Alert status="warning" mt={4} mb={4}>
           <AlertIcon />
@@ -137,48 +222,6 @@ const Create: NextPage = () => {
           context={CreateFormContext}
         ></FormPublishButton>
       </Box>
-      {isUploadSuccessAlertOpen ? (
-        <Alert
-          status="success"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          textAlign="center"
-          mt={4}
-          mb={4}
-        >
-          <Stack alignItems="end" width="100%">
-            <CloseButton onClick={closeUploadSuccessAlert}></CloseButton>
-          </Stack>
-          <AlertIcon />
-          <AlertTitle>Success!</AlertTitle>
-          <AlertDescription>
-            <Text>
-              Your form is being published! Your form will be available soon.
-            </Text>
-          </AlertDescription>
-          <Stack direction="row" justify="center" mt={4}>
-            <Input isReadOnly variant="filled" value={url || ""}></Input>
-            <IconButton
-              aria-label="Copy form url"
-              icon={<CopyIcon></CopyIcon>}
-              onClick={onCopy}
-            ></IconButton>
-            <IconButton
-              aria-label="Open form url"
-              icon={<ExternalLinkIcon></ExternalLinkIcon>}
-              onClick={() => {
-                if (url) {
-                  // eslint-disable-next-line security/detect-non-literal-fs-filename
-                  window.open(url);
-                }
-              }}
-            ></IconButton>
-          </Stack>
-        </Alert>
-      ) : (
-        <></>
-      )}
       <CreateFormHeading></CreateFormHeading>
       <Tabs mt={4}>
         <TabList>

@@ -1,25 +1,15 @@
-import { Form, FormSubmission, FormIdPreImage, FormQuestion } from "./types";
-import type { ApolloQueryResult } from "@apollo/client";
+import {
+  FormSubmission,
+  FormIdPreImage,
+  ArweaveTx,
+  ArweveGraphQLResult
+} from "./types";
 const { NEXT_PUBLIC_CHAIN_ID } = process.env;
 import { sha256 } from "ethers/lib/utils";
 import axios from "axios";
-import {
-  MessageTypes,
-  recoverTypedSignature,
-  SignTypedDataVersion
-} from "@metamask/eth-sig-util";
-import { EIP712TypedMessage } from "./types";
 
-export const notEmpty = (value: any): boolean =>
+export const notEmpty = <T>(value: T): boolean =>
   value === null || value === undefined ? false : true;
-
-export const formSchemeValid = (form: Form): boolean =>
-  notEmpty(form.id) &&
-  notEmpty(form.owner) &&
-  notEmpty(form.title) &&
-  notEmpty(form.unixTime) &&
-  notEmpty(form.questions) &&
-  typeof form.questions !== "string";
 
 export const formSubmissionSchemeValid = (
   formSubmission: FormSubmission
@@ -41,30 +31,6 @@ export const getArweaveTxTagValue = (tx, tagName): string =>
 
 export const getArweaveTxUnixTime = (tx): number =>
   parseInt(getArweaveTxTagValue(tx, "Unix-Time"));
-
-export const getLatestByTagValue = (result: ApolloQueryResult<any>, tagName) =>
-  result.data.transactions.edges
-    .map(({ node }) => node)
-    // Filter out transactions without the Unix-Time tag, by try extracting the tag.
-    .filter(tx => {
-      try {
-        getArweaveTxUnixTime(tx);
-        return true;
-      } catch (err) {
-        return false;
-      }
-    })
-    // Sort transactions is descending order re: timestamp
-    .sort((tx1, tx2) => getArweaveTxUnixTime(tx2) - getArweaveTxUnixTime(tx1))
-    // Only return the latest version of the transaction
-    .filter(
-      (tx, i, self) =>
-        self.findIndex(
-          _tx =>
-            getArweaveTxTagValue(_tx, tagName) ===
-            getArweaveTxTagValue(tx, tagName)
-        ) === i
-    );
 
 export const getNetworkNameFromChainId = (chainId: number): string => {
   switch (chainId) {
@@ -101,29 +67,8 @@ export const getArweaveTxData = async (txId: string) => {
   return data;
 };
 
-export const isFormSignatureValid = (message, signature, formOwner) => {
-  const data: EIP712TypedMessage = {
-    ...message,
-    types: {
-      ...message.types,
-      EIP712Domain: [
-        { name: "name", type: "string" },
-        { name: "version", type: "string" },
-        { name: "chainId", type: "uint256" },
-        { name: "verifyingContract", type: "address" }
-      ]
-    },
-    message: message.value
-  };
+export const getNodesFromArweaveGraphQLResult = (
+  result: ArweveGraphQLResult
+): ArweaveTx[] => result.data.transactions.edges.map(({ node }) => node).flat();
 
-  const recoveredAddr = recoverTypedSignature<
-    SignTypedDataVersion.V4,
-    MessageTypes
-  >({
-    data,
-    signature,
-    version: SignTypedDataVersion.V4
-  });
-
-  return recoveredAddr.toUpperCase() === formOwner.toUpperCase();
-};
+export const removeDuplicates = <T>(array: T[]) => [...new Set(array)];

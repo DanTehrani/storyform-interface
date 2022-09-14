@@ -40,6 +40,15 @@ const Index: NextPage = () => {
       >
         GitHub
       </Button>
+      <Button
+        size="lg"
+        variant="link"
+        onClick={() => {
+          window.open("https://discord.gg/6HezQVqX");
+        }}
+      >
+        Discord
+      </Button>
     </VStack>
   );
 };
