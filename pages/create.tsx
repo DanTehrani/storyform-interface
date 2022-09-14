@@ -125,7 +125,7 @@ const Create: NextPage = () => {
     );
   }
 
-  if (!ALPHA_WHITELIST_ADDRESSES.includes(address)) {
+  if (!ALPHA_WHITELIST_ADDRESSES.includes(address.toUpperCase())) {
     return <NotInAlphaWhitelistCard></NotInAlphaWhitelistCard>;
   }
 
