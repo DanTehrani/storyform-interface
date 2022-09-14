@@ -26,14 +26,18 @@ import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { useUploadForm, useUserFormCount } from "../hooks";
 import { getCurrentUnixTime, getFormIdFromForm, getFormUrl } from "../utils";
-
 import CreateFormContext from "../contexts/CreateFormContext";
 import FormQuestionsTab from "../components/FormTabs/FormQuestionsTab";
 import FormSettingsTab from "../components/FormTabs/FormSettingsTab";
 import ConnectWalletButton from "../components/ConnectWalletButton";
+import NotInAlphaWhitelistCard from "../components/NotInAlphaWhitelistCard";
 import { CopyIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { FormIdPreImage } from "../types";
-import { APP_ID, MAX_ALLOWED_FORMS_PER_USER } from "../config";
+import {
+  ALPHA_WHITELIST_ADDRESSES,
+  APP_ID,
+  MAX_ALLOWED_FORMS_PER_USER
+} from "../config";
 import { useToast } from "@chakra-ui/react";
 import FormPublishButton from "../components/FormPublishButton";
 import FormSkeleton from "../components/FormSkeleton";
@@ -117,6 +121,10 @@ const Create: NextPage = () => {
         </Center>
       </Container>
     );
+  }
+
+  if (!ALPHA_WHITELIST_ADDRESSES.includes(address)) {
+    return <NotInAlphaWhitelistCard></NotInAlphaWhitelistCard>;
   }
 
   if (formCount == null) {

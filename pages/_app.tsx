@@ -6,7 +6,9 @@ import {
   createClient,
   useSwitchNetwork,
   chain,
-  configureChains
+  configureChains,
+  useConnect,
+  useAccount
 } from "wagmi";
 import { useEffect } from "react";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
@@ -84,6 +86,7 @@ const client = createClient({
 
 const Provider = ({ Component, pageProps }) => {
   const { switchNetwork } = useSwitchNetwork();
+  const { address } = useAccount();
 
   useEffect(() => {
     if (switchNetwork) {
