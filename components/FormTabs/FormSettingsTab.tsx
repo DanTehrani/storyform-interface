@@ -26,7 +26,7 @@ const FormSettingsTab: React.FC<Props> = ({ context, onDeleteFormClick }) => {
           <Alert status="warning">
             <AlertIcon />
             Even after deletion, the survey itself and the responses will remain
-            on Arwevae. You can only remove the survey from rendering on
+            on Arweave. You can only remove the survey from rendering on
             interfaces.
           </Alert>
           <Button
