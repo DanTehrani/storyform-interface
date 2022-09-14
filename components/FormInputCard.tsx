@@ -14,44 +14,91 @@ import {
   DeleteIcon,
   SmallCloseIcon,
   ChevronUpIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  DragHandleIcon
 } from "@chakra-ui/icons";
 import { FormQuestion } from "../types";
 import EditFormContext from "../contexts/EditFormContext";
 import CreateFormContext from "../contexts/CreateFormContext";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-const SelectInput = ({
+const SelectOptions = ({
+  questionIndex,
   options,
   addOption,
   deleteOption,
-  updateOption
+  updateOption,
+  updateOptionsOrder
 }: {
+  questionIndex: number;
   options: string[];
   addOption: (option: string) => void;
   deleteOption: (optionIndex: number) => void;
   updateOption: (option: string, optionIndex) => void;
+  updateOptionsOrder: (optinos: string[]) => void;
 }) => {
+  const handleDrop = droppedItem => {
+    // Ignore drop outside droppable container
+    if (!droppedItem.destination) return;
+    const updatedList = [...options];
+    // Remove dragged item
+    const [reorderedItem] = updatedList.splice(droppedItem.source.index, 1);
+    // Add dropped item
+    updatedList.splice(droppedItem.destination.index, 0, reorderedItem);
+    // Update State
+    updateOptionsOrder(updatedList);
+  };
+
   return (
     <>
-      {options.map((option, i) => (
-        <Stack direction="row" key={i}>
-          <Input
-            value={option}
-            onChange={e => {
-              updateOption(e.target.value, i);
-            }}
-            placeholder="your option"
-          />
-          <IconButton
-            aria-label="delete option"
-            variant="ghost"
-            icon={<SmallCloseIcon></SmallCloseIcon>}
-            onClick={() => {
-              deleteOption(i);
-            }}
-          ></IconButton>
-        </Stack>
-      ))}
+      <DragDropContext onDragEnd={handleDrop}>
+        <Droppable droppableId={questionIndex.toString()}>
+          {provided => (
+            <Stack ref={provided.innerRef} {...provided.droppableProps} gap={2}>
+              {options.map((option, i) => (
+                <Draggable
+                  key={i.toString()}
+                  draggableId={i.toString()}
+                  index={i}
+                >
+                  {provided => (
+                    <Stack
+                      direction="row"
+                      ref={provided.innerRef}
+                      key={i.toString()}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                    >
+                      <IconButton
+                        aria-label="delete option"
+                        variant="ghost"
+                        size="sm"
+                        icon={<DragHandleIcon></DragHandleIcon>}
+                      ></IconButton>
+                      <Input
+                        value={option}
+                        onChange={e => {
+                          updateOption(e.target.value, i);
+                        }}
+                        placeholder="your option"
+                      />
+                      <IconButton
+                        aria-label="delete option"
+                        variant="ghost"
+                        icon={<SmallCloseIcon></SmallCloseIcon>}
+                        onClick={() => {
+                          deleteOption(i);
+                        }}
+                      ></IconButton>
+                    </Stack>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </Stack>
+          )}
+        </Droppable>
+      </DragDropContext>
       <Button
         size="sm"
         onClick={() => {
@@ -137,6 +184,16 @@ const CreateFormQuestionCard: React.FC<Props> = ({
     );
   };
 
+  const handleOptionsReorder = (options: string[]) => {
+    updateQuestion(
+      {
+        ...formQuestion,
+        options
+      },
+      formQuestionIndex
+    );
+  };
+
   const handleDeleteOptionClick = (optionIndex: number) => {
     updateQuestion(
       {
@@ -201,12 +258,14 @@ const CreateFormQuestionCard: React.FC<Props> = ({
       </Stack>
       <Stack gap={4} mt={4}>
         {formQuestion?.type === "select" ? (
-          <SelectInput
+          <SelectOptions
+            questionIndex={formQuestionIndex}
             options={formQuestion?.options || []}
             addOption={handleAddOptionClick}
             deleteOption={handleDeleteOptionClick}
             updateOption={handleUpdateOption}
-          ></SelectInput>
+            updateOptionsOrder={handleOptionsReorder}
+          ></SelectOptions>
         ) : formQuestion?.type === "text" ? (
           <TextInput></TextInput>
         ) : (
