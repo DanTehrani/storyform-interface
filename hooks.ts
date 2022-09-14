@@ -117,7 +117,6 @@ export const useSubmissions = (
 export const useUploadForm = () => {
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadComplete, setUploadComplete] = useState<boolean>(false);
-  const [url, setUrl] = useState<string | null>();
   const provider = useProvider({
     // @ts-ignore
     // NEXT_PUBLIC_CHAIN_ID is set to 5 (Goerli) in env.development
@@ -153,12 +152,11 @@ export const useUploadForm = () => {
     };
 
     await axios.post("/forms", formInput);
-    setUrl(getFormUrl(form.id));
     setUploading(false);
     setUploadComplete(true); // TODO Change the name
   };
 
-  return { uploading, uploadForm, uploadComplete, url };
+  return { uploading, uploadForm, uploadComplete };
 };
 
 export const useUserForms = (): Form[] | undefined => {
