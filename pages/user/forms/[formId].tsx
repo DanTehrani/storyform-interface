@@ -8,7 +8,6 @@ import {
   TabPanels,
   TabPanel,
   Box,
-  Button,
   Center,
   Alert,
   AlertIcon,
@@ -39,7 +38,7 @@ const ManageForm: NextPage = () => {
   const { address } = useAccount();
 
   const formId = query.formId?.toString();
-  const { getForm, formInput, formNotFound, formOwner } =
+  const { getForm, formInput, formNotFound, formOwner, formStatus } =
     useContext(EditFormContext);
   const { uploadForm, uploadComplete, uploading } = useUploadForm();
   const {
@@ -102,6 +101,14 @@ const ManageForm: NextPage = () => {
     return (
       <Center height="60vh">
         <Text fontSize="xl">You`re not the owner of this form!🙄</Text>
+      </Center>
+    );
+  }
+
+  if (formStatus === "deleted") {
+    return (
+      <Center height="60vh">
+        <Text fontSize="xl">This form has been deleted!🙄</Text>
       </Center>
     );
   }

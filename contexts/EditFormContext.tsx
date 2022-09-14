@@ -15,7 +15,8 @@ const defaultState = {
   getForm: () => null,
   formOwner: null,
   formNotFound: false,
-  gettingForm: false
+  gettingForm: false,
+  formStatus: null
 };
 
 const EditFormContext = createContext<IEditFormContext>(defaultState);
@@ -24,6 +25,7 @@ export const EditFormContextProvider = ({ children }) => {
   const [formInput, setFormInput] = useState<FormInput | null>();
   const [formNotFound, setFormNotFound] = useState<boolean>(false);
   const [formOwner, setFormOwner] = useState<string | null>();
+  const [formStatus, setFormStatus] = useState<string | null>();
 
   const updateQuestion = useCallback(
     (question: FormQuestion, questionIndex) => {
@@ -65,6 +67,7 @@ export const EditFormContextProvider = ({ children }) => {
       });
 
       setFormOwner(_form.owner);
+      setFormStatus(_form.status);
     } else {
       setFormNotFound(true);
     }
@@ -74,6 +77,7 @@ export const EditFormContextProvider = ({ children }) => {
     <EditFormContext.Provider
       value={{
         formOwner,
+        formStatus,
         formInput,
         setFormInput,
         updateQuestion,

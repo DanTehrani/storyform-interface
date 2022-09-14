@@ -117,6 +117,7 @@ export interface IEditFormContext {
   getForm: (formId: string) => void;
   formNotFound: boolean;
   formOwner: string | null | undefined;
+  formStatus: string | null | undefined;
 }
 
 export type ArweaveTxTag = {
