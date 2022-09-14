@@ -1,21 +1,26 @@
 import { Form, EIP712TypedMessage } from "../types";
 import arweaveGraphQl from "../lib/arweaveGraphQl";
 import { gql } from "@apollo/client";
-import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN, APP_ID } from "../config";
+import {
+  SIGNATURE_DATA_TYPES,
+  SIGNATURE_DOMAIN,
+  APP_ID,
+  MAX_ALLOWED_FORMS_PER_USER,
+  MAX_UPDATES_PER_FORM_PER_USER
+} from "../config";
 import {
   notEmpty,
   getArweaveTxTagValue,
   getArweaveTxUnixTime,
-  getArweaveTxData
+  getArweaveTxData,
+  getNodesFromArweaveGraphQLResult,
+  removeDuplicates
 } from "../utils";
 import {
   MessageTypes,
   recoverTypedSignature,
   SignTypedDataVersion
 } from "@metamask/eth-sig-util";
-
-const MAX_ALLOWED_FORMS_PER_USER = 5;
-const MAX_UPDATES_PER_FORM_PER_USER = 250;
 
 const verifyFormTxSignature = (tx, txData): boolean => {
   const signature = getArweaveTxTagValue(tx, "Signature");
@@ -169,12 +174,12 @@ export const getForms = async ({
     }
   });
 
-  const allTxs = result.data.transactions.edges.map(({ node }) => node);
+  const allTxs = getNodesFromArweaveGraphQLResult(result);
 
   // Form ids no duplicate
-  const formIds = [
-    ...new Set(allTxs.map(tx => getArweaveTxTagValue(tx, "Form-Id")))
-  ];
+  const formIds = removeDuplicates(
+    allTxs.map(tx => getArweaveTxTagValue(tx, "Form-Id"))
+  );
 
   // Get the latest form version for each form id
   const latestFormTxs = formIds
@@ -230,4 +235,57 @@ export const getForms = async ({
   ).filter(notEmpty);
 
   return forms;
+};
+
+export const getUserFormCount = async (address: string): Promise<number> => {
+  const tags = [
+    {
+      name: "App-Id",
+      values: [APP_ID],
+      op: "EQ"
+    },
+    {
+      name: "Type",
+      values: ["Form"],
+      op: "EQ"
+    },
+    {
+      name: "Owner",
+      values: [address],
+      op: "EQ"
+    }
+  ];
+
+  const result = await arweaveGraphQl.query({
+    query: gql`
+      query transactions($first: Int!, $tags: [TagFilter!]) {
+        transactions(first: $first, tags: $tags) {
+          edges {
+            node {
+              id
+              tags {
+                value
+                name
+              }
+            }
+          }
+        }
+      }
+    `,
+    variables: {
+      first: MAX_UPDATES_PER_FORM_PER_USER * MAX_ALLOWED_FORMS_PER_USER,
+      tags
+    }
+  });
+
+  const allTxs = getNodesFromArweaveGraphQLResult(result);
+
+  // Form ids no duplicate
+  const formIds = removeDuplicates(
+    allTxs.map(tx => getArweaveTxTagValue(tx, "Form-Id"))
+  );
+
+  const formCount = formIds.length;
+
+  return formCount;
 };

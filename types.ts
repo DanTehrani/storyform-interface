@@ -120,6 +120,16 @@ export interface IEditFormContext {
   formStatus: string | null | undefined;
 }
 
+export type ArweveGraphQLResult = {
+  data: {
+    transactions: {
+      edges: {
+        node: ArweaveTx[];
+      }[];
+    };
+  };
+};
+
 export type ArweaveTxTag = {
   name: string;
   value: string;

@@ -12,7 +12,7 @@ import {
 } from "./types";
 import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN } from "./config";
 import axios from "./lib/axios";
-import { getForm, getForms } from "./lib/form";
+import { getForm, getForms, getUserFormCount } from "./lib/form";
 import { submitAnswer } from "./lib/formSubmission";
 import ConnectWalletModalContext from "./contexts/ConnectWalletModalContext";
 import { getFormUrl } from "./utils";
@@ -202,4 +202,20 @@ export const useConnectWallet = () => {
   };
 
   return connect;
+};
+
+export const useUserFormCount = () => {
+  const [formCount, setFormCount] = useState<number>();
+  const { address } = useAccount();
+  useEffect(() => {
+    (async () => {
+      if (address) {
+        setFormCount(await getUserFormCount(address));
+      }
+    })();
+  }, [address]);
+
+  return {
+    formCount
+  };
 };

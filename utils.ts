@@ -1,4 +1,9 @@
-import { FormSubmission, FormIdPreImage } from "./types";
+import {
+  FormSubmission,
+  FormIdPreImage,
+  ArweaveTx,
+  ArweveGraphQLResult
+} from "./types";
 const { NEXT_PUBLIC_CHAIN_ID } = process.env;
 import { sha256 } from "ethers/lib/utils";
 import axios from "axios";
@@ -61,3 +66,9 @@ export const getArweaveTxData = async (txId: string) => {
 
   return data;
 };
+
+export const getNodesFromArweaveGraphQLResult = (
+  result: ArweveGraphQLResult
+): ArweaveTx[] => result.data.transactions.edges.map(({ node }) => node).flat();
+
+export const removeDuplicates = <T>(array: T[]) => [...new Set(array)];

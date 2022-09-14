@@ -23,7 +23,7 @@ import {
 } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
-import { useUploadForm } from "../hooks";
+import { useUploadForm, useUserFormCount } from "../hooks";
 import { getCurrentUnixTime, getFormIdFromForm } from "../utils";
 
 import CreateFormContext from "../contexts/CreateFormContext";
@@ -32,9 +32,10 @@ import FormSettingsTab from "../components/FormTabs/FormSettingsTab";
 import ConnectWalletButton from "../components/ConnectWalletButton";
 import { CopyIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { FormIdPreImage } from "../types";
-import { APP_ID } from "../config";
+import { APP_ID, MAX_ALLOWED_FORMS_PER_USER } from "../config";
 import { useToast } from "@chakra-ui/react";
 import FormPublishButton from "../components/FormPublishButton";
+import FormSkeleton from "../components/FormSkeleton";
 
 const CreateFormHeading = () => {
   return (
@@ -59,6 +60,8 @@ const Create: NextPage = () => {
   const { isOpen: isWarningOpen, onClose: onWarningClose } = useDisclosure({
     defaultIsOpen: true
   });
+
+  const { formCount } = useUserFormCount();
 
   useEffect(() => {
     if (hasCopied) {
@@ -108,6 +111,21 @@ const Create: NextPage = () => {
           <ConnectWalletButton></ConnectWalletButton>
         </Center>
       </Container>
+    );
+  }
+
+  if (formCount == null) {
+    return <FormSkeleton></FormSkeleton>;
+  }
+
+  if (formCount != null && formCount > MAX_ALLOWED_FORMS_PER_USER) {
+    return (
+      <Center height="60vh">
+        <Text fontSize="lg">
+          Form creation limit reached ({MAX_ALLOWED_FORMS_PER_USER} forms per
+          user)
+        </Text>
+      </Center>
     );
   }
 

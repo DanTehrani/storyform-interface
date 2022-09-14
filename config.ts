@@ -47,3 +47,6 @@ export const SIGNATURE_DATA_TYPES = {
     }
   ]
 };
+
+export const MAX_ALLOWED_FORMS_PER_USER = 5;
+export const MAX_UPDATES_PER_FORM_PER_USER = 50;
