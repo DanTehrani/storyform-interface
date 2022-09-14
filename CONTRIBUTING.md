@@ -25,7 +25,7 @@ yarn dev
 ***TL;DR***
 
 - The gateway pays the fees to upload content to Arweave.
-- First, you need to create a form on [storyform.xyz](storyform.xyz).
+- First, you need to create a form on [storyform.xyz](https://storyform.xyz).
 - Then in your local dev environment, login with the same account you used to create the form.
 - There is no way to ***write*** data from your local dev environment. You can read data, and ***only simulate write requests***.
 
