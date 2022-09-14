@@ -85,6 +85,8 @@ const Create: NextPage = () => {
   useEffect(() => {
     if (uploadComplete) {
       openUploadSuccessAlert();
+      // Clear the formInput from localStorage (which was used to store the form draft)
+      localStorage.setItem("formInput", "");
     }
   }, [uploadComplete, openUploadSuccessAlert]);
 
@@ -196,7 +198,7 @@ const Create: NextPage = () => {
   }
 
   return (
-    <Container mt={10} maxW={[850]}>
+    <Container mt={10} maxW={[850]} mb={200}>
       {isWarningOpen ? (
         <Alert status="warning" mt={4} mb={4}>
           <AlertIcon />
