@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import { Button, VStack } from "@chakra-ui/react";
+import { Button, VStack, Image } from "@chakra-ui/react";
 
 const Index: NextPage = () => {
   const router = useRouter();
@@ -8,14 +8,14 @@ const Index: NextPage = () => {
   return (
     <VStack
       width="100%"
-      height="60vh"
+      height="50vh"
       justify="center"
       align="center"
       spacing={8}
     >
+      <Image src="/storyform-purple.svg" width={[200]}></Image>
       <Button
         size="lg"
-        variant="link"
         onClick={() => {
           router.push("/create");
         }}
@@ -24,30 +24,11 @@ const Index: NextPage = () => {
       </Button>
       <Button
         size="lg"
-        variant="link"
         onClick={() => {
-          window.open("https://daniel-tehrani-33.gitbook.io/");
+          window.open("https://docs.storyform.xyz/examples");
         }}
       >
-        Documentation
-      </Button>
-      <Button
-        size="lg"
-        variant="link"
-        onClick={() => {
-          window.open("https://github.com/DanTehrani/storyform-interface");
-        }}
-      >
-        GitHub
-      </Button>
-      <Button
-        size="lg"
-        variant="link"
-        onClick={() => {
-          window.open("https://discord.gg/6HezQVqX");
-        }}
-      >
-        Discord
+        View example
       </Button>
     </VStack>
   );
