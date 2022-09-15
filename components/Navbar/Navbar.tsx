@@ -34,7 +34,7 @@ const StyledLink = props => {
 };
 
 const getShortenAddress = (account: string) =>
-  `${account.slice(0, 6)}...${account.slice(7, 11)}`;
+  `${account.slice(0, 6)}...${account.slice(37, account.length)}`;
 
 const Navbar = () => {
   const { isOpen, onToggle } = useDisclosure();
