@@ -50,6 +50,7 @@ const Navbar = () => {
     }
   ];
 
+  // Don't show the NavBar in the form submission page
   if (pathname === "/forms/[formId]") {
     return <></>;
   }
