@@ -157,7 +157,7 @@ const Navbar = () => {
                   gap={2}
                   pl={4}
                 >
-                  <Link href="https://twitter.com/storyformxyz" isExternal>
+                  <Link href="https://twitter.com/storyform_xyz" isExternal>
                     <FaTwitter size={20}></FaTwitter>
                   </Link>
                   <Link href="https://discord.gg/6HezQVqX" isExternal>
