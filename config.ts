@@ -55,3 +55,10 @@ export const ALPHA_WHITELIST_ADDRESSES: string[] = [
   "0x400EA6522867456E988235675b9Cb5b1Cf5b79C8",
   "0x06D35f6B8Fb9Ad47A866052b6a6C3c2DcD1C36F1"
 ].map(address => address.toUpperCase());
+
+// Elliptic curve points cache config
+
+export const STRIDE = 8n;
+export const REGISTERS = 4n;
+export const NUM_STRIDES = 256n / STRIDE; // = 32
+export const BITS_PER_REGISTER = 64;

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "es2021",
+    "lib": ["dom", "dom.iterable", "esnext", "esnext.bigint"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,

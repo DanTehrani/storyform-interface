@@ -39,3 +39,5 @@ cache/
 
 # Sentry
 .sentryclirc
+
+pubKeyPreComputes.ts

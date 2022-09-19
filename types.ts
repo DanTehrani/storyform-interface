@@ -138,3 +138,10 @@ export type ArweaveTx = {
   id: string;
   tags: ArweaveTxTag[];
 };
+
+export type FullProof = {
+  proof: string;
+  publicSignals: {
+    [additionalProperties: string]: string;
+  };
+};

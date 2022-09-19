@@ -7,6 +7,7 @@ import {
 const { NEXT_PUBLIC_CHAIN_ID } = process.env;
 import { sha256 } from "ethers/lib/utils";
 import axios from "axios";
+import { BITS_PER_REGISTER, REGISTERS } from "./config";
 
 export const notEmpty = <T>(value: T): boolean =>
   value === null || value === undefined ? false : true;
@@ -72,3 +73,39 @@ export const getNodesFromArweaveGraphQLResult = (
 ): ArweaveTx[] => result.data.transactions.edges.map(({ node }) => node).flat();
 
 export const removeDuplicates = <T>(array: T[]) => [...new Set(array)];
+
+export const addHexPrefix = (str: string): string => `0x${str}`;
+
+export const splitToRegisters = value => {
+  const registers: bigint[] = [];
+
+  if (!value) {
+    return [0n, 0n, 0n, 0n];
+  }
+
+  const hex = value.toString(16).padStart(64, 0);
+  for (let k = 0; k < REGISTERS; k++) {
+    // 64bit = 16 chars in hex
+    const val = hex.slice(k * 16, (k + 1) * 16);
+
+    registers.unshift(BigInt(addHexPrefix(val)));
+  }
+
+  return registers;
+};
+
+export const reduceRegisters = registers => {
+  let result;
+
+  for (let i = 0n; i < registers.length; i++) {
+    const register = registers[Number(i)];
+
+    if (i === 0n) {
+      result = register * 2n ** (i * 64n);
+    } else {
+      result = register * 2n ** (i * 64n) + result;
+    }
+  }
+
+  return result;
+};

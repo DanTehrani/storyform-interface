@@ -1,7 +1,12 @@
 import { useCallback, useContext, useState } from "react";
 import { useEffect } from "react";
 import { getSubmissions } from "./lib/formSubmission";
-import { useSignTypedData, useProvider, useAccount } from "wagmi";
+import {
+  useSignTypedData,
+  useProvider,
+  useAccount,
+  useSignMessage
+} from "wagmi";
 import {
   Form,
   FormSubmission,
@@ -16,6 +21,8 @@ import { getForm, getForms, getUserFormCount } from "./lib/form";
 import { submitAnswer } from "./lib/formSubmission";
 import ConnectWalletModalContext from "./contexts/ConnectWalletModalContext";
 import { getFormUrl } from "./utils";
+import { utils } from "ethers";
+import { sha256 } from "ethers/lib/utils";
 
 export const useForm = (formId: string | undefined) => {
   const [form, setForm] = useState<Form | null>();
@@ -216,4 +223,16 @@ export const useUserFormCount = () => {
   return {
     formCount
   };
+};
+
+export const useSignSecretMessage = () => {
+  const secretMessage = sha256(
+    `0x${Buffer.from(Math.random().toString()).toString("hex")}`
+  );
+
+  const { signMessage: signSecretMessage, data } = useSignMessage({
+    message: secretMessage
+  });
+
+  return { signSecretMessage, data, secretMessage };
 };
