@@ -7,11 +7,11 @@ const NotInAlphaWhitelistCard: React.FC = () => (
       <Text fontSize="lg" flexDir="row">
         If you you wish to try out Storyform, please send a DM to &nbsp;
         <Link
-          href="https://twitter.com/storyformxyz"
+          href="https://twitter.com/storyform_xyz"
           textDecoration="underline"
           isExternal
         >
-          @storyformxyz
+          @storyform_xyz
         </Link>
         .
       </Text>
