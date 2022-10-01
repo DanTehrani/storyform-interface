@@ -12,36 +12,34 @@ import { utils } from "ethers";
 import { buildPoseidon } from "circomlibjs";
 const ec = new EC("secp256k1");
 const hash = require("hash.js");
-import pubKeyPreComputes from "./pubKeyPreComputes";
-import { splitToRegisters } from "../utils";
+import { splitToRegisters, addHexPrefix } from "../utils";
 
 export const groth16Prove = async (args: {
-  pubKeyPreComputes: any;
-  pubKey: {
+  modInvRMultPubKey2: {
     x: bigint;
     y: bigint;
   };
-  r: bigint;
-  msg: bigint;
+  negMsgMultModInvR: bigint;
   pubKey2: {
     x: bigint;
     y: bigint;
   };
   merkleProof: MerkleProof;
 }): Promise<FullProof> => {
-  const { pubKey, pubKeyPreComputes, r, msg, pubKey2, merkleProof } = args;
+  const { modInvRMultPubKey2, negMsgMultModInvR, merkleProof } = args;
   // eslint-disable-next-line no-console
   console.time("prove");
 
   const input = {
-    msg: splitToRegisters(msg),
-    pubKeyPreComputes,
-    r: splitToRegisters(r),
-    pubKey: [splitToRegisters(pubKey.x), splitToRegisters(pubKey.y)],
-    pubKey2: [splitToRegisters(pubKey2.x), splitToRegisters(pubKey2.y)],
-    treeSiblings: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    //    treeSiblings:    merkleProof.siblings.map(s => BigInt(s[0]))
-    treePathIndices: merkleProof.pathIndices
+    modInvRMultPubKey2: [
+      splitToRegisters(modInvRMultPubKey2.x),
+      splitToRegisters(modInvRMultPubKey2.y)
+    ],
+    negMsgMultModInvR: splitToRegisters(negMsgMultModInvR),
+    siblings: merkleProof.siblings.map(s =>
+      s[0] ? addHexPrefix(Buffer.from(s[0]).toString("hex")) : s[0].toString()
+    ),
+    pathIndices: merkleProof.pathIndices
   };
 
   const fullProof = await snarkJs.groth16
@@ -86,6 +84,21 @@ const baseRSecp256k1Template = {
   ]
 };
 
+const SECP256K1_N = new BN(
+  "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141",
+  16
+);
+
+// Compute r^-1 * pubKey2
+const computeModInvRMultPubKey2 = (r, pubKey2) => {
+  const rRed = new BN(r);
+  const modInvR = rRed.invm(SECP256K1_N); // r^-1
+
+  const modInvRMultPubKey2 = pubKey2.mul(modInvR); // pubKey2 * r^-1
+  return modInvRMultPubKey2.getPublic();
+};
+
+// TODO: Update this to the newer method
 export const generateProof = async (sig: string, secretMsg: string) => {
   const { v, r, s } = fromRpcSig(sig);
   const pubKey: Buffer = ecrecover(
@@ -155,6 +168,16 @@ export const generateProof = async (sig: string, secretMsg: string) => {
   // The spec: http://man.hubwiz.com/docset/Ethereum.docset/Contents/Resources/Documents/eth_sign.html
   const secretMessageHash = hashPersonalMessage(Buffer.from(secretMsg));
 
+  const modInvRMultPubKey2 = computeModInvRMultPubKey2(r, pubKey2);
+
+  const rRed = new BN(r);
+  // -(r^-1 * msg)
+  const negMsgMultModInvR = rRed
+    .invm(SECP256K1_N)
+    .mul(new BN(secretMessageHash))
+    .neg()
+    .umod(SECP256K1_N);
+
   const mMulG = ec.keyFromPrivate(secretMessageHash).getPublic();
   const rMulPubKey = ec
     .keyFromPublic(pubKeyPoint.getPublic().encode("hex"), "hex")
@@ -168,17 +191,9 @@ export const generateProof = async (sig: string, secretMsg: string) => {
   const merkleProof = await generateMerkleProof(pubKeyHex);
 
   const fullProof = await groth16Prove({
-    pubKeyPreComputes,
-    pubKey: {
-      x: pubKeyPoint.pub.x,
-      y: pubKeyPoint.pub.y
-    },
-    r: BigInt(`0x${r.toString("hex")}`),
-    msg: BigInt(`0x${secretMessageHash.toString("hex")}`),
-    pubKey2: {
-      x: pubKey2.x,
-      y: pubKey2.y
-    },
+    modInvRMultPubKey2,
+    negMsgMultModInvR,
+    pubKey2,
     merkleProof
   });
 
