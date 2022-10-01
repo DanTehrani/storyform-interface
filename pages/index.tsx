@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { Button, VStack } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 import { useSignSecretMessage } from "../hooks";
-import { generateProof } from "../lib/zk-proof-of-membership";
+import { generateProof } from "../lib/zkMembershipProof";
 
 const Index: NextPage = () => {
   const router = useRouter();

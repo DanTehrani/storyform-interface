@@ -98,7 +98,6 @@ const computeModInvRMultPubKey2 = (r, pubKey2) => {
   return modInvRMultPubKey2.getPublic();
 };
 
-// TODO: Update this to the newer method
 export const generateProof = async (sig: string, secretMsg: string) => {
   const { v, r, s } = fromRpcSig(sig);
   const pubKey: Buffer = ecrecover(
