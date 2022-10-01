@@ -76,14 +76,14 @@ export const removeDuplicates = <T>(array: T[]) => [...new Set(array)];
 
 export const addHexPrefix = (str: string): string => `0x${str}`;
 
-export const splitToRegisters = value => {
+export const splitToRegisters = (value: bigint) => {
   const registers: bigint[] = [];
 
   if (!value) {
     return [0n, 0n, 0n, 0n];
   }
 
-  const hex = value.toString(16).padStart(64, 0);
+  const hex = value.toString(16).padStart(64, "0");
   for (let k = 0; k < REGISTERS; k++) {
     // 64bit = 16 chars in hex
     const val = hex.slice(k * 16, (k + 1) * 16);

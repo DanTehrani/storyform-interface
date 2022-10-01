@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { Button, VStack } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 import { useSignSecretMessage } from "../hooks";
-import { generateProof } from "../lib/zkMembershipProof";
+import { generateProof } from "../lib/zkFullVerifyMembershipProof";
 
 const Index: NextPage = () => {
   const router = useRouter();
@@ -19,7 +19,7 @@ const Index: NextPage = () => {
   useEffect(() => {
     (async () => {
       if (address && sig) {
-        const proof = await generateProof(sig, secretMessage);
+        const proof = await generateProof(address, sig, secretMessage);
       }
     })();
   }, [address, secretMessage, sig]);
