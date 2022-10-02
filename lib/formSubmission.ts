@@ -1,6 +1,11 @@
 import axios from "./axios";
 import arweaveGraphQl from "./arweaveGraphQl";
-import { FormSubmission, FormSubmissionInput, PageInfo } from "../types";
+import {
+  FormSubmission,
+  FormSubmissionInput,
+  PageInfo,
+  ProofVerificationStatus
+} from "../types";
 import { gql } from "@apollo/client";
 import { APP_ID } from "../config";
 import {
@@ -89,7 +94,10 @@ export const getSubmissions = async ({
             txId: tx.id,
             formId: getArweaveTxTagValue(tx, "Form-Id"),
             answers: data?.answers || [],
-            unixTime: parseInt(getArweaveTxTagValue(tx, "Unix-Time"))
+            membershipProof: data?.membershipProof,
+            attestationProof: data?.attestationProof,
+            unixTime: parseInt(getArweaveTxTagValue(tx, "Unix-Time")),
+            proofsVerified: ProofVerificationStatus.Verifying
           };
         })().catch(err => err)
       )

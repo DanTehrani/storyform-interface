@@ -1,28 +1,9 @@
-import { useEffect } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { Button, VStack } from "@chakra-ui/react";
-import { useAccount } from "wagmi";
-import { useSignSecretMessage } from "../hooks";
-import { generateProof } from "../lib/zkFullVerifyMembershipProof";
 
 const Index: NextPage = () => {
   const router = useRouter();
-
-  const { address } = useAccount();
-  const {
-    signSecretMessage,
-    data: sig,
-    secretMessage
-  } = useSignSecretMessage();
-
-  useEffect(() => {
-    (async () => {
-      if (address && sig) {
-        const proof = await generateProof(address, sig, secretMessage);
-      }
-    })();
-  }, [address, secretMessage, sig]);
 
   return (
     <VStack
@@ -67,13 +48,6 @@ const Index: NextPage = () => {
         }}
       >
         Discord
-      </Button>
-      <Button
-        onClick={() => {
-          signSecretMessage();
-        }}
-      >
-        Sign
       </Button>
     </VStack>
   );

@@ -20,10 +20,10 @@ const StyledCheckIcon = () => <CheckIcon color="purple.300"></CheckIcon>;
 
 type Props = {
   isOpen: boolean;
-  submittingForm: boolean;
+  isProving: boolean;
 };
 
-const SubmittingFormModal = ({ isOpen, submittingForm }: Props) => {
+const SubmittingFormModal = ({ isOpen, isProving }: Props) => {
   return (
     <>
       <Modal
@@ -39,10 +39,10 @@ const SubmittingFormModal = ({ isOpen, submittingForm }: Props) => {
           <ModalBody>
             <VStack align="left">
               <HStack>
-                {submittingForm ? (
+                {isProving ? (
                   <>
                     <StyledCircularProgress></StyledCircularProgress>
-                    <Text>Submitting your answer</Text>
+                    <Text>Generating proof...this could take some time</Text>
                   </>
                 ) : (
                   <>

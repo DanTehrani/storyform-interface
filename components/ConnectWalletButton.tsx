@@ -2,7 +2,11 @@ import { Button } from "@chakra-ui/react";
 import EthereumIcon from "./EthereumIcon";
 import { useConnectWallet } from "../hooks";
 
-const ConnectWalletButton = () => {
+type Props = {
+  label?: string;
+};
+
+const ConnectWalletButton: React.FC<Props> = ({ label }) => {
   const connect = useConnectWallet();
 
   return (
@@ -13,7 +17,7 @@ const ConnectWalletButton = () => {
       }}
       leftIcon={<EthereumIcon></EthereumIcon>}
     >
-      Sign in
+      {label || "Sign in"}
     </Button>
   );
 };

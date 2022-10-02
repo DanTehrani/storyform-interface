@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import {
+  Center,
   Container,
   Box,
   ButtonGroup,
@@ -16,13 +17,18 @@ import { ArrowBackIcon } from "@chakra-ui/icons";
 import { FormQuestion } from "../types";
 import { notEmpty } from "../utils";
 import MadeWithStoryForm from "./MadeWithStoryForm";
+import ConnectWalletButton from "./ConnectWalletButton";
+import { useAccount } from "wagmi";
+import { useSignSecretMessage } from "../hooks";
+import { generateProof } from "../lib/zkFullVerifyMembershipProof";
+import BackgroundProvingContext from "../contexts/BackgroundProvingContext";
 
 type Props = {
   title: string;
   description: string;
   questions: FormQuestion[];
   isSubmitDisabled: boolean;
-  onSubmit: (answers: string[]) => void;
+  onSubmit: (secretMessage: string, answers: string[]) => void;
 };
 
 const StyledBox = props => {
@@ -48,10 +54,23 @@ const Form: React.FC<Props> = ({
   isSubmitDisabled,
   onSubmit
 }) => {
+  const { isProving, startProving } = useContext(BackgroundProvingContext);
   const [answers, setAnswers] = useState<string[]>([]);
   const [showOtherInput, setShowOtherInput] = useState<boolean>(false);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const toast = useToast();
+  const { address } = useAccount();
+  const {
+    signSecretMessage,
+    data: sig,
+    secretMessage
+  } = useSignSecretMessage();
+
+  useEffect(() => {
+    if (address && sig) {
+      generateProof(address, sig, secretMessage, startProving);
+    }
+  }, [address, secretMessage, sig, startProving]);
 
   const handleInputChange = async (value: string, inputIndex: number) => {
     const newValues = new Array(questions.length)
@@ -81,7 +100,7 @@ const Form: React.FC<Props> = ({
   };
 
   const handleSubmitClick = () => {
-    onSubmit(answers);
+    onSubmit(secretMessage, answers);
   };
 
   if (showConfirmation) {
@@ -128,66 +147,35 @@ const Form: React.FC<Props> = ({
         {title}
       </Heading>
       <Text mt={4}>{description}</Text>
-      <FormControl mt={4}>
-        {questions.map((question, i) => (
-          <StyledBox key={i} mb={3}>
-            <FormLabel mb={4}>
-              {question.label}
-              {question.required ? " *" : ""}
-            </FormLabel>
-            {question.type === "text" ? (
-              <Input
-                borderWidth={"0px 0px 1px 0px"}
-                borderRadius={0}
-                padding={"0px 0px 8px"}
-                variant="unstyled"
-                onChange={e => {
-                  handleInputChange(e.target.value, i);
-                }}
-                required={question.required}
-                placeholder="Enter here"
-                value={
-                  // eslint-disable-next-line security/detect-object-injection
-                  answers[i]
-                }
-              ></Input>
-            ) : question.type === "select" ? (
-              <>
-                <Select
-                  placeholder="Please select"
-                  size="lg"
-                  variant="outline"
-                  // @ts-ignore
-                  onChange={e => {
-                    if (question.other && e.target.value === "other") {
-                      setShowOtherInput(true);
-                      handleInputChange("", i);
-                    } else {
-                      handleInputChange(e.target.value, i);
-                      setShowOtherInput(false);
-                    }
-                  }}
-                  value={
-                    // eslint-disable-next-line security/detect-object-injection
-                    answers[i]
-                  }
-                >
-                  {question.options?.map(option => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                  {question.other ? (
-                    <option key="other" value="other">
-                      Other
-                    </option>
-                  ) : (
-                    <></>
-                  )}
-                </Select>
-                {question.other && showOtherInput ? (
+      {!address ? (
+        <Container mt={10} maxW={[850]}>
+          <Center>
+            <ConnectWalletButton label="Sign in to answer"></ConnectWalletButton>
+          </Center>
+        </Container>
+      ) : !sig ? (
+        <Container mt={10} maxW={[850]}>
+          <Center>
+            <Button
+              onClick={() => {
+                signSecretMessage();
+              }}
+            >
+              Check eligibility
+            </Button>
+          </Center>
+        </Container>
+      ) : (
+        <>
+          <FormControl mt={4}>
+            {questions.map((question, i) => (
+              <StyledBox key={i} mb={3}>
+                <FormLabel mb={4}>
+                  {question.label}
+                  {question.required ? " *" : ""}
+                </FormLabel>
+                {question.type === "text" ? (
                   <Input
-                    mt={4}
                     borderWidth={"0px 0px 1px 0px"}
                     borderRadius={0}
                     padding={"0px 0px 8px"}
@@ -202,21 +190,74 @@ const Form: React.FC<Props> = ({
                       answers[i]
                     }
                   ></Input>
+                ) : question.type === "select" ? (
+                  <>
+                    <Select
+                      placeholder="Please select"
+                      size="lg"
+                      variant="outline"
+                      // @ts-ignore
+                      onChange={e => {
+                        if (question.other && e.target.value === "other") {
+                          setShowOtherInput(true);
+                          handleInputChange("", i);
+                        } else {
+                          handleInputChange(e.target.value, i);
+                          setShowOtherInput(false);
+                        }
+                      }}
+                      value={
+                        // eslint-disable-next-line security/detect-object-injection
+                        answers[i]
+                      }
+                    >
+                      {question.options?.map(option => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                      {question.other ? (
+                        <option key="other" value="other">
+                          Other
+                        </option>
+                      ) : (
+                        <></>
+                      )}
+                    </Select>
+                    {question.other && showOtherInput ? (
+                      <Input
+                        mt={4}
+                        borderWidth={"0px 0px 1px 0px"}
+                        borderRadius={0}
+                        padding={"0px 0px 8px"}
+                        variant="unstyled"
+                        onChange={e => {
+                          handleInputChange(e.target.value, i);
+                        }}
+                        required={question.required}
+                        placeholder="Enter here"
+                        value={
+                          // eslint-disable-next-line security/detect-object-injection
+                          answers[i]
+                        }
+                      ></Input>
+                    ) : (
+                      <></>
+                    )}
+                  </>
                 ) : (
                   <></>
                 )}
-              </>
-            ) : (
-              <></>
-            )}
-          </StyledBox>
-        ))}
-      </FormControl>
-      <ButtonGroup mt={4}>
-        <Button onClick={handleNextClick} isDisabled={isSubmitDisabled}>
-          Next
-        </Button>
-      </ButtonGroup>
+              </StyledBox>
+            ))}
+          </FormControl>
+          <ButtonGroup mt={4}>
+            <Button onClick={handleNextClick} isDisabled={isSubmitDisabled}>
+              Next
+            </Button>
+          </ButtonGroup>
+        </>
+      )}
       <MadeWithStoryForm></MadeWithStoryForm>
     </Container>
   );

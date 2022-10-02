@@ -14,18 +14,23 @@ import {
   Center,
   Heading,
   ButtonGroup,
-  IconButton
+  IconButton,
+  CircularProgress,
+  Spinner
 } from "@chakra-ui/react";
 import {
+  CheckCircleIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  ExternalLinkIcon
+  ExternalLinkIcon,
+  MinusIcon
 } from "@chakra-ui/icons";
 import type { NextPage } from "next";
 import { useForm, useSubmissions } from "../../../hooks";
 import FormsPageSkeleton from "../../../components/FormsPageSkeleton";
 import { useRouter } from "next/router";
 import { getTxArweaveExplorerUrl } from "../../../utils";
+import { ProofVerificationStatus } from "../../../types";
 
 const StyledBox = props => {
   return (
@@ -72,6 +77,7 @@ const Submission: NextPage = () => {
 
   const questions = form.questions;
 
+  // TODO: Only show verification status for forms with verification enabled
   return (
     <Box p={10}>
       <Center>
@@ -90,6 +96,7 @@ const Submission: NextPage = () => {
                 <Th key={i}>{question.label}</Th>
               ))}
               <Th>Arweave</Th>
+              <Th>Verified</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -101,7 +108,6 @@ const Submission: NextPage = () => {
                     // eslint-disable-next-line security/detect-object-injection
                     <Td key={i}>{submission.answers[i] || ""}</Td>
                   ))}
-
                 <Td>
                   <Link
                     href={getTxArweaveExplorerUrl(submission.txId)}
@@ -111,6 +117,21 @@ const Submission: NextPage = () => {
                     Arweave
                     <ExternalLinkIcon mx="1px" mt="-1px" />
                   </Link>
+                </Td>
+                <Td>
+                  {submission.proofsVerified ===
+                  ProofVerificationStatus.Verified ? (
+                    <CheckCircleIcon color="purple.300"></CheckCircleIcon>
+                  ) : submission.proofsVerified ===
+                    ProofVerificationStatus.Nonexistent ? (
+                    <MinusIcon></MinusIcon>
+                  ) : (
+                    <CircularProgress
+                      size={4}
+                      color="purple.300"
+                      isIndeterminate
+                    ></CircularProgress>
+                  )}
                 </Td>
               </Tr>
             ))}

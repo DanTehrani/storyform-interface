@@ -13,7 +13,9 @@ import {
   WagmiEIP712TypedMessage,
   FormSubmissionInput,
   FormUploadInput,
-  PageInfo
+  PageInfo,
+  FullProof,
+  ProofVerificationStatus
 } from "./types";
 import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN } from "./config";
 import axios from "./lib/axios";
@@ -23,6 +25,8 @@ import ConnectWalletModalContext from "./contexts/ConnectWalletModalContext";
 import { getFormUrl } from "./utils";
 import { utils } from "ethers";
 import { sha256 } from "ethers/lib/utils";
+import { verifyFormSubmission } from "./lib/zkUtils";
+import { BlobOptions } from "buffer";
 
 export const useForm = (formId: string | undefined) => {
   const [form, setForm] = useState<Form | null>();
@@ -45,7 +49,7 @@ export const useForm = (formId: string | undefined) => {
   return { form, formNotFound };
 };
 
-const first = 1;
+const first = 10;
 export const useSubmissions = (
   formId: string | undefined
 ): {
@@ -71,8 +75,34 @@ export const useSubmissions = (
         });
 
         setSubmissions(result.submissions);
+        // Verify proofs of submissions
         setPageInfo(result.pageInfo);
         setCursors(result.cursors);
+
+        const submissionsWithVerifications: FormSubmission[] = [];
+        for (const submission of result.submissions) {
+          if (!submission.attestationProof || !submission.membershipProof) {
+            submissionsWithVerifications.push({
+              ...submission,
+              proofsVerified: ProofVerificationStatus.Nonexistent
+            });
+          } else {
+            const verified = await verifyFormSubmission(
+              submission as FormSubmission & {
+                membershipProof: FullProof;
+                attestationProof: FullProof;
+              }
+            );
+            submissionsWithVerifications.push({
+              ...submission,
+              proofsVerified: verified
+                ? ProofVerificationStatus.Verified
+                : ProofVerificationStatus.Invalid
+            });
+          }
+        }
+
+        setSubmissions(submissionsWithVerifications);
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -225,10 +255,14 @@ export const useUserFormCount = () => {
   };
 };
 
+const get256bitRandomNumber = () => {
+  const byteArray = new Uint8Array(32);
+  const randomNumber = window.crypto.getRandomValues(byteArray);
+  return randomNumber;
+};
+
 export const useSignSecretMessage = () => {
-  const secretMessage = sha256(
-    `0x${Buffer.from(Math.random().toString()).toString("hex")}`
-  );
+  const secretMessage = Buffer.from(get256bitRandomNumber()).toString("hex");
 
   const { signMessage: signSecretMessage, data } = useSignMessage({
     message: secretMessage

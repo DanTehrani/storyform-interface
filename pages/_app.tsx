@@ -7,7 +7,6 @@ import {
   useSwitchNetwork,
   chain,
   configureChains,
-  useConnect,
   useAccount
 } from "wagmi";
 import { useEffect } from "react";
@@ -23,6 +22,7 @@ import ConnectWalletModal from "../components/ConnectWalletModal";
 import { ConnectWalletModalProvider } from "../contexts/ConnectWalletModalContext";
 import { CreateFormContextProvider } from "../contexts/CreateFormContext";
 import { EditFormContextProvider } from "../contexts/EditFormContext";
+import { BackgroundProvingContextProvider } from "../contexts/BackgroundProvingContext";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 import loadable from "@loadable/component"; // npm install @loadable/component
@@ -90,7 +90,6 @@ const client = createClient({
 
 const Provider = ({ Component, pageProps }) => {
   const { switchNetwork } = useSwitchNetwork();
-  const { address } = useAccount();
 
   useEffect(() => {
     if (switchNetwork) {
@@ -108,9 +107,11 @@ const Provider = ({ Component, pageProps }) => {
       <ConnectWalletModalProvider>
         <EditFormContextProvider>
           <CreateFormContextProvider>
-            <Navbar></Navbar>
-            <Component pageProps={pageProps} />
-            <ConnectWalletModal></ConnectWalletModal>
+            <BackgroundProvingContextProvider>
+              <Navbar></Navbar>
+              <Component pageProps={pageProps} />
+              <ConnectWalletModal></ConnectWalletModal>
+            </BackgroundProvingContextProvider>
           </CreateFormContextProvider>
         </EditFormContextProvider>
       </ConnectWalletModalProvider>

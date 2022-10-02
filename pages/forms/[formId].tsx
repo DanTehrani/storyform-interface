@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import type { NextPage } from "next";
 import {
   AlertIcon,
@@ -5,7 +6,8 @@ import {
   Text,
   Center,
   Container,
-  VStack
+  VStack,
+  useToast
 } from "@chakra-ui/react";
 import { useForm, useSubmitForm } from "../../hooks";
 import FormNotFoundOrUploading from "../../components/FormNotFoundOrUploading";
@@ -17,13 +19,57 @@ import SubmittingFormModal from "../../components/SubmittingFormModal";
 import { motion } from "framer-motion";
 import Form from "../../components/Form";
 import FormDeleted from "../../components/FormDeleted";
+import BackgroundProvingContext from "../../contexts/BackgroundProvingContext";
+import { useEffect, useState } from "react";
+import { generateSubmissionAttestationProof } from "../../lib/zkUtils";
+import { FullProof } from "../../types";
 
 const FormPage: NextPage = () => {
   const { query } = useRouter();
 
   const formId = query.formId?.toString();
   const { form, formNotFound } = useForm(formId);
-  const { submitForm, submissionComplete, submittingForm } = useSubmitForm();
+  const { submitForm, submissionComplete } = useSubmitForm();
+  const [readyToSubmit, setReadyToSubmit] = useState<boolean>(false);
+  const [answers, setAnswers] = useState<string[]>([]);
+  const [attestationProof, setAttestationProof] = useState<FullProof | null>();
+
+  const { isProving, fullProof: membershipProof } = useContext(
+    BackgroundProvingContext
+  );
+  const toast = useToast();
+
+  // Submit as soon as everything is ready
+  useEffect(() => {
+    if (membershipProof && attestationProof && readyToSubmit && formId) {
+      submitForm({
+        membershipProof,
+        attestationProof,
+        formId,
+        answers,
+        unixTime: getCurrentUnixTime(),
+        appId: APP_ID
+      });
+    }
+  }, [
+    answers,
+    formId,
+    membershipProof,
+    attestationProof,
+    readyToSubmit,
+    submitForm
+  ]);
+
+  useEffect(() => {
+    if (isProving) {
+      toast({
+        title: "Started generating proof in the background...",
+        status: "info",
+        duration: 5000,
+        isClosable: true
+      });
+    }
+  }, [isProving, toast]);
 
   if (formNotFound) {
     return <FormNotFoundOrUploading></FormNotFoundOrUploading>;
@@ -64,13 +110,21 @@ const FormPage: NextPage = () => {
     return <></>;
   }
 
-  const handleSubmitClick = async answers => {
-    submitForm({
-      formId,
-      answers,
-      unixTime: getCurrentUnixTime(),
-      appId: APP_ID
-    });
+  const handleSubmitClick = async (secretMessage, answers) => {
+    const submission = {
+      formId: formId.toString(),
+      answers
+    };
+
+    // Generate message attestation proof (shouldn't take too long)
+    const _attestationProof = await generateSubmissionAttestationProof(
+      secretMessage,
+      submission
+    );
+
+    setAttestationProof(_attestationProof);
+    setAnswers(answers);
+    setReadyToSubmit(true);
   };
 
   return (
@@ -95,8 +149,8 @@ const FormPage: NextPage = () => {
         ></Form>
       </Container>
       <SubmittingFormModal
-        submittingForm={submittingForm}
-        isOpen={submittingForm}
+        isOpen={readyToSubmit && !submissionComplete}
+        isProving={isProving}
       ></SubmittingFormModal>
     </Center>
   );

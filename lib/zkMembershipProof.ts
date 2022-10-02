@@ -9,7 +9,7 @@ const defineCurve = require("@DanTehrani/elliptic").curves.defineCurve;
 const EC = require("@DanTehrani/elliptic").ec;
 import { ecrecover, fromRpcSig, hashPersonalMessage } from "@ethereumjs/util";
 import { utils } from "ethers";
-import { buildPoseidon } from "circomlibjs";
+import { poseidon } from "circomlibjs";
 const ec = new EC("secp256k1");
 const hash = require("hash.js");
 import { splitToRegisters, addHexPrefix } from "../utils";
@@ -56,8 +56,6 @@ export const groth16Prove = async (args: {
 };
 
 const generateMerkleProof = async (pubKey: string): Promise<MerkleProof> => {
-  const poseidon = await buildPoseidon();
-
   const tree = new IncrementalMerkleTree(poseidon, 10, BigInt(0), 2); // Binary tree.
   const pubKeyHash = utils.keccak256(utils.toUtf8Bytes(pubKey));
   tree.insert(pubKeyHash);

@@ -41,7 +41,7 @@ export type FormAnswer = {
 
 export type Submission = {
   answers: string[];
-  formId: string[];
+  formId: string;
 };
 
 export type WagmiEIP712TypedMessage = {
@@ -72,15 +72,26 @@ export type EIP712TypedMessage = {
   message: FormUploadInput;
 } & WagmiEIP712TypedMessage;
 
+export enum ProofVerificationStatus {
+  Verified,
+  Invalid,
+  Verifying,
+  Nonexistent
+}
+
 export type FormSubmission = {
   formId: string;
   answers: string[];
   txId: string;
-  verificationTx?: string;
+  membershipProof?: FullProof;
+  attestationProof?: FullProof;
+  proofsVerified: ProofVerificationStatus;
   unixTime: number;
 };
 
 export type FormSubmissionInput = {
+  membershipProof?: FullProof;
+  attestationProof?: FullProof;
   formId: string;
   answers?: string[] | string;
   unixTime: number;
@@ -144,4 +155,14 @@ export type FullProof = {
   publicSignals: {
     [additionalProperties: string]: string;
   };
+};
+
+export type FullProveInput = {
+  r: bigint[];
+  s: bigint[];
+  msghash: bigint[];
+  pubkey: [bigint[], bigint[]];
+  siblings: bigint[];
+  pathIndices: number[];
+  root: bigint;
 };
