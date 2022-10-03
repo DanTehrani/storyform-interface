@@ -249,9 +249,12 @@ export const useUserForms = (): Form[] | undefined => {
 export const useSubmitForm = () => {
   const [submittingForm, setSubmittingForm] = useState<boolean>(false);
   const [submissionComplete, setSubmissionComplete] = useState<boolean>(false);
+  const [txId, setTxId] = useState<string | null>();
+
   const submitForm = async (formSubmission: FormSubmissionInput) => {
     setSubmittingForm(true);
-    await submitAnswer(formSubmission);
+    const _txId = await submitAnswer(formSubmission);
+    setTxId(_txId);
 
     setSubmittingForm(false);
     setSubmissionComplete(true);
@@ -260,7 +263,8 @@ export const useSubmitForm = () => {
   return {
     submittingForm,
     submitForm,
-    submissionComplete
+    submissionComplete,
+    txId
   };
 };
 

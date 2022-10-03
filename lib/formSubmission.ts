@@ -15,8 +15,11 @@ import {
   getArweaveTxData
 } from "../utils";
 
-export const submitAnswer = async (submission: FormSubmissionInput) => {
-  await axios.post(`/answers`, submission);
+export const submitAnswer = async (
+  submission: FormSubmissionInput
+): Promise<string> => {
+  const result = await axios.post(`/answers`, submission);
+  return result.data;
 };
 
 export const getSubmissions = async ({

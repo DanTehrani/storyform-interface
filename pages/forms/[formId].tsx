@@ -54,11 +54,11 @@ const StyledBox = props => {
 };
 
 const FormPage: NextPage = () => {
-  const { query } = useRouter();
+  const router = useRouter();
 
-  const formId = query.formId?.toString();
+  const formId = router.query.formId?.toString();
   const { form, formNotFound } = useForm(formId as string);
-  const { submitForm, submissionComplete } = useSubmitForm();
+  const { submitForm, submissionComplete, txId } = useSubmitForm();
   const [readyToSubmit, setReadyToSubmit] = useState<boolean>(false);
   const [answers, setAnswers] = useState<string[]>([]);
   const [attestationProof, setAttestationProof] = useState<FullProof | null>();
@@ -143,7 +143,15 @@ const FormPage: NextPage = () => {
         initial={{ opacity: 0, scale: 1 }}
         animate={{ opacity: 1, scale: 1 }}
       >
-        <Text fontSize="lg">Thank you for completing our survey.</Text>
+        <Text fontSize="lg">Thank you for completing our survey</Text>
+        <Button
+          mt={4}
+          onClick={() => {
+            router.push(`/forms/${formId}/submissions/${txId}`);
+          }}
+        >
+          View your submission
+        </Button>
       </Center>
     );
   }
