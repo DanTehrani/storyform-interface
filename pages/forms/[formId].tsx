@@ -34,7 +34,7 @@ import { generateSubmissionAttestationProof } from "../../lib/zkUtils";
 import { FullProof } from "../../types";
 import { useSignSecretMessage } from "../../hooks";
 import { useAccount } from "wagmi";
-import { generateProof } from "../../lib/zkFullVerifyMembershipProof";
+import { constructMembershipProofInput } from "../../lib/zkFullVerifyMembershipProof";
 import ConnectWalletButton from "../../components/ConnectWalletButton";
 
 const StyledBox = props => {
@@ -78,12 +78,6 @@ const FormPage: NextPage = () => {
     startProving
   } = useContext(BackgroundProvingContext);
   const toast = useToast();
-
-  useEffect(() => {
-    if (secretMessage && address && sig) {
-      generateProof(address, sig, secretMessage as string, startProving);
-    }
-  }, [address, sig, secretMessage, startProving]);
 
   // Submit as soon as everything is ready
   useEffect(() => {
@@ -202,6 +196,22 @@ const FormPage: NextPage = () => {
     setReadyToSubmit(true);
   };
 
+  const startProvingMembershipIfEligible = async () => {
+    const _secretMessage = getSecretMessage();
+    const sig = await signSecretMessage({
+      message: _secretMessage
+    });
+    if (sig) {
+      const input = await constructMembershipProofInput(
+        address as string, // address will be defined since the user will be connected at signing
+        sig,
+        _secretMessage
+      );
+
+      startProving(input);
+    }
+  };
+
   if (showConfirmation) {
     return (
       <Container>
@@ -265,14 +275,7 @@ const FormPage: NextPage = () => {
           ) : !sig ? (
             <Container mt={10} maxW={[850]}>
               <Center>
-                <Button
-                  onClick={() => {
-                    const _secretMessage = getSecretMessage();
-                    signSecretMessage({
-                      message: _secretMessage
-                    });
-                  }}
-                >
+                <Button onClick={startProvingMembershipIfEligible}>
                   Check eligibility
                 </Button>
               </Center>

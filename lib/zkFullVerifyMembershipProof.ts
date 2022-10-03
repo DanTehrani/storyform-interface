@@ -20,11 +20,10 @@ const generateMerkleProof = async (addr: string): Promise<MerkleProof> => {
 const bufferToBigInt = (buff: Buffer) =>
   BigInt(addHexPrefix(Buffer.from(buff).toString("hex")));
 
-export const generateProof = async (
+export const constructMembershipProofInput = async (
   addr: string,
   sig: string,
-  msg: string,
-  startProving
+  msg: string
 ) => {
   const msgHash = hashPersonalMessage(Buffer.from(msg));
   const merkleProof = await generateMerkleProof(addr);
@@ -48,5 +47,5 @@ export const generateProof = async (
     root: merkleProof.root
   };
 
-  startProving(input);
+  return input;
 };

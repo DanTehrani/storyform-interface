@@ -5,7 +5,7 @@ import { FullProof, FullProveInput } from "../types";
 interface IBackgroundProvingContext {
   isProving: boolean;
   fullProof: FullProof | null;
-  startProving?: (input: FullProveInput) => void;
+  startProving: (input: FullProveInput) => void;
 }
 
 const defaultState = {
@@ -13,17 +13,16 @@ const defaultState = {
   fullProof: null
 };
 
-const BackgroundProvingContext =
-  createContext<IBackgroundProvingContext>(defaultState);
+const BackgroundProvingContext = createContext<IBackgroundProvingContext>(
+  defaultState as IBackgroundProvingContext
+);
 
 export const BackgroundProvingContextProvider = ({ children }) => {
   const [isProving, setIsProving] = useState<boolean>(false);
   const [fullProof, setFullProof] = useState<FullProof | null>(null);
 
-  let worker, startProving;
-  try {
-    // Worker is not available in Next.js SSR, so we try until the component is rendered on the client side
-    worker = new Worker(
+  const startProving = input => {
+    const worker = new Worker(
       new URL("../lib/webworkers/prover.js", import.meta.url)
     );
 
@@ -38,13 +37,9 @@ export const BackgroundProvingContextProvider = ({ children }) => {
       }
     };
 
-    startProving = (input: FullProveInput) => {
-      setIsProving(true);
-      worker.postMessage(input);
-    };
-  } catch (err) {
-    //
-  }
+    setIsProving(true);
+    worker.postMessage(input);
+  };
 
   return (
     <BackgroundProvingContext.Provider
