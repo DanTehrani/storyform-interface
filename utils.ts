@@ -109,3 +109,14 @@ export const reduceRegisters = registers => {
 
   return result;
 };
+
+const get256bitRandomNumber = (): Uint8Array => {
+  const byteArray = new Uint8Array(32);
+  const randomNumber = window.crypto.getRandomValues(byteArray);
+  return randomNumber;
+};
+
+export const getSecretMessage = (): string => {
+  const secretMessage = Buffer.from(get256bitRandomNumber()).toString("hex");
+  return secretMessage;
+};

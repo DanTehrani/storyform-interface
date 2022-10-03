@@ -7,22 +7,51 @@ import {
   Center,
   Container,
   VStack,
-  useToast
+  useToast,
+  Box,
+  ButtonGroup,
+  Button,
+  FormControl,
+  Input,
+  FormLabel,
+  Heading,
+  Select
 } from "@chakra-ui/react";
 import { useForm, useSubmitForm } from "../../hooks";
 import FormNotFoundOrUploading from "../../components/FormNotFoundOrUploading";
+import { ArrowBackIcon } from "@chakra-ui/icons";
+import MadeWithStoryForm from "../../components/MadeWithStoryForm";
 import { useRouter } from "next/router";
 import { APP_ID } from "../../config";
 import FormSkeleton from "../../components/FormSkeleton";
-import { getCurrentUnixTime } from "../../utils";
+import { getCurrentUnixTime, notEmpty, getSecretMessage } from "../../utils";
 import SubmittingFormModal from "../../components/SubmittingFormModal";
 import { motion } from "framer-motion";
-import Form from "../../components/Form";
 import FormDeleted from "../../components/FormDeleted";
 import BackgroundProvingContext from "../../contexts/BackgroundProvingContext";
 import { useEffect, useState } from "react";
 import { generateSubmissionAttestationProof } from "../../lib/zkUtils";
 import { FullProof } from "../../types";
+import { useSignSecretMessage } from "../../hooks";
+import { useAccount } from "wagmi";
+import { generateProof } from "../../lib/zkFullVerifyMembershipProof";
+import ConnectWalletButton from "../../components/ConnectWalletButton";
+
+const StyledBox = props => {
+  return (
+    <Box
+      padding="24px"
+      borderWidth={1}
+      borderRadius={10}
+      mb={3}
+      bgColor="white"
+      borderColor="lightgrey"
+      {...props}
+    >
+      {props.children}
+    </Box>
+  );
+};
 
 const FormPage: NextPage = () => {
   const { query } = useRouter();
@@ -33,11 +62,28 @@ const FormPage: NextPage = () => {
   const [readyToSubmit, setReadyToSubmit] = useState<boolean>(false);
   const [answers, setAnswers] = useState<string[]>([]);
   const [attestationProof, setAttestationProof] = useState<FullProof | null>();
+  const [showOtherInput, setShowOtherInput] = useState<boolean>(false);
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
 
-  const { isProving, fullProof: membershipProof } = useContext(
-    BackgroundProvingContext
-  );
+  const {
+    signSecretMessage,
+    data: sig,
+    secretMessage
+  } = useSignSecretMessage();
+  const { address } = useAccount();
+
+  const {
+    isProving,
+    fullProof: membershipProof,
+    startProving
+  } = useContext(BackgroundProvingContext);
   const toast = useToast();
+
+  useEffect(() => {
+    if (secretMessage && address && sig) {
+      generateProof(address, sig, secretMessage as string, startProving);
+    }
+  }, [address, sig, secretMessage, startProving]);
 
   // Submit as soon as everything is ready
   useEffect(() => {
@@ -91,6 +137,8 @@ const FormPage: NextPage = () => {
     );
   }
 
+  const { title, description, questions } = form;
+
   if (submissionComplete) {
     return (
       <Center
@@ -110,7 +158,34 @@ const FormPage: NextPage = () => {
     return <></>;
   }
 
-  const handleSubmitClick = async (secretMessage, answers) => {
+  const handleInputChange = async (value: string, inputIndex: number) => {
+    const newValues = new Array(questions.length)
+      .fill("")
+      // eslint-disable-next-line security/detect-object-injection
+      .map((_, i) => (i === inputIndex ? value : answers[i] || ""));
+
+    setAnswers(newValues);
+  };
+
+  const handleNextClick = () => {
+    const allRequiredAnswersProvided = !questions.some(({ required }, i) => {
+      const answer = answers.find((_, index) => index === i);
+      return required && (answer === "" || !notEmpty(answer));
+    });
+
+    if (allRequiredAnswersProvided) {
+      setShowConfirmation(true);
+    } else {
+      toast({
+        title: "Please fill the required fields",
+        status: "warning",
+        duration: 9000,
+        isClosable: true
+      });
+    }
+  };
+
+  const handleSubmitClick = async () => {
     const submission = {
       formId: formId.toString(),
       answers
@@ -118,7 +193,7 @@ const FormPage: NextPage = () => {
 
     // Generate message attestation proof (shouldn't take too long)
     const _attestationProof = await generateSubmissionAttestationProof(
-      secretMessage,
+      secretMessage as string,
       submission
     );
 
@@ -126,6 +201,42 @@ const FormPage: NextPage = () => {
     setAnswers(answers);
     setReadyToSubmit(true);
   };
+
+  if (showConfirmation) {
+    return (
+      <Container>
+        <Heading size="md" mt={6}>
+          Confirm submission
+        </Heading>
+        <Box mt={4}>
+          {questions.map((question, i) => (
+            <StyledBox key={i}>
+              <Text>{question.label}</Text>
+              <Text as="b">
+                {
+                  // eslint-disable-next-line security/detect-object-injection
+                  answers[i]
+                }
+              </Text>
+            </StyledBox>
+          ))}
+          <ButtonGroup mt={4}>
+            <Button
+              onClick={() => {
+                setShowConfirmation(false);
+              }}
+              leftIcon={<ArrowBackIcon fontSize="sm"></ArrowBackIcon>}
+              iconSpacing={1}
+            >
+              Back
+            </Button>
+            <Button onClick={handleSubmitClick}>Submit</Button>
+          </ButtonGroup>
+        </Box>
+        <MadeWithStoryForm></MadeWithStoryForm>
+      </Container>
+    );
+  }
 
   return (
     <Center width="100%" display={"flex"} flexDirection="column" p={6}>
@@ -140,13 +251,125 @@ const FormPage: NextPage = () => {
             </Text>
           </Alert>
         </VStack>
-        <Form
-          title={form.title}
-          description={form.description}
-          questions={form.questions}
-          isSubmitDisabled={false}
-          onSubmit={handleSubmitClick}
-        ></Form>
+        <Container>
+          <Heading size="md" mt={6}>
+            {title}
+          </Heading>
+          <Text mt={4}>{description}</Text>
+          {!address ? (
+            <Container mt={10} maxW={[850]}>
+              <Center>
+                <ConnectWalletButton label="Sign in to answer"></ConnectWalletButton>
+              </Center>
+            </Container>
+          ) : !sig ? (
+            <Container mt={10} maxW={[850]}>
+              <Center>
+                <Button
+                  onClick={() => {
+                    const _secretMessage = getSecretMessage();
+                    signSecretMessage({
+                      message: _secretMessage
+                    });
+                  }}
+                >
+                  Check eligibility
+                </Button>
+              </Center>
+            </Container>
+          ) : (
+            <>
+              <FormControl mt={4}>
+                {questions.map((question, i) => (
+                  <StyledBox key={i} mb={3}>
+                    <FormLabel mb={4}>
+                      {question.label}
+                      {question.required ? " *" : ""}
+                    </FormLabel>
+                    {question.type === "text" ? (
+                      <Input
+                        borderWidth={"0px 0px 1px 0px"}
+                        borderRadius={0}
+                        padding={"0px 0px 8px"}
+                        variant="unstyled"
+                        onChange={e => {
+                          handleInputChange(e.target.value, i);
+                        }}
+                        required={question.required}
+                        placeholder="Enter here"
+                        value={
+                          // eslint-disable-next-line security/detect-object-injection
+                          answers[i]
+                        }
+                      ></Input>
+                    ) : question.type === "select" ? (
+                      <>
+                        <Select
+                          placeholder="Please select"
+                          size="lg"
+                          variant="outline"
+                          // @ts-ignore
+                          onChange={e => {
+                            if (question.other && e.target.value === "other") {
+                              setShowOtherInput(true);
+                              handleInputChange("", i);
+                            } else {
+                              handleInputChange(e.target.value, i);
+                              setShowOtherInput(false);
+                            }
+                          }}
+                          value={
+                            // eslint-disable-next-line security/detect-object-injection
+                            answers[i]
+                          }
+                        >
+                          {question.options?.map(option => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                          {question.other ? (
+                            <option key="other" value="other">
+                              Other
+                            </option>
+                          ) : (
+                            <></>
+                          )}
+                        </Select>
+                        {question.other && showOtherInput ? (
+                          <Input
+                            mt={4}
+                            borderWidth={"0px 0px 1px 0px"}
+                            borderRadius={0}
+                            padding={"0px 0px 8px"}
+                            variant="unstyled"
+                            onChange={e => {
+                              handleInputChange(e.target.value, i);
+                            }}
+                            required={question.required}
+                            placeholder="Enter here"
+                            value={
+                              // eslint-disable-next-line security/detect-object-injection
+                              answers[i]
+                            }
+                          ></Input>
+                        ) : (
+                          <></>
+                        )}
+                      </>
+                    ) : (
+                      <></>
+                    )}
+                  </StyledBox>
+                ))}
+              </FormControl>
+              <ButtonGroup mt={4}>
+                <Button onClick={handleNextClick}>Next</Button>
+              </ButtonGroup>
+            </>
+          )}
+          <MadeWithStoryForm></MadeWithStoryForm>
+        </Container>
       </Container>
       <SubmittingFormModal
         isOpen={readyToSubmit && !submissionComplete}

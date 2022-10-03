@@ -255,18 +255,12 @@ export const useUserFormCount = () => {
   };
 };
 
-const get256bitRandomNumber = () => {
-  const byteArray = new Uint8Array(32);
-  const randomNumber = window.crypto.getRandomValues(byteArray);
-  return randomNumber;
-};
-
 export const useSignSecretMessage = () => {
-  const secretMessage = Buffer.from(get256bitRandomNumber()).toString("hex");
+  const {
+    data,
+    signMessageAsync: signSecretMessage,
+    variables
+  } = useSignMessage({});
 
-  const { signMessage: signSecretMessage, data } = useSignMessage({
-    message: secretMessage
-  });
-
-  return { signSecretMessage, data, secretMessage };
+  return { signSecretMessage, data, secretMessage: variables?.message };
 };
