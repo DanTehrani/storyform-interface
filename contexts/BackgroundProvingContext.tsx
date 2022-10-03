@@ -5,7 +5,11 @@ import { FullProof, FullProveInput } from "../types";
 interface IBackgroundProvingContext {
   isProving: boolean;
   fullProof: FullProof | null;
-  startProving: (input: FullProveInput) => void;
+  startProving: (input: {
+    input: FullProveInput;
+    wasmFile: string;
+    zKeyFile: string;
+  }) => void;
 }
 
 const defaultState = {
@@ -21,7 +25,7 @@ export const BackgroundProvingContextProvider = ({ children }) => {
   const [isProving, setIsProving] = useState<boolean>(false);
   const [fullProof, setFullProof] = useState<FullProof | null>(null);
 
-  const startProving = input => {
+  const startProving = data => {
     const worker = new Worker(
       new URL("../lib/webworkers/prover.js", import.meta.url)
     );
@@ -38,7 +42,7 @@ export const BackgroundProvingContextProvider = ({ children }) => {
     };
 
     setIsProving(true);
-    worker.postMessage(input);
+    worker.postMessage(data);
   };
 
   return (

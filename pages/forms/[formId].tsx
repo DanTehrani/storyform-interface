@@ -216,7 +216,12 @@ const FormPage: NextPage = () => {
         _secretMessage
       );
 
-      startProving(input);
+      startProving({
+        input,
+        wasmFile: `${window.origin}/proof_of_membership.wasm`,
+        zKeyFile:
+          "https://storage.googleapis.com/proving_keys/proof_of_membership_1.zkey"
+      });
     }
   };
 
