@@ -133,6 +133,14 @@ const Submission: NextPage = () => {
                     ></CircularProgress>
                   )}
                 </Td>
+                <Td>
+                  <Link
+                    href={`/user/submissions/${submission.txId}`}
+                    isExternal
+                  >
+                    Details
+                  </Link>
+                </Td>
               </Tr>
             ))}
           </Tbody>

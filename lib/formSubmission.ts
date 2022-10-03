@@ -112,3 +112,42 @@ export const getSubmissions = async ({
     pageInfo: result.data.transactions.pageInfo
   };
 };
+
+export const getSubmission = async (txId: string): Promise<FormSubmission> => {
+  const result = await arweaveGraphQl.query({
+    query: gql`
+      query transaction($id: ID!) {
+        transaction(id: $id) {
+          tags {
+            name
+            value
+          }
+        }
+      }
+    `,
+    variables: {
+      id: txId
+    }
+  });
+
+  const tx = result.data.transaction;
+
+  let data;
+  try {
+    data = await getArweaveTxData(txId);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error(err);
+    data = null;
+  }
+
+  return {
+    txId,
+    formId: getArweaveTxTagValue(tx, "Form-Id"),
+    answers: data?.answers || [],
+    membershipProof: data?.membershipProof,
+    attestationProof: data?.attestationProof,
+    unixTime: parseInt(getArweaveTxTagValue(tx, "Unix-Time")),
+    proofsVerified: ProofVerificationStatus.Verifying
+  };
+};

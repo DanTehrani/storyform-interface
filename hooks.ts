@@ -1,6 +1,6 @@
 import { useCallback, useContext, useState } from "react";
 import { useEffect } from "react";
-import { getSubmissions } from "./lib/formSubmission";
+import { getSubmissions, getSubmission } from "./lib/formSubmission";
 import {
   useSignTypedData,
   useProvider,
@@ -26,12 +26,10 @@ import { getFormUrl } from "./utils";
 import { utils } from "ethers";
 import { sha256 } from "ethers/lib/utils";
 import { verifyFormSubmission } from "./lib/zkUtils";
-import { BlobOptions } from "buffer";
 
 export const useForm = (formId: string | undefined) => {
   const [form, setForm] = useState<Form | null>();
   const [formNotFound, setFormNotFound] = useState<boolean>(false);
-
   useEffect(() => {
     (async () => {
       if (formId) {
@@ -149,6 +147,43 @@ export const useSubmissions = (
     hasNextPage: pageInfo.hasNextPage,
     hasPreviousPage: currentPage !== 0
   };
+};
+
+export const useSubmission = (txId: string) => {
+  const [submission, setSubmission] = useState<FormSubmission>();
+
+  useEffect(() => {
+    (async () => {
+      if (txId) {
+        const submission = await getSubmission(txId);
+
+        setSubmission(submission);
+
+        if (submission.attestationProof && submission.membershipProof) {
+          const verified = await verifyFormSubmission(
+            submission as FormSubmission & {
+              membershipProof: FullProof;
+              attestationProof: FullProof;
+            }
+          );
+
+          setSubmission({
+            ...submission,
+            proofsVerified: verified
+              ? ProofVerificationStatus.Verified
+              : ProofVerificationStatus.Invalid
+          });
+        } else {
+          setSubmission({
+            ...submission,
+            proofsVerified: ProofVerificationStatus.Nonexistent
+          });
+        }
+      }
+    })();
+  }, [txId]);
+
+  return { submission };
 };
 
 export const useUploadForm = () => {
