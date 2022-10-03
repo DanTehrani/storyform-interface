@@ -15,8 +15,7 @@ import {
   Heading,
   ButtonGroup,
   IconButton,
-  CircularProgress,
-  Spinner
+  CircularProgress
 } from "@chakra-ui/react";
 import {
   CheckCircleIcon,
@@ -54,7 +53,7 @@ const Submission: NextPage = () => {
   const { query } = useRouter();
 
   const formId = query?.formId?.toString();
-  const { form, formNotFound } = useForm(formId);
+  const { form, formNotFound } = useForm(formId as string);
 
   const { submissions, getNext, getPrevious, hasNextPage, hasPreviousPage } =
     useSubmissions(formId);
@@ -135,7 +134,7 @@ const Submission: NextPage = () => {
                 </Td>
                 <Td>
                   <Link
-                    href={`/user/submissions/${submission.txId}`}
+                    href={`/forms/${formId}/submissions/${submission.txId}`}
                     isExternal
                   >
                     Details

@@ -27,7 +27,7 @@ import { utils } from "ethers";
 import { sha256 } from "ethers/lib/utils";
 import { verifyFormSubmission } from "./lib/zkUtils";
 
-export const useForm = (formId: string | undefined) => {
+export const useForm = (formId: string) => {
   const [form, setForm] = useState<Form | null>();
   const [formNotFound, setFormNotFound] = useState<boolean>(false);
   useEffect(() => {

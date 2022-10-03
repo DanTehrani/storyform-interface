@@ -57,7 +57,7 @@ const FormPage: NextPage = () => {
   const { query } = useRouter();
 
   const formId = query.formId?.toString();
-  const { form, formNotFound } = useForm(formId);
+  const { form, formNotFound } = useForm(formId as string);
   const { submitForm, submissionComplete } = useSubmitForm();
   const [readyToSubmit, setReadyToSubmit] = useState<boolean>(false);
   const [answers, setAnswers] = useState<string[]>([]);
