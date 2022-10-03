@@ -29,7 +29,9 @@ export const BackgroundProvingContextProvider = ({ children }) => {
 
     worker.onmessage = e => {
       if (e.data instanceof Error) {
-        // Report error to Sentry
+        // eslint-disable-next-line no-console
+        console.error(e.data);
+        // TODO: Report error to Sentry
       } else {
         const _fullProof = e.data;
         setFullProof(_fullProof);
