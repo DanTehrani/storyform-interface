@@ -103,7 +103,7 @@ export type PageInfo = {
 };
 
 export type FormSettings = {
-  // TBD
+  devcon6: boolean;
 };
 
 export type FormInput = {

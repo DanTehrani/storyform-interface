@@ -64,6 +64,7 @@ const FormPage: NextPage = () => {
   const [attestationProof, setAttestationProof] = useState<FullProof | null>();
   const [showOtherInput, setShowOtherInput] = useState<boolean>(false);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+  const toast = useToast();
 
   const {
     signSecretMessage,
@@ -77,7 +78,6 @@ const FormPage: NextPage = () => {
     fullProof: membershipProof,
     startProving
   } = useContext(BackgroundProvingContext);
-  const toast = useToast();
 
   // Submit as soon as everything is ready
   useEffect(() => {
@@ -100,6 +100,7 @@ const FormPage: NextPage = () => {
     submitForm
   ]);
 
+  // Render "Started generating proof in the background..."" toast
   useEffect(() => {
     if (isProving) {
       toast({
@@ -115,6 +116,7 @@ const FormPage: NextPage = () => {
     return <FormNotFoundOrUploading></FormNotFoundOrUploading>;
   }
 
+  // Loading...
   if (!form) {
     return <FormSkeleton></FormSkeleton>;
   }
@@ -131,6 +133,7 @@ const FormPage: NextPage = () => {
     );
   }
 
+  const { title, description, questions, settings } = form;
   const { title, description, questions } = form;
 
   if (submissionComplete) {
@@ -193,13 +196,17 @@ const FormPage: NextPage = () => {
       answers
     };
 
-    // Generate message attestation proof (shouldn't take too long)
-    const _attestationProof = await generateSubmissionAttestationProof(
-      secretMessage as string,
-      submission
-    );
+    // Only generate attestation proof if the form is a devcon6 survey
+    if (settings?.devcon6) {
+      // Generate message attestation proof (shouldn't take too long)
+      const _attestationProof = await generateSubmissionAttestationProof(
+        secretMessage as string,
+        submission
+      );
 
-    setAttestationProof(_attestationProof);
+      setAttestationProof(_attestationProof);
+    }
+
     setAnswers(answers);
     setReadyToSubmit(true);
   };
@@ -279,13 +286,13 @@ const FormPage: NextPage = () => {
             {title}
           </Heading>
           <Text mt={4}>{description}</Text>
-          {!address ? (
+          {settings.devcon6 && !address ? (
             <Container mt={10} maxW={[850]}>
               <Center>
                 <ConnectWalletButton label="Sign in to answer"></ConnectWalletButton>
               </Center>
             </Container>
-          ) : !sig ? (
+          ) : settings.devcon6 && !sig ? (
             <Container mt={10} maxW={[850]}>
               <Center>
                 <Button onClick={startProvingMembershipIfEligible}>
