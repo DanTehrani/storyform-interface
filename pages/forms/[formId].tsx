@@ -134,7 +134,6 @@ const FormPage: NextPage = () => {
   }
 
   const { title, description, questions, settings } = form;
-  const { title, description, questions } = form;
 
   if (submissionComplete) {
     return (
