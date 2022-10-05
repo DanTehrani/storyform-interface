@@ -20,12 +20,11 @@ import {
 import { SIGNATURE_DATA_TYPES, SIGNATURE_DOMAIN } from "./config";
 import axios from "./lib/axios";
 import { getForm, getForms, getUserFormCount } from "./lib/form";
+import { getPoapContract } from "./lib/poap";
 import { submitAnswer } from "./lib/formSubmission";
 import ConnectWalletModalContext from "./contexts/ConnectWalletModalContext";
-import { getFormUrl } from "./utils";
-import { utils } from "ethers";
-import { sha256 } from "ethers/lib/utils";
 import { verifyFormSubmission } from "./lib/zkUtils";
+import { Contract } from "ethers";
 
 export const useForm = (formId: string) => {
   const [form, setForm] = useState<Form | null>();
@@ -302,4 +301,41 @@ export const useSignSecretMessage = () => {
   } = useSignMessage({});
 
   return { signSecretMessage, data, secretMessage: variables?.message };
+};
+
+export const usePoap = () => {
+  const [poap, setPoap] = useState<Contract | null>();
+
+  useEffect(() => {
+    (async () => {
+      const poap = await getPoapContract();
+
+      setPoap(poap);
+    })();
+  }, []);
+
+  return poap;
+};
+
+export const useIsPoapHolder = () => {
+  const [isPoapHolder, setIsPoapHolder] = useState<boolean | undefined>();
+
+  const getIsPoapHolder = async address => {
+    const poap = await getPoapContract();
+    const balanceOf = await poap.balanceOf(address);
+
+    for (let i = 0; i < balanceOf.toNumber(); i++) {
+      const tokenOfOwnerByIndex = await poap.tokenOfOwnerByIndex(address, i);
+      const tokenEvent = await poap.tokenEvent(tokenOfOwnerByIndex);
+
+      if (tokenEvent.toNumber() === 69) {
+        setIsPoapHolder(true);
+        return;
+      }
+    }
+
+    setIsPoapHolder(false);
+  };
+
+  return { getIsPoapHolder, isPoapHolder };
 };

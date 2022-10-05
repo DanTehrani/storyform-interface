@@ -41,6 +41,7 @@ import {
 import { useToast } from "@chakra-ui/react";
 import FormPublishButton from "../components/FormPublishButton";
 import FormSkeleton from "../components/FormSkeleton";
+import Devcon6CampaignBanner from "../components/Devcon6CampaignBanner";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
@@ -200,7 +201,7 @@ const Create: NextPage = () => {
   return (
     <Container mt={10} maxW={[850]} mb={200}>
       {isWarningOpen ? (
-        <Alert status="warning" mt={4} mb={4}>
+        <Alert status="warning">
           <AlertIcon />
           <AlertDescription>
             <Text>
@@ -214,7 +215,10 @@ const Create: NextPage = () => {
       ) : (
         <></>
       )}
-      <Box textAlign="right">
+      <Box mt={4}>
+        <Devcon6CampaignBanner></Devcon6CampaignBanner>
+      </Box>
+      <Box textAlign="right" mt={4}>
         <FormPublishButton
           isLoading={uploading}
           onClick={handleCreateClick}
@@ -223,7 +227,7 @@ const Create: NextPage = () => {
         ></FormPublishButton>
       </Box>
       <CreateFormHeading></CreateFormHeading>
-      <Tabs mt={4}>
+      <Tabs mt={4} defaultIndex={1}>
         <TabList>
           <Tab>Questions</Tab>
           <Tab>Settings</Tab>

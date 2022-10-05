@@ -1,5 +1,15 @@
 import { useContext } from "react";
-import { Stack, Button, Alert, AlertIcon } from "@chakra-ui/react";
+import {
+  Stack,
+  Button,
+  Alert,
+  AlertIcon,
+  Checkbox,
+  Box,
+  Tooltip,
+  Text
+} from "@chakra-ui/react";
+import { InfoIcon } from "@chakra-ui/icons";
 import CreateFormContext from "../../contexts/CreateFormContext";
 import EditFormContext from "../../contexts/EditFormContext";
 
@@ -38,7 +48,28 @@ const FormSettingsTab: React.FC<Props> = ({ context, onDeleteFormClick }) => {
           </Button>
         </>
       ) : (
-        <>Coming soon...</>
+        <Stack>
+          <Text as="i">Anonymous survey</Text>
+
+          <Checkbox
+            isChecked={settings.devcon6}
+            onChange={e => {
+              updateSettings({
+                ...settings,
+                devcon6: e.target.checked
+              });
+            }}
+          >
+            Only Devcon6 POAP holders can answer &nbsp;
+            <Tooltip label="The Ethereum address of the respondent won't be revealed.">
+              <InfoIcon color="purple.300"></InfoIcon>
+            </Tooltip>
+          </Checkbox>
+          <Text as="i">
+            This is an experiment feature that. Please do not use this feature
+            for critical manners.
+          </Text>
+        </Stack>
       )}
     </Stack>
   );

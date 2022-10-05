@@ -1,9 +1,21 @@
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { Button, VStack } from "@chakra-ui/react";
+import { useIsPoapHolder } from "../hooks";
+import { useEffect } from "react";
+import { useAccount } from "wagmi";
 
 const Index: NextPage = () => {
   const router = useRouter();
+
+  const { isPoapHolder, getIsPoapHolder } = useIsPoapHolder();
+  const { address } = useAccount();
+
+  useEffect(() => {
+    if (address) {
+      getIsPoapHolder(address);
+    }
+  }, [getIsPoapHolder, address]);
 
   return (
     <VStack

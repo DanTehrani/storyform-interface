@@ -63,7 +63,7 @@ export const EditFormContextProvider = ({ children }) => {
         title: _form.title,
         description: _form.description || "",
         questions: _form.questions,
-        settings: {}
+        settings: _form.settings || {}
       });
 
       setFormOwner(_form.owner);

@@ -18,6 +18,7 @@
     "groth",
     "keccak",
     "Merkle",
+    "POAP",
     "Secp",
     "snarkjs",
     "Storyform",

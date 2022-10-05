@@ -62,3 +62,10 @@ export const STRIDE = 8n;
 export const REGISTERS = 4n;
 export const NUM_STRIDES = 256n / STRIDE; // = 32
 export const BITS_PER_REGISTER = 64;
+
+// Devcon6
+
+export const POAP_CONTRACT_ADDRESS =
+  "0x22C1f6050E56d2876009903609a2cC3fEf83B415";
+export const DEVCON6_POAP_EVENT_ID = "69";
+export const DEVCON6_POAP_BLOCK_FROM = 8732485;

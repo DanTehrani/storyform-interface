@@ -1,21 +1,7 @@
 import { FullProveInput } from "../types";
-import {
-  IncrementalMerkleTree,
-  MerkleProof
-} from "@zk-kit/incremental-merkle-tree";
 import { ecrecover, fromRpcSig, hashPersonalMessage } from "@ethereumjs/util";
-import { poseidon } from "circomlibjs";
 import { splitToRegisters, addHexPrefix } from "../utils";
-
-const generateMerkleProof = async (addr: string): Promise<MerkleProof> => {
-  const tree = new IncrementalMerkleTree(poseidon, 10, BigInt(0), 2); // Binary tree.
-  tree.insert(BigInt(addr));
-  // Build the tree from Ethereum addresses
-
-  const proof = tree.createProof(0);
-
-  return proof;
-};
+import { getDevcon6PoapMerkleTree } from "./poap";
 
 const bufferToBigInt = (buff: Buffer) =>
   BigInt(addHexPrefix(Buffer.from(buff).toString("hex")));
@@ -26,7 +12,13 @@ export const constructMembershipProofInput = async (
   msg: string
 ) => {
   const msgHash = hashPersonalMessage(Buffer.from(msg));
-  const merkleProof = await generateMerkleProof(addr);
+  const merkleTree = await getDevcon6PoapMerkleTree();
+
+  if (!merkleTree) {
+    throw new Error("Failed to get merkle tree");
+  }
+
+  const merkleProof = merkleTree.createProof(merkleTree.indexOf(addr));
   const { v, r, s } = fromRpcSig(sig);
 
   const pubKeyBuff: Buffer = ecrecover(msgHash, v, r, s);

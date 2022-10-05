@@ -17,7 +17,7 @@ import {
   Heading,
   Select
 } from "@chakra-ui/react";
-import { useForm, useSubmitForm } from "../../hooks";
+import { useForm, useIsPoapHolder, useSubmitForm } from "../../hooks";
 import FormNotFoundOrUploading from "../../components/FormNotFoundOrUploading";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import MadeWithStoryForm from "../../components/MadeWithStoryForm";
@@ -34,8 +34,8 @@ import { generateSubmissionAttestationProof } from "../../lib/zkUtils";
 import { FullProof } from "../../types";
 import { useSignSecretMessage } from "../../hooks";
 import { useAccount } from "wagmi";
-import { constructMembershipProofInput } from "../../lib/zkFullVerifyMembershipProof";
 import ConnectWalletButton from "../../components/ConnectWalletButton";
+import { constructMembershipProofInput } from "../../lib/zkFullVerifyMembershipProof";
 
 const StyledBox = props => {
   return (
@@ -72,12 +72,20 @@ const FormPage: NextPage = () => {
     secretMessage
   } = useSignSecretMessage();
   const { address } = useAccount();
+  const { isPoapHolder, getIsPoapHolder } = useIsPoapHolder();
 
+  // TODO: change this into a "prover" object?
   const {
     isProving,
     fullProof: membershipProof,
     startProving
   } = useContext(BackgroundProvingContext);
+
+  useEffect(() => {
+    if (form?.settings.devcon6 && address) {
+      getIsPoapHolder(address);
+    }
+  }, [getIsPoapHolder, address]);
 
   // Submit as soon as everything is ready
   useEffect(() => {
@@ -100,7 +108,6 @@ const FormPage: NextPage = () => {
     submitForm
   ]);
 
-  // Render "Started generating proof in the background..."" toast
   useEffect(() => {
     if (isProving) {
       toast({

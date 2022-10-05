@@ -16,7 +16,9 @@ const defaultState = {
         type: "text"
       }
     ],
-    settings: {}
+    settings: {
+      devcon6: false
+    }
   },
   setFormInput: () => null,
   updateQuestion: () => null,

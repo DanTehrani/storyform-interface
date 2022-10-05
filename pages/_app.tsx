@@ -6,8 +6,7 @@ import {
   createClient,
   useSwitchNetwork,
   chain,
-  configureChains,
-  useAccount
+  configureChains
 } from "wagmi";
 import { useEffect } from "react";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
@@ -49,12 +48,11 @@ Sentry.init({
   }
 });
 
-const chains = [chain.goerli];
+const chains = [chain.mainnet, chain.goerli];
 
 const { provider } = configureChains(chains, [
   jsonRpcProvider({
     rpc: chain => {
-      if (chain.id !== 31337) return null;
       return { http: chain.rpcUrls.default };
     }
   }),
