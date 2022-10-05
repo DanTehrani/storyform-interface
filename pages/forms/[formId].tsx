@@ -28,7 +28,7 @@ import { getCurrentUnixTime, notEmpty, getSecretMessage } from "../../utils";
 import SubmittingFormModal from "../../components/SubmittingFormModal";
 import { motion } from "framer-motion";
 import FormDeleted from "../../components/FormDeleted";
-import BackgroundProvingContext from "../../contexts/BackgroundProvingContext";
+import BackgroundProvingContext from "../../contexts/ProverContext";
 import { useEffect, useState } from "react";
 import { generateSubmissionAttestationProof } from "../../lib/zkUtils";
 import { FullProof } from "../../types";

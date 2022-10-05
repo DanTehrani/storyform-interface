@@ -21,7 +21,7 @@ import ConnectWalletModal from "../components/ConnectWalletModal";
 import { ConnectWalletModalProvider } from "../contexts/ConnectWalletModalContext";
 import { CreateFormContextProvider } from "../contexts/CreateFormContext";
 import { EditFormContextProvider } from "../contexts/EditFormContext";
-import { BackgroundProvingContextProvider } from "../contexts/BackgroundProvingContext";
+import { BackgroundProvingContextProvider } from "../contexts/ProverContext";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 import loadable from "@loadable/component"; // npm install @loadable/component
