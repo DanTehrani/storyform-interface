@@ -166,3 +166,8 @@ export type FullProveInput = {
   pathIndices: number[];
   root: bigint;
 };
+
+export type AttestationProofInput = {
+  secret: string;
+  submission: Submission;
+};

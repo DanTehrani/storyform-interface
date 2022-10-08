@@ -1,61 +1,85 @@
 import { useState } from "react";
 import { createContext } from "react";
-import { FullProof, FullProveInput } from "../types";
+import { FullProof, Submission } from "../types";
+import { useSignSecretMessage } from "../hooks";
+import { useAccount } from "wagmi";
+import * as prover from "../lib/prover";
 
-interface IBackgroundProvingContext {
-  isProving: boolean;
-  fullProof: FullProof | null;
-  startProving: (input: {
-    input: FullProveInput;
-    wasmFile: string;
-    zKeyFile: string;
-  }) => void;
+interface IProverContext {
+  isBgProvingMembership: boolean;
+  isGeneratingAttestationProof: boolean;
+  generateMembershipProofInBg: () => void;
+  generateAttestationProof: (submission: Submission) => void;
+  membershipProof: FullProof | null;
+  attestationProof: FullProof | null;
+  signSecretMessage: () => void;
 }
 
 const defaultState = {
-  isProving: false,
-  fullProof: null
+  isBgProvingMembership: false,
+  fullProof: null,
+  membershipProof: null,
+  attestationProof: null
 };
 
-const BackgroundProvingContext = createContext<IBackgroundProvingContext>(
-  defaultState as IBackgroundProvingContext
-);
+// @ts-ignore
+const ProverContext = createContext<IProverContext>(defaultState);
 
-export const BackgroundProvingContextProvider = ({ children }) => {
-  const [isProving, setIsProving] = useState<boolean>(false);
-  const [fullProof, setFullProof] = useState<FullProof | null>(null);
+export const ProverContextProvider = ({ children }) => {
+  const [isBgProvingMembership, setIsBgProvingMembership] =
+    useState<boolean>(false);
+  const [isGeneratingAttestationProof, setIsGeneratingAttestationProof] =
+    useState<boolean>(false);
 
-  const startProving = data => {
-    const worker = new Worker(
-      new URL("../lib/webworkers/prover.js", import.meta.url)
-    );
+  const [membershipProof, setMembershipProof] = useState<FullProof | null>(
+    null
+  );
+  const [attestationProof, setAttestationProof] = useState<FullProof | null>(
+    null
+  );
+  const { address } = useAccount();
+  const { signSecretMessage } = useSignSecretMessage();
 
-    worker.onmessage = e => {
-      if (e.data instanceof Error) {
-        // eslint-disable-next-line no-console
-        console.error(e.data);
-        // TODO: Report error to Sentry
-      } else {
-        const _fullProof = e.data;
-        setFullProof(_fullProof);
-      }
-    };
+  const generateMembershipProofInBg = async () => {
+    if (address) {
+      prover.generateMembershipProofInBg({
+        address,
+        signSecretMessage,
+        callback: _membershipProof => {
+          setMembershipProof(_membershipProof);
+          setIsBgProvingMembership(false);
+        }
+      });
 
-    setIsProving(true);
-    worker.postMessage(data);
+      setIsBgProvingMembership(true);
+    }
+  };
+
+  const generateAttestationProof = async (submission: Submission) => {
+    setIsGeneratingAttestationProof(true);
+    const _attestationProof = await prover.generateSubmissionAttestationProof({
+      secret: "", // TODO: Make this a secret message
+      submission
+    });
+    setIsGeneratingAttestationProof(false);
+    setAttestationProof(_attestationProof);
   };
 
   return (
-    <BackgroundProvingContext.Provider
+    <ProverContext.Provider
       value={{
-        fullProof,
-        isProving,
-        startProving
+        isGeneratingAttestationProof,
+        isBgProvingMembership,
+        attestationProof,
+        membershipProof,
+        generateAttestationProof,
+        generateMembershipProofInBg,
+        signSecretMessage
       }}
     >
       {children}
-    </BackgroundProvingContext.Provider>
+    </ProverContext.Provider>
   );
 };
 
-export default BackgroundProvingContext;
+export default ProverContext;

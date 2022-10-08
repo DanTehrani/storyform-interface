@@ -21,7 +21,7 @@ import ConnectWalletModal from "../components/ConnectWalletModal";
 import { ConnectWalletModalProvider } from "../contexts/ConnectWalletModalContext";
 import { CreateFormContextProvider } from "../contexts/CreateFormContext";
 import { EditFormContextProvider } from "../contexts/EditFormContext";
-import { BackgroundProvingContextProvider } from "../contexts/ProverContext";
+import { ProverContextProvider } from "../contexts/ProverContext";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 import loadable from "@loadable/component"; // npm install @loadable/component
@@ -105,11 +105,11 @@ const Provider = ({ Component, pageProps }) => {
       <ConnectWalletModalProvider>
         <EditFormContextProvider>
           <CreateFormContextProvider>
-            <BackgroundProvingContextProvider>
+            <ProverContextProvider>
               <Navbar></Navbar>
               <Component pageProps={pageProps} />
               <ConnectWalletModal></ConnectWalletModal>
-            </BackgroundProvingContextProvider>
+            </ProverContextProvider>
           </CreateFormContextProvider>
         </EditFormContextProvider>
       </ConnectWalletModalProvider>

@@ -28,7 +28,7 @@ import { getCurrentUnixTime, notEmpty, getSecretMessage } from "../../utils";
 import SubmittingFormModal from "../../components/SubmittingFormModal";
 import { motion } from "framer-motion";
 import FormDeleted from "../../components/FormDeleted";
-import BackgroundProvingContext from "../../contexts/ProverContext";
+import ProverContext from "../../contexts/ProverContext";
 import { useEffect, useState } from "react";
 import { generateSubmissionAttestationProof } from "../../lib/zkUtils";
 import { FullProof } from "../../types";
@@ -61,31 +61,23 @@ const FormPage: NextPage = () => {
   const { submitForm, submissionComplete, txId } = useSubmitForm();
   const [readyToSubmit, setReadyToSubmit] = useState<boolean>(false);
   const [answers, setAnswers] = useState<string[]>([]);
-  const [attestationProof, setAttestationProof] = useState<FullProof | null>();
   const [showOtherInput, setShowOtherInput] = useState<boolean>(false);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const toast = useToast();
 
-  const {
-    signSecretMessage,
-    data: sig,
-    secretMessage
-  } = useSignSecretMessage();
   const { address } = useAccount();
   const { isPoapHolder, getIsPoapHolder } = useIsPoapHolder();
 
   // TODO: change this into a "prover" object?
-  const {
-    isProving,
-    fullProof: membershipProof,
-    startProving
-  } = useContext(BackgroundProvingContext);
+  const prover = useContext(ProverContext);
 
   useEffect(() => {
-    if (form?.settings.devcon6 && address) {
+    if (form?.settings?.devcon6 && address) {
       getIsPoapHolder(address);
     }
-  }, [getIsPoapHolder, address]);
+  }, [getIsPoapHolder, address, form?.settings?.devcon6]);
+
+  const { membershipProof, attestationProof, isBgProvingMembership } = prover;
 
   // Submit as soon as everything is ready
   useEffect(() => {
@@ -109,7 +101,7 @@ const FormPage: NextPage = () => {
   ]);
 
   useEffect(() => {
-    if (isProving) {
+    if (isBgProvingMembership) {
       toast({
         title: "Started generating proof in the background...",
         status: "info",
@@ -117,7 +109,7 @@ const FormPage: NextPage = () => {
         isClosable: true
       });
     }
-  }, [isProving, toast]);
+  }, [isBgProvingMembership, toast]);
 
   if (formNotFound) {
     return <FormNotFoundOrUploading></FormNotFoundOrUploading>;
@@ -205,37 +197,11 @@ const FormPage: NextPage = () => {
     // Only generate attestation proof if the form is a devcon6 survey
     if (settings?.devcon6) {
       // Generate message attestation proof (shouldn't take too long)
-      const _attestationProof = await generateSubmissionAttestationProof(
-        secretMessage as string,
-        submission
-      );
-
-      setAttestationProof(_attestationProof);
+      await prover.generateAttestationProof(submission);
     }
 
     setAnswers(answers);
     setReadyToSubmit(true);
-  };
-
-  const startProvingMembershipIfEligible = async () => {
-    const _secretMessage = getSecretMessage();
-    const sig = await signSecretMessage({
-      message: _secretMessage
-    });
-    if (sig) {
-      const input = await constructMembershipProofInput(
-        address as string, // address will be defined since the user will be connected at signing
-        sig,
-        _secretMessage
-      );
-
-      startProving({
-        input,
-        wasmFile: `${window.origin}/proof_of_membership.wasm`,
-        zKeyFile:
-          "https://storage.googleapis.com/proving_keys/proof_of_membership_1.zkey"
-      });
-    }
   };
 
   if (showConfirmation) {
@@ -298,10 +264,10 @@ const FormPage: NextPage = () => {
                 <ConnectWalletButton label="Sign in to answer"></ConnectWalletButton>
               </Center>
             </Container>
-          ) : settings.devcon6 && !sig ? (
+          ) : settings.devcon6 ? (
             <Container mt={10} maxW={[850]}>
               <Center>
-                <Button onClick={startProvingMembershipIfEligible}>
+                <Button onClick={prover.generateMembershipProofInBg}>
                   Check eligibility
                 </Button>
               </Center>
@@ -402,7 +368,7 @@ const FormPage: NextPage = () => {
       </Container>
       <SubmittingFormModal
         isOpen={readyToSubmit && !submissionComplete}
-        isProving={isProving}
+        isProving={prover.isBgProvingMembership}
       ></SubmittingFormModal>
     </Center>
   );
