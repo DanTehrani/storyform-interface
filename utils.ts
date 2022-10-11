@@ -94,29 +94,9 @@ export const splitToRegisters = (value: bigint) => {
   return registers;
 };
 
-export const reduceRegisters = registers => {
-  let result;
-
-  for (let i = 0n; i < registers.length; i++) {
-    const register = registers[Number(i)];
-
-    if (i === 0n) {
-      result = register * 2n ** (i * 64n);
-    } else {
-      result = register * 2n ** (i * 64n) + result;
-    }
-  }
-
-  return result;
-};
-
-const get256bitRandomNumber = (): Uint8Array => {
-  const byteArray = new Uint8Array(32);
-  const randomNumber = window.crypto.getRandomValues(byteArray);
-  return randomNumber;
-};
-
-export const getSecretMessage = (): string => {
-  const secretMessage = Buffer.from(get256bitRandomNumber()).toString("hex");
-  return secretMessage;
+export const registersToHex = (registers: bigint[]) => {
+  return (
+    "0x" +
+    registers.map(el => BigInt(el).toString(16).padStart(16, "0")).join("")
+  );
 };

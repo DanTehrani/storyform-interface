@@ -53,4 +53,6 @@ export const getDevcon6PoapMerkleTree = async () => {
 
     return tree;
   }
+
+  //  return new IncrementalMerkleTree(poseidon, 10, BigInt(0), 2); // Binary tree.
 };

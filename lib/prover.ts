@@ -1,24 +1,16 @@
-import {
-  AttestationProofInput,
-  FormSubmission,
-  FullProof,
-  Submission
-} from "../types";
 const snarkJs = require("snarkjs");
+import { AttestationProofInput, FullProof } from "../types";
 import { ecrecover, fromRpcSig, hashPersonalMessage } from "@ethereumjs/util";
-import { splitToRegisters, addHexPrefix, getSecretMessage } from "../utils";
+import { splitToRegisters, addHexPrefix } from "../utils";
 import { sha256, toUtf8Bytes } from "ethers/lib/utils";
-import attestationVerificationKey from "./verification_keys/attestation_verification_key.json";
-// import membershipVerificationKey from "./verification_keys/membership_verification_key.json";
-import membershipVerificationKey from "./verification_keys/attestation_verification_key.json";
-import { poseidon } from "circomlibjs";
 import { FullProveInput } from "../types";
 import { getDevcon6PoapMerkleTree } from "./poap";
-
-const hashRegistersWithPoseidon = (registers: bigint[]) => {
-  const hash = poseidon(registers);
-  return hash;
-};
+import {
+  ECDSA_VERIFY_PUBKEY_TO_ADDR_WASM_URI,
+  ECDSA_VERIFY_PUBKEY_TO_ADDR_ZKEY_URI
+} from "../config";
+import { Point, utils } from "@noble/secp256k1";
+import { getPointPreComputes } from "./wasmPreCompute/wasmPreCompute";
 
 const bufferToBigInt = (buff: Buffer) =>
   BigInt(addHexPrefix(Buffer.from(buff).toString("hex")));
@@ -35,45 +27,65 @@ export const constructMembershipProofInput = async (
     throw new Error("Failed to get merkle tree");
   }
 
+  merkleTree.insert(addr);
+
   const merkleProof = merkleTree.createProof(merkleTree.indexOf(addr));
+
   const { v, r, s } = fromRpcSig(sig);
 
-  const pubKeyBuff: Buffer = ecrecover(msgHash, v, r, s);
-  const pubKeyHex = pubKeyBuff.toString("hex");
-  const pubKeyX = `0x${pubKeyHex.slice(0, 64)}`;
-  const pubKeyY = `0x${pubKeyHex.slice(64, 128)}`;
+  const recovery = Number(v) - 27;
+  //  const rHex = `${Number(v) - 27}${r.toString("hex")}`.padStart(66, "0");
+  const rHex = r.toString("hex").padStart(64, "0");
+
+  // Might be incorrectly setting the recovery value here
+  const rCompressedHex = recovery === 1 ? rHex : `${recovery}${rHex}`;
+
+  const R = Point.fromHex(rCompressedHex);
+  const rInv = utils.invert(BigInt("0x" + r.toString("hex")));
+  const w = utils.mod(rInv * BigInt("0x" + msgHash.toString("hex")) * -1n);
+  const U = Point.BASE.multiply(w);
+
+  const T = R.multiply(rInv);
+
+  const TPreComputes = await getPointPreComputes(T.toHex());
 
   const input: FullProveInput = {
-    r: splitToRegisters(bufferToBigInt(r)),
+    TPreComputes,
     s: splitToRegisters(bufferToBigInt(s)),
+    U: [splitToRegisters(U.x), splitToRegisters(U.y)]
+    /*
     msghash: splitToRegisters(BigInt(addHexPrefix(msgHash.toString("hex")))),
-    pubkey: [
-      splitToRegisters(BigInt(pubKeyX)),
-      splitToRegisters(BigInt(pubKeyY))
-    ],
     siblings: merkleProof.siblings.map(s => s[0]),
     pathIndices: merkleProof.pathIndices,
     root: merkleProof.root
+    */
   };
 
   return input;
 };
+
 export const generateMembershipProofInBg = async ({
   address,
-  signSecretMessage,
+  message,
+  signature,
   callback
+}: {
+  address: string;
+  message: string;
+  signature: string;
+  callback: (membershipProof: FullProof) => void;
 }) => {
-  const secretMsg = getSecretMessage();
-
-  // Prompts user to sign the message
-  const sig = await signSecretMessage({
-    message: secretMsg
-  });
+  const input = await constructMembershipProofInput(
+    address,
+    signature,
+    message
+  );
 
   const worker = new Worker(
     new URL("../lib/webworkers/prover.js", import.meta.url)
   );
 
+  // Define worker callback
   worker.onmessage = e => {
     if (e.data instanceof Error) {
       // eslint-disable-next-line no-console
@@ -85,13 +97,10 @@ export const generateMembershipProofInBg = async ({
     }
   };
 
-  const input = constructMembershipProofInput(address, sig, secretMsg);
-
   worker.postMessage({
     input,
-    wasmFile: `${window.origin}/proof_of_membership.wasm`,
-    zKeyFile:
-      "https://storage.googleapis.com/proving_keys/proof_of_membership_1.zkey"
+    wasmFile: ECDSA_VERIFY_PUBKEY_TO_ADDR_WASM_URI,
+    zKeyFile: ECDSA_VERIFY_PUBKEY_TO_ADDR_ZKEY_URI
   });
 };
 

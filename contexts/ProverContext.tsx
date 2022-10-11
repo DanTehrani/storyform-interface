@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { createContext } from "react";
 import { FullProof, Submission } from "../types";
-import { useSignSecretMessage } from "../hooks";
-import { useAccount } from "wagmi";
+import { useAccount, useSignMessage } from "wagmi";
 import * as prover from "../lib/prover";
 
 interface IProverContext {
@@ -12,7 +11,6 @@ interface IProverContext {
   generateAttestationProof: (submission: Submission) => void;
   membershipProof: FullProof | null;
   attestationProof: FullProof | null;
-  signSecretMessage: () => void;
 }
 
 const defaultState = {
@@ -38,13 +36,21 @@ export const ProverContextProvider = ({ children }) => {
     null
   );
   const { address } = useAccount();
-  const { signSecretMessage } = useSignSecretMessage();
+  const { signMessageAsync } = useSignMessage();
 
   const generateMembershipProofInBg = async () => {
     if (address) {
+      // Prompt user to sign the message
+      const message = "storyform_dev";
+
+      const signature = await signMessageAsync({
+        message
+      });
+
       prover.generateMembershipProofInBg({
         address,
-        signSecretMessage,
+        signature,
+        message,
         callback: _membershipProof => {
           setMembershipProof(_membershipProof);
           setIsBgProvingMembership(false);
@@ -73,8 +79,7 @@ export const ProverContextProvider = ({ children }) => {
         attestationProof,
         membershipProof,
         generateAttestationProof,
-        generateMembershipProofInBg,
-        signSecretMessage
+        generateMembershipProofInBg
       }}
     >
       {children}

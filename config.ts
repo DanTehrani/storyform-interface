@@ -69,3 +69,9 @@ export const POAP_CONTRACT_ADDRESS =
   "0x22C1f6050E56d2876009903609a2cC3fEf83B415";
 export const DEVCON6_POAP_EVENT_ID = "69";
 export const DEVCON6_POAP_BLOCK_FROM = 8732485;
+
+export const ECDSA_VERIFY_PUBKEY_TO_ADDR_WASM_URI =
+  "https://d2q52de7b4rwg.cloudfront.net/ecdsa_verify_pubkey_to_addr.wasm";
+
+export const ECDSA_VERIFY_PUBKEY_TO_ADDR_ZKEY_URI =
+  "https://d2q52de7b4rwg.cloudfront.net/ecdsa_verify_pubkey_to_addr.zkey";

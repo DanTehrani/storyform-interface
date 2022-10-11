@@ -157,14 +157,19 @@ export type FullProof = {
   };
 };
 
+export type PointPreComputes = bigint[][][][];
+
 export type FullProveInput = {
-  r: bigint[];
+  TPreComputes?: PointPreComputes; // Powers of r^-1 * R as 64bit integers
+  T?: [bigint, bigint]; // Powers of r^-1 * R as 64bit integers
+  U: [bigint[], bigint[]]; // -(r^-1 * msg * G) as 64bit registers
   s: bigint[];
-  msghash: bigint[];
-  pubkey: [bigint[], bigint[]];
+  /*
+  msghaash: bigint[];
   siblings: bigint[];
   pathIndices: number[];
   root: bigint;
+  */
 };
 
 export type AttestationProofInput = {
