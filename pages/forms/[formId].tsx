@@ -24,18 +24,14 @@ import MadeWithStoryForm from "../../components/MadeWithStoryForm";
 import { useRouter } from "next/router";
 import { APP_ID } from "../../config";
 import FormSkeleton from "../../components/FormSkeleton";
-import { getCurrentUnixTime, notEmpty, getSecretMessage } from "../../utils";
+import { getCurrentUnixTime, notEmpty } from "../../utils";
 import SubmittingFormModal from "../../components/SubmittingFormModal";
 import { motion } from "framer-motion";
 import FormDeleted from "../../components/FormDeleted";
 import ProverContext from "../../contexts/ProverContext";
 import { useEffect, useState } from "react";
-import { generateSubmissionAttestationProof } from "../../lib/zkUtils";
-import { FullProof } from "../../types";
-import { useSignSecretMessage } from "../../hooks";
 import { useAccount } from "wagmi";
 import ConnectWalletButton from "../../components/ConnectWalletButton";
-import { constructMembershipProofInput } from "../../lib/zkFullVerifyMembershipProof";
 
 const StyledBox = props => {
   return (
