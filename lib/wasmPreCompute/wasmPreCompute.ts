@@ -14,7 +14,5 @@ export const getPointPreComputes = async (
     )
   );
 
-  //  preComputes[10][10][0][0] = 12345n;
-
   return preComputes;
 };
