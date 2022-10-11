@@ -3,7 +3,7 @@ import { AttestationProofInput, FullProof } from "../types";
 import { fromRpcSig, hashPersonalMessage } from "@ethereumjs/util";
 import { splitToRegisters, addHexPrefix } from "../utils";
 import { sha256, toUtf8Bytes } from "ethers/lib/utils";
-import { FullProveInput } from "../types";
+import { MembershipProofInput } from "../types";
 import { getDevcon6PoapMerkleTree } from "./poap";
 import {
   ECDSA_VERIFY_PUBKEY_TO_ADDR_WASM_URI,
@@ -22,11 +22,12 @@ const SECP256K1_N = new BN(
 const bufferToBigInt = (buff: Buffer) =>
   BigInt(addHexPrefix(Buffer.from(buff).toString("hex")));
 
+// !Has not yet implemented construction of Merkle proof!
 export const constructMembershipProofInput = async (
   addr: string,
   sig: string,
   msg: string
-) => {
+): Promise<MembershipProofInput> => {
   const msgHash = hashPersonalMessage(Buffer.from(msg));
   const merkleTree = await getDevcon6PoapMerkleTree();
 
@@ -57,7 +58,7 @@ export const constructMembershipProofInput = async (
 
   const TPreComputes = await getPointPreComputes(T.encode("hex"));
 
-  const input: FullProveInput = {
+  const input: MembershipProofInput = {
     TPreComputes,
     s: splitToRegisters(bufferToBigInt(s)),
     U: [splitToRegisters(U.x), splitToRegisters(U.y)]
@@ -73,6 +74,10 @@ export const constructMembershipProofInput = async (
   return input;
 };
 
+/**
+ * !Has not yet implemented of Merkle proof verification!
+ * Runs the proof generation using a web worker.
+ */
 export const generateMembershipProofInBg = async ({
   address,
   message,
@@ -83,7 +88,7 @@ export const generateMembershipProofInBg = async ({
   message: string;
   signature: string;
   callback: (membershipProof: FullProof) => void;
-}) => {
+}): Promise<void> => {
   const input = await constructMembershipProofInput(
     address,
     signature,
@@ -91,7 +96,7 @@ export const generateMembershipProofInBg = async ({
   );
 
   const worker = new Worker(
-    new URL("../lib/webworkers/prover.js", import.meta.url)
+    new URL("../lib/webworkers/bg_prover.js", import.meta.url)
   );
 
   // Define worker callback

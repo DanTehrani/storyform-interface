@@ -159,7 +159,7 @@ export type FullProof = {
 
 export type PointPreComputes = bigint[][][][];
 
-export type FullProveInput = {
+export type MembershipProofInput = {
   TPreComputes?: PointPreComputes; // Powers of r^-1 * R as 64bit integers
   T?: [bigint, bigint]; // Powers of r^-1 * R as 64bit integers
   U: [bigint[], bigint[]]; // -(r^-1 * msg * G) as 64bit registers

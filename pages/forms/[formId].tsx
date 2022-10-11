@@ -64,16 +64,19 @@ const FormPage: NextPage = () => {
   const { address } = useAccount();
   const { isPoapHolder, getIsPoapHolder } = useIsPoapHolder();
 
-  // TODO: change this into a "prover" object?
-  const prover = useContext(ProverContext);
+  const {
+    membershipProof,
+    attestationProof,
+    isBgProvingMembership,
+    generateMembershipProofInBg,
+    generateAttestationProof
+  } = useContext(ProverContext);
 
   useEffect(() => {
     if (form?.settings?.devcon6 && address) {
       getIsPoapHolder(address);
     }
   }, [getIsPoapHolder, address, form?.settings?.devcon6]);
-
-  const { membershipProof, attestationProof, isBgProvingMembership } = prover;
 
   // Submit as soon as everything is ready
   useEffect(() => {
@@ -193,7 +196,7 @@ const FormPage: NextPage = () => {
     // Only generate attestation proof if the form is a devcon6 survey
     if (settings?.devcon6) {
       // Generate message attestation proof (shouldn't take too long)
-      await prover.generateAttestationProof(submission);
+      await generateAttestationProof(submission);
     }
 
     setAnswers(answers);
@@ -263,7 +266,7 @@ const FormPage: NextPage = () => {
           ) : settings.devcon6 ? (
             <Container mt={10} maxW={[850]}>
               <Center>
-                <Button onClick={prover.generateMembershipProofInBg}>
+                <Button onClick={generateMembershipProofInBg}>
                   Check eligibility
                 </Button>
               </Center>
@@ -364,7 +367,7 @@ const FormPage: NextPage = () => {
       </Container>
       <SubmittingFormModal
         isOpen={readyToSubmit && !submissionComplete}
-        isProving={prover.isBgProvingMembership}
+        isProving={isBgProvingMembership}
       ></SubmittingFormModal>
     </Center>
   );

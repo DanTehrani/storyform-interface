@@ -1,43 +1,9 @@
-import { FormSubmission, FullProof, Submission } from "../types";
+import { FormSubmission, FullProof } from "../types";
 const snarkJs = require("snarkjs");
-import { hashPersonalMessage } from "@ethereumjs/util";
-import { splitToRegisters, addHexPrefix } from "../utils";
 import { sha256, toUtf8Bytes } from "ethers/lib/utils";
 import attestationVerificationKey from "./verification_keys/attestation_verification_key.json";
 // import membershipVerificationKey from "./verification_keys/membership_verification_key.json";
 import membershipVerificationKey from "./verification_keys/attestation_verification_key.json";
-import { poseidon } from "circomlibjs";
-
-const hashRegistersWithPoseidon = (registers: bigint[]) => {
-  const hash = poseidon(registers);
-  return hash;
-};
-
-export const generateSubmissionAttestationProof = async (
-  secretMsg: string,
-  submission: Submission
-) => {
-  const msgHash = hashPersonalMessage(Buffer.from(secretMsg));
-  const submissionHash = sha256(toUtf8Bytes(JSON.stringify(submission)));
-
-  const secret = splitToRegisters(
-    BigInt(addHexPrefix(msgHash.toString("hex")))
-  );
-
-  const input = {
-    secret,
-    hash: hashRegistersWithPoseidon(secret),
-    msg: submissionHash
-  };
-
-  const fullProof = await snarkJs.groth16.fullProve(
-    input,
-    "/attest_membership_proof.wasm",
-    "/attest_membership_proof.zkey"
-  );
-
-  return fullProof;
-};
 
 export const verifySubmissionAttestationProof = async (
   fullProof: FullProof
