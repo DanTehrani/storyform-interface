@@ -3,6 +3,8 @@ import { createContext } from "react";
 import { FullProof, Submission } from "../types";
 import { useAccount, useSignMessage } from "wagmi";
 import * as prover from "../lib/prover";
+import { useAttestationPreImage } from "../hooks";
+import { MESSAGE_TO_SIGN } from "../config";
 
 interface IProverContext {
   isBgProvingMembership: boolean;
@@ -35,14 +37,14 @@ export const ProverContextProvider = ({ children }) => {
   const [attestationProof, setAttestationProof] = useState<FullProof | null>(
     null
   );
+  const { attestationPreImage } = useAttestationPreImage();
   const { address } = useAccount();
   const { signMessageAsync } = useSignMessage();
 
   const generateMembershipProofInBg = async () => {
     if (address) {
       // Prompt user to sign the message
-      const message = "storyform_dev";
-
+      const message = MESSAGE_TO_SIGN;
       const signature = await signMessageAsync({
         message
       });
@@ -51,6 +53,7 @@ export const ProverContextProvider = ({ children }) => {
         address,
         signature,
         message,
+        attestationPreImage: attestationPreImage as bigint,
         callback: _membershipProof => {
           setMembershipProof(_membershipProof);
           setIsBgProvingMembership(false);
@@ -64,7 +67,7 @@ export const ProverContextProvider = ({ children }) => {
   const generateAttestationProof = async (submission: Submission) => {
     setIsGeneratingAttestationProof(true);
     const _attestationProof = await prover.generateSubmissionAttestationProof({
-      secret: "", // TODO: Make this a secret message
+      attestationPreImage: attestationPreImage as bigint,
       submission
     });
     setIsGeneratingAttestationProof(false);

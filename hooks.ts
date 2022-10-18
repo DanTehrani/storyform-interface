@@ -339,3 +339,22 @@ export const useIsPoapHolder = () => {
 
   return { getIsPoapHolder, isPoapHolder };
 };
+
+// Generate a 31byte (compatible with bn254) random value
+const getRandomValue = () => {
+  const buf = new Uint8Array(31);
+  window.crypto.getRandomValues(buf);
+  return BigInt("0x" + Buffer.from(buf).toString("hex"));
+};
+
+export const useAttestationPreImage = () => {
+  const [attestationPreImage, setAttestationPreImage] = useState<
+    bigint | undefined
+  >();
+
+  useEffect(() => {
+    setAttestationPreImage(getRandomValue());
+  }, []);
+
+  return { attestationPreImage };
+};

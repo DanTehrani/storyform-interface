@@ -164,15 +164,16 @@ export type MembershipProofInput = {
   T?: [bigint, bigint]; // Powers of r^-1 * R as 64bit integers
   U: [bigint[], bigint[]]; // -(r^-1 * msg * G) as 64bit registers
   s: bigint[];
-  /*
-  msghaash: bigint[];
+  attestationHash: bigint;
   siblings: bigint[];
   pathIndices: number[];
-  root: bigint;
-  */
+  merkleRoot: bigint;
+  attestationHashSquared: bigint;
 };
 
 export type AttestationProofInput = {
-  secret: string;
+  attestationPreImage: bigint;
   submission: Submission;
 };
+
+export type Registers = [bigint, bigint, bigint, bigint];

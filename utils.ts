@@ -2,7 +2,8 @@ import {
   FormSubmission,
   FormIdPreImage,
   ArweaveTx,
-  ArweveGraphQLResult
+  ArweveGraphQLResult,
+  Registers
 } from "./types";
 const { NEXT_PUBLIC_CHAIN_ID } = process.env;
 import { sha256 } from "ethers/lib/utils";
@@ -76,8 +77,8 @@ export const removeDuplicates = <T>(array: T[]) => [...new Set(array)];
 
 export const addHexPrefix = (str: string): string => `0x${str}`;
 
-export const splitToRegisters = (value: bigint) => {
-  const registers: bigint[] = [];
+export const splitToRegisters = (value: bigint): Registers => {
+  const registers: Registers | any = [];
 
   if (!value) {
     return [0n, 0n, 0n, 0n];

@@ -70,8 +70,17 @@ export const POAP_CONTRACT_ADDRESS =
 export const DEVCON6_POAP_EVENT_ID = "69";
 export const DEVCON6_POAP_BLOCK_FROM = 8732485;
 
-export const ECDSA_VERIFY_PUBKEY_TO_ADDR_WASM_URI =
-  "https://d2q52de7b4rwg.cloudfront.net/ecdsa_verify_pubkey_to_addr.wasm";
+export const MESSAGE_TO_SIGN = "storyform dev";
 
-export const ECDSA_VERIFY_PUBKEY_TO_ADDR_ZKEY_URI =
-  "https://d2q52de7b4rwg.cloudfront.net/ecdsa_verify_pubkey_to_addr.zkey";
+export const PROOF_OF_MEMBERSHIP_WASM_URI =
+  //  "https://storage.googleapis.com/prover_jp/storyform/proof_of_membership.wasm";
+  "/proof_of_membership.wasm";
+
+export const PROOF_OF_MEMBERSHIP_ZKEY_URI =
+  "https://storage.googleapis.com/prover_jp/storyform/proof_of_membership.zkey";
+
+export const ATTESTATION_WASM_URI =
+  "https://storage.googleapis.com/prover_jp/storyform/attestation.wasm";
+
+export const ATTESTATION_ZKEY_URI =
+  "https://storage.googleapis.com/prover_jp/storyform/attestation.zkey";
