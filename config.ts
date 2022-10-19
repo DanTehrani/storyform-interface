@@ -77,3 +77,5 @@ export const ATTESTATION_WASM_URI =
 
 export const ATTESTATION_ZKEY_URI =
   "https://storage.googleapis.com/prover_jp/storyform/attestation.zkey";
+
+export const MERKLE_TREE_DEPTH = 10;

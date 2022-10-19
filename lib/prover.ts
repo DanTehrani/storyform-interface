@@ -2,7 +2,7 @@ const snarkJs = require("snarkjs");
 import { AttestationProofInput, FullProof } from "../types";
 import { fromRpcSig, hashPersonalMessage } from "@ethereumjs/util";
 import { splitToRegisters, addHexPrefix } from "../utils";
-import { LogDescription, sha256, toUtf8Bytes } from "ethers/lib/utils";
+import { sha256, toUtf8Bytes } from "ethers/lib/utils";
 import { MembershipProofInput, MembershipProofConfig } from "../types";
 import {
   PROOF_OF_MEMBERSHIP_WASM_URI,
@@ -15,8 +15,7 @@ const elliptic = require("elliptic");
 const ec = elliptic.ec("secp256k1");
 const BN = require("bn.js");
 import { poseidon } from "circomlibjs";
-import { IncrementalMerkleTree } from "@zk-kit/incremental-merkle-tree";
-import { getPoapMerkleTree } from "./poap/poap";
+import { getPoapMerkleTree } from "./poap";
 
 const SECP256K1_N = new BN(
   "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141",
@@ -69,11 +68,7 @@ export const constructMembershipProofInput = async (
     pathIndices: merkleProof.pathIndices,
     merkleRoot: merkleProof.root,
     attestationHash,
-    attestationHashSquared:
-      (attestationHash * attestationHash) %
-      BigInt(
-        "21888242871839275222246405745257275088548364400416034343698204186575808495617"
-      )
+    attestationHashSquared: (attestationHash * attestationHash) % SECP256K1_N
   };
 
   return input;

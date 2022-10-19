@@ -1,4 +1,4 @@
-import { useCallback, useContext } from "react";
+import { useContext } from "react";
 import type { NextPage } from "next";
 import {
   AlertIcon,
@@ -62,15 +62,6 @@ const FormPage: NextPage = () => {
   const toast = useToast();
   const { address } = useAccount();
 
-  /*
-  const { isPoapHolder: isEligible } = useIsPoapHolder(
-    form?.settings.poapEventId,
-    address
-  );
-  */
-
-  //  const { getPoapMerkleProof } = useGetPoapMerkleProof();
-
   const {
     membershipProof,
     attestationProof,
@@ -79,7 +70,9 @@ const FormPage: NextPage = () => {
     generateAttestationProof
   } = useContext(ProverContext);
 
-  // Submit as soon as everything is ready
+  // Submit as soon as
+  // the membership proof, submission,
+  // and the attestation proof is ready
   useEffect(() => {
     if (membershipProof && attestationProof && readyToSubmit && formId) {
       submitForm({
@@ -132,12 +125,7 @@ const FormPage: NextPage = () => {
     );
   }
 
-  //  const { title, description, questions, settings } = form;
-  const { title, description, questions } = form;
-  const settings = {
-    gatedAnon: true,
-    poapEventId: 69
-  };
+  const { title, description, questions, settings } = form;
 
   if (submissionComplete) {
     return (
@@ -277,7 +265,7 @@ const FormPage: NextPage = () => {
                 <Button
                   onClick={() => {
                     generateMembershipProofInBg({
-                      poapEventId: settings.poapEventId
+                      poapEventId: settings.poapEventId as number
                     });
                   }}
                 >
