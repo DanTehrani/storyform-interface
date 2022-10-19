@@ -103,7 +103,8 @@ export type PageInfo = {
 };
 
 export type FormSettings = {
-  devcon6: boolean;
+  gatedAnon: boolean;
+  poapEventId?: number;
 };
 
 export type FormInput = {
@@ -177,3 +178,7 @@ export type AttestationProofInput = {
 };
 
 export type Registers = [bigint, bigint, bigint, bigint];
+
+export type MembershipProofConfig = {
+  poapEventId: number;
+};

@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
 import type { NextPage } from "next";
 import {
   AlertIcon,
@@ -17,7 +17,7 @@ import {
   Heading,
   Select
 } from "@chakra-ui/react";
-import { useForm, useIsPoapHolder, useSubmitForm } from "../../hooks";
+import { useForm, useSubmitForm } from "../../hooks";
 import FormNotFoundOrUploading from "../../components/FormNotFoundOrUploading";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import MadeWithStoryForm from "../../components/MadeWithStoryForm";
@@ -60,9 +60,16 @@ const FormPage: NextPage = () => {
   const [showOtherInput, setShowOtherInput] = useState<boolean>(false);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const toast = useToast();
-
   const { address } = useAccount();
-  const { isPoapHolder, getIsPoapHolder } = useIsPoapHolder();
+
+  /*
+  const { isPoapHolder: isEligible } = useIsPoapHolder(
+    form?.settings.poapEventId,
+    address
+  );
+  */
+
+  //  const { getPoapMerkleProof } = useGetPoapMerkleProof();
 
   const {
     membershipProof,
@@ -71,12 +78,6 @@ const FormPage: NextPage = () => {
     generateMembershipProofInBg,
     generateAttestationProof
   } = useContext(ProverContext);
-
-  useEffect(() => {
-    if (form?.settings?.devcon6 && address) {
-      getIsPoapHolder(address);
-    }
-  }, [getIsPoapHolder, address, form?.settings?.devcon6]);
 
   // Submit as soon as everything is ready
   useEffect(() => {
@@ -131,7 +132,12 @@ const FormPage: NextPage = () => {
     );
   }
 
-  const { title, description, questions, settings } = form;
+  //  const { title, description, questions, settings } = form;
+  const { title, description, questions } = form;
+  const settings = {
+    gatedAnon: true,
+    poapEventId: 69
+  };
 
   if (submissionComplete) {
     return (
@@ -193,8 +199,8 @@ const FormPage: NextPage = () => {
       answers
     };
 
-    // Only generate attestation proof if the form is a devcon6 survey
-    if (settings?.devcon6) {
+    // Only generate attestation proof if the form is gated anonymous survey
+    if (settings?.gatedAnon) {
       // Generate message attestation proof (shouldn't take too long)
       await generateAttestationProof(submission);
     }
@@ -257,21 +263,30 @@ const FormPage: NextPage = () => {
             {title}
           </Heading>
           <Text mt={4}>{description}</Text>
-          {settings.devcon6 && !address ? (
+          {settings.gatedAnon && !address ? (
+            // User is not signed in, so render sign in button
             <Container mt={10} maxW={[850]}>
               <Center>
                 <ConnectWalletButton label="Sign in to answer"></ConnectWalletButton>
               </Center>
             </Container>
-          ) : settings.devcon6 ? (
+          ) : settings.gatedAnon && !isBgProvingMembership ? (
+            // User is signed in and the form is gated, so start generating proof
             <Container mt={10} maxW={[850]}>
               <Center>
-                <Button onClick={generateMembershipProofInBg}>
-                  Check eligibility
+                <Button
+                  onClick={() => {
+                    generateMembershipProofInBg({
+                      poapEventId: settings.poapEventId
+                    });
+                  }}
+                >
+                  Generate membership proof
                 </Button>
               </Center>
             </Container>
           ) : (
+            // User is eligible to answer the form
             <>
               <FormControl mt={4}>
                 {questions.map((question, i) => (

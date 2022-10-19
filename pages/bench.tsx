@@ -14,7 +14,13 @@ const Bench: NextPage = () => {
   return (
     <Container mt={10} maxW={[850]} mb={200}>
       <ConnectWalletButton></ConnectWalletButton>
-      <Button onClick={prover.generateMembershipProofInBg}>
+      <Button
+        onClick={() => {
+          prover.generateMembershipProofInBg({
+            poapEventId: 69
+          });
+        }}
+      >
         Verify sig & Get address
       </Button>
     </Container>

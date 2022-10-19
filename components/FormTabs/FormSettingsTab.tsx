@@ -50,17 +50,16 @@ const FormSettingsTab: React.FC<Props> = ({ context, onDeleteFormClick }) => {
       ) : (
         <Stack>
           <Text as="i">Anonymous survey</Text>
-
           <Checkbox
-            isChecked={settings.devcon6}
+            isChecked={settings.gatedAnon}
             onChange={e => {
               updateSettings({
                 ...settings,
-                devcon6: e.target.checked
+                gatedAnon: e.target.checked
               });
             }}
           >
-            Only Devcon6 POAP holders can answer &nbsp;
+            Only POAP holders can answer &nbsp;
             <Tooltip label="The Ethereum address of the respondent won't be revealed.">
               <InfoIcon color="purple.300"></InfoIcon>
             </Tooltip>

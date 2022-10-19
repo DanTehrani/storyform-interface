@@ -2,17 +2,21 @@ const snarkJs = require("snarkjs");
 import { AttestationProofInput, FullProof } from "../types";
 import { fromRpcSig, hashPersonalMessage } from "@ethereumjs/util";
 import { splitToRegisters, addHexPrefix } from "../utils";
-import { sha256, toUtf8Bytes } from "ethers/lib/utils";
-import { MembershipProofInput } from "../types";
-import { getDevcon6PoapMerkleTree } from "./poap";
+import { LogDescription, sha256, toUtf8Bytes } from "ethers/lib/utils";
+import { MembershipProofInput, MembershipProofConfig } from "../types";
 import {
-  ECDSA_VERIFY_PUBKEY_TO_ADDR_WASM_URI,
-  ECDSA_VERIFY_PUBKEY_TO_ADDR_ZKEY_URI
+  PROOF_OF_MEMBERSHIP_WASM_URI,
+  PROOF_OF_MEMBERSHIP_ZKEY_URI,
+  ATTESTATION_WASM_URI,
+  ATTESTATION_ZKEY_URI
 } from "../config";
 import { getPointPreComputes } from "./wasmPreCompute/wasmPreCompute";
 const elliptic = require("elliptic");
 const ec = elliptic.ec("secp256k1");
 const BN = require("bn.js");
+import { poseidon } from "circomlibjs";
+import { IncrementalMerkleTree } from "@zk-kit/incremental-merkle-tree";
+import { getPoapMerkleTree } from "./poap/poap";
 
 const SECP256K1_N = new BN(
   "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141",
@@ -22,21 +26,19 @@ const SECP256K1_N = new BN(
 const bufferToBigInt = (buff: Buffer) =>
   BigInt(addHexPrefix(Buffer.from(buff).toString("hex")));
 
-// !Has not yet implemented construction of Merkle proof!
 export const constructMembershipProofInput = async (
   addr: string,
   sig: string,
-  msg: string
+  msg: string,
+  attestationPreImage: bigint,
+  config: MembershipProofConfig
 ): Promise<MembershipProofInput> => {
   const msgHash = hashPersonalMessage(Buffer.from(msg));
-  const merkleTree = await getDevcon6PoapMerkleTree();
 
-  if (!merkleTree) {
-    throw new Error("Failed to get merkle tree");
-  }
-
-  merkleTree.insert(addr);
-  const merkleProof = merkleTree.createProof(merkleTree.indexOf(addr));
+  const merkleTree = await getPoapMerkleTree(config.poapEventId);
+  const merkleProof = merkleTree.createProof(
+    merkleTree.indexOf(addr.toLowerCase())
+  );
 
   const { v, r, s } = fromRpcSig(sig);
 
@@ -57,42 +59,50 @@ export const constructMembershipProofInput = async (
   const T = rPoint.getPublic().mul(rInv);
 
   const TPreComputes = await getPointPreComputes(T.encode("hex"));
+  const attestationHash: bigint = poseidon([attestationPreImage]);
 
   const input: MembershipProofInput = {
     TPreComputes,
     s: splitToRegisters(bufferToBigInt(s)),
-    U: [splitToRegisters(U.x), splitToRegisters(U.y)]
-    // The circuit has not yet implemented merkle proof verification!
-    /*
-    msghash: splitToRegisters(BigInt(addHexPrefix(msgHash.toString("hex")))),
+    U: [splitToRegisters(U.x), splitToRegisters(U.y)],
     siblings: merkleProof.siblings.map(s => s[0]),
     pathIndices: merkleProof.pathIndices,
-    root: merkleProof.root
-    */
+    merkleRoot: merkleProof.root,
+    attestationHash,
+    attestationHashSquared:
+      (attestationHash * attestationHash) %
+      BigInt(
+        "21888242871839275222246405745257275088548364400416034343698204186575808495617"
+      )
   };
 
   return input;
 };
 
 /**
- * !Has not yet implemented of Merkle proof verification!
  * Runs the proof generation using a web worker.
  */
 export const generateMembershipProofInBg = async ({
   address,
   message,
   signature,
-  callback
+  attestationPreImage,
+  callback,
+  config
 }: {
   address: string;
   message: string;
   signature: string;
+  attestationPreImage: bigint;
+  config: MembershipProofConfig;
   callback: (membershipProof: FullProof) => void;
 }): Promise<void> => {
   const input = await constructMembershipProofInput(
     address,
     signature,
-    message
+    message,
+    attestationPreImage,
+    config
   );
 
   const worker = new Worker(
@@ -113,27 +123,27 @@ export const generateMembershipProofInBg = async ({
 
   worker.postMessage({
     input,
-    wasmFile: ECDSA_VERIFY_PUBKEY_TO_ADDR_WASM_URI,
-    zKeyFile: ECDSA_VERIFY_PUBKEY_TO_ADDR_ZKEY_URI
+    wasmFile: PROOF_OF_MEMBERSHIP_WASM_URI,
+    zKeyFile: PROOF_OF_MEMBERSHIP_ZKEY_URI
   });
 };
 
 export const generateSubmissionAttestationProof = async (
   input: AttestationProofInput
 ) => {
-  const { secret, submission } = input;
+  const { attestationPreImage, submission } = input;
 
   const submissionHash = sha256(toUtf8Bytes(JSON.stringify(submission)));
 
-  const encodedInput = {
-    secret,
+  const finalInput = {
+    attestationPreImage,
     submissionHash
   };
 
   const fullProof = await snarkJs.groth16.fullProve(
-    encodedInput,
-    "/attest_membership_proof.wasm",
-    "/attest_membership_proof.zkey"
+    finalInput,
+    ATTESTATION_WASM_URI,
+    ATTESTATION_ZKEY_URI
   );
 
   return fullProof;

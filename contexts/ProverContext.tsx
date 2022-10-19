@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createContext } from "react";
-import { FullProof, Submission } from "../types";
+import { FullProof, MembershipProofConfig, Submission } from "../types";
 import { useAccount, useSignMessage } from "wagmi";
 import * as prover from "../lib/prover";
 import { useAttestationPreImage } from "../hooks";
@@ -9,7 +9,7 @@ import { MESSAGE_TO_SIGN } from "../config";
 interface IProverContext {
   isBgProvingMembership: boolean;
   isGeneratingAttestationProof: boolean;
-  generateMembershipProofInBg: () => void;
+  generateMembershipProofInBg: (config: MembershipProofConfig) => void;
   generateAttestationProof: (submission: Submission) => void;
   membershipProof: FullProof | null;
   attestationProof: FullProof | null;
@@ -41,7 +41,7 @@ export const ProverContextProvider = ({ children }) => {
   const { address } = useAccount();
   const { signMessageAsync } = useSignMessage();
 
-  const generateMembershipProofInBg = async () => {
+  const generateMembershipProofInBg = async (config: MembershipProofConfig) => {
     if (address) {
       // Prompt user to sign the message
       const message = MESSAGE_TO_SIGN;
@@ -54,6 +54,7 @@ export const ProverContextProvider = ({ children }) => {
         signature,
         message,
         attestationPreImage: attestationPreImage as bigint,
+        config,
         callback: _membershipProof => {
           setMembershipProof(_membershipProof);
           setIsBgProvingMembership(false);

@@ -17,7 +17,7 @@ const defaultState = {
       }
     ],
     settings: {
-      devcon6: false
+      gatedAnon: false
     }
   },
   setFormInput: () => null,
