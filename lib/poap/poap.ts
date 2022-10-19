@@ -1,7 +1,7 @@
 import { IncrementalMerkleTree } from "@zk-kit/incremental-merkle-tree";
 import { poseidon } from "circomlibjs";
-import axios from "./axios";
-import { MERKLE_TREE_DEPTH } from "../config";
+import axios from "../axios";
+import { MERKLE_TREE_DEPTH } from "../../config";
 
 // Get all POAP holders via the gateway
 const getPoapHolders = async (eventId: number) => {
@@ -28,4 +28,9 @@ export const getPoapMerkleTree = async (
   }
 
   throw new Error("No POAP holders found");
+};
+
+export const getPoapEvents = async () => {
+  const result = await axios.get(`/poap/events`);
+  return result.data;
 };

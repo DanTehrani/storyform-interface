@@ -1,3 +1,5 @@
+import { PoapEvent } from "./lib/poap/poap.types";
+
 export interface FormQuestion {
   label: string;
   type: string; // text, select, checkbox
@@ -119,6 +121,7 @@ export interface ICreateFormContext {
   setFormInput: (formInput: FormInput) => void;
   updateQuestion: (question: FormQuestion, questionIndex: number) => void;
   updateSettings: (settings: FormSettings) => void;
+  poapEvents: PoapEvent[];
 }
 
 export interface IEditFormContext {

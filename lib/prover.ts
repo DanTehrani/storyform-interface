@@ -15,7 +15,7 @@ const elliptic = require("elliptic");
 const ec = elliptic.ec("secp256k1");
 const BN = require("bn.js");
 import { poseidon } from "circomlibjs";
-import { getPoapMerkleTree } from "./poap";
+import { getPoapMerkleTree } from "./poap/poap";
 
 const SECP256K1_N = new BN(
   "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141",

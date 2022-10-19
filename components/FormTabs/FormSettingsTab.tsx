@@ -1,17 +1,20 @@
-import { useContext } from "react";
+import { useState, useContext } from "react";
 import {
   Stack,
   Button,
   Alert,
   AlertIcon,
   Checkbox,
-  Box,
+  Select,
   Tooltip,
-  Text
+  Text,
+  Box,
+  Image
 } from "@chakra-ui/react";
 import { InfoIcon } from "@chakra-ui/icons";
 import CreateFormContext from "../../contexts/CreateFormContext";
 import EditFormContext from "../../contexts/EditFormContext";
+import SelectPoapEventModal from "../SelectPoapEventModal";
 
 type Props = {
   context: typeof CreateFormContext | typeof EditFormContext;
@@ -21,13 +24,17 @@ type Props = {
 // TBD
 const FormSettingsTab: React.FC<Props> = ({ context, onDeleteFormClick }) => {
   // @ts-ignore
-  const { formInput, updateSettings } = useContext(context);
+  const { formInput, updateSettings, poapEvents } = useContext(context);
+
+  const [selectPoapModalOpen, setSelectPoapModalOpen] =
+    useState<boolean>(false);
 
   if (!formInput) {
     return <></>;
   }
 
   const { settings } = formInput;
+  const selectedPoap = poapEvents.find(e => e.id === settings.poapEventId);
 
   return (
     <Stack spacing={5}>
@@ -49,7 +56,6 @@ const FormSettingsTab: React.FC<Props> = ({ context, onDeleteFormClick }) => {
         </>
       ) : (
         <Stack>
-          <Text as="i">Anonymous survey</Text>
           <Checkbox
             isChecked={settings.gatedAnon}
             onChange={e => {
@@ -64,12 +70,27 @@ const FormSettingsTab: React.FC<Props> = ({ context, onDeleteFormClick }) => {
               <InfoIcon color="purple.300"></InfoIcon>
             </Tooltip>
           </Checkbox>
+          <Button onClick={() => setSelectPoapModalOpen(true)}>
+            Select POAP
+          </Button>
+          {selectedPoap ? (
+            <Box>
+              <Image src={selectedPoap?.rawMetadata.image_url}></Image>
+              <Text as="b">Only {selectedPoap.title} can answer</Text>
+            </Box>
+          ) : (
+            <> </>
+          )}
           <Text as="i">
             This is an experiment feature that. Please do not use this feature
             for critical manners.
           </Text>
         </Stack>
       )}
+      <SelectPoapEventModal
+        isOpen={selectPoapModalOpen}
+        onClose={() => setSelectPoapModalOpen(false)}
+      ></SelectPoapEventModal>
     </Stack>
   );
 };

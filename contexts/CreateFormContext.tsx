@@ -1,4 +1,5 @@
 import { createContext, useCallback, useEffect, useState } from "react";
+import { usePoapEvents } from "../lib/poap/poap.hooks";
 import {
   FormInput,
   FormQuestion,
@@ -22,7 +23,8 @@ const defaultState = {
   },
   setFormInput: () => null,
   updateQuestion: () => null,
-  updateSettings: () => null
+  updateSettings: () => null,
+  poapEvents: []
 };
 
 const CreateFormContext = createContext<ICreateFormContext>(defaultState);
@@ -30,6 +32,7 @@ const CreateFormContext = createContext<ICreateFormContext>(defaultState);
 export const CreateFormContextProvider = ({ children }) => {
   const [formInputRestored, setFormInputRestored] = useState<boolean>(false);
   const [formInput, setFormInput] = useState<FormInput>(defaultState.formInput);
+  const { events } = usePoapEvents();
 
   // Save changes to localStorage (as the form's draft)
   // But don't until the currently stored localStorage values are restored.
@@ -73,7 +76,13 @@ export const CreateFormContextProvider = ({ children }) => {
 
   return (
     <CreateFormContext.Provider
-      value={{ formInput, setFormInput, updateQuestion, updateSettings }}
+      value={{
+        formInput,
+        setFormInput,
+        updateQuestion,
+        updateSettings,
+        poapEvents: events
+      }}
     >
       {children}
     </CreateFormContext.Provider>
