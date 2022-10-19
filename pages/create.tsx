@@ -41,7 +41,6 @@ import {
 import { useToast } from "@chakra-ui/react";
 import FormPublishButton from "../components/FormPublishButton";
 import FormSkeleton from "../components/FormSkeleton";
-import Devcon6CampaignBanner from "../components/Devcon6CampaignBanner";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
@@ -215,9 +214,6 @@ const Create: NextPage = () => {
       ) : (
         <></>
       )}
-      <Box mt={4}>
-        <Devcon6CampaignBanner></Devcon6CampaignBanner>
-      </Box>
       <Box textAlign="right" mt={4}>
         <FormPublishButton
           isLoading={uploading}
