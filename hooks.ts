@@ -220,7 +220,7 @@ export const useUploadForm = () => {
       eip712TypedMessage
     };
 
-    await axios.post("/forms", formInput);
+    // await axios.post("/forms", formInput);
     setUploading(false);
     setUploadComplete(true); // TODO Change the name
   };

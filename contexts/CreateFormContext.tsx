@@ -1,5 +1,4 @@
 import { createContext, useCallback, useEffect, useState } from "react";
-import { usePoapEvents } from "../lib/poap/poap.hooks";
 import {
   FormInput,
   FormQuestion,
@@ -29,7 +28,6 @@ const CreateFormContext = createContext<ICreateFormContext>(defaultState);
 export const CreateFormContextProvider = ({ children }) => {
   const [formInputRestored, setFormInputRestored] = useState<boolean>(false);
   const [formInput, setFormInput] = useState<FormInput>(defaultState.formInput);
-  const { events } = usePoapEvents();
 
   // Save changes to localStorage (as the form's draft)
   // But don't until the currently stored localStorage values are restored.

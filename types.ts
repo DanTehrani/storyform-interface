@@ -1,5 +1,3 @@
-import { PoapEvent } from "./lib/poap/poap.types";
-
 export interface FormQuestion {
   label: string;
   type: string; // text, select, checkbox
