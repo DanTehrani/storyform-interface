@@ -5,16 +5,13 @@ import {
   Alert,
   AlertIcon,
   Checkbox,
-  Select,
   Tooltip,
   Text,
-  Box,
-  Image
+  Textarea
 } from "@chakra-ui/react";
 import { InfoIcon } from "@chakra-ui/icons";
 import CreateFormContext from "../../contexts/CreateFormContext";
 import EditFormContext from "../../contexts/EditFormContext";
-import SelectPoapEventModal from "../SelectPoapEventModal";
 
 type Props = {
   context: typeof CreateFormContext | typeof EditFormContext;
@@ -24,9 +21,8 @@ type Props = {
 // TBD
 const FormSettingsTab: React.FC<Props> = ({ context, onDeleteFormClick }) => {
   // @ts-ignore
-  const { formInput, updateSettings, poapEvents } = useContext(context);
-
-  const [selectPoapModalOpen, setSelectPoapModalOpen] =
+  const { formInput, updateSettings } = useContext(context);
+  const [gateSettingsEnabled, setGateSettingsEnabled] =
     useState<boolean>(false);
 
   if (!formInput) {
@@ -34,7 +30,6 @@ const FormSettingsTab: React.FC<Props> = ({ context, onDeleteFormClick }) => {
   }
 
   const { settings } = formInput;
-  const selectedPoap = poapEvents.find(e => e.id === settings.poapEventId);
 
   return (
     <Stack spacing={5}>
@@ -57,29 +52,29 @@ const FormSettingsTab: React.FC<Props> = ({ context, onDeleteFormClick }) => {
       ) : (
         <Stack>
           <Checkbox
-            isChecked={settings.gatedAnon}
+            isChecked={gateSettingsEnabled}
             onChange={e => {
-              updateSettings({
-                ...settings,
-                gatedAnon: e.target.checked
-              });
+              setGateSettingsEnabled(e.target.checked);
             }}
           >
-            Only POAP holders can answer &nbsp;
+            Only specified address holders can answer &nbsp;
             <Tooltip label="The Ethereum address of the respondent won't be revealed.">
               <InfoIcon color="purple.300"></InfoIcon>
             </Tooltip>
           </Checkbox>
-          <Button onClick={() => setSelectPoapModalOpen(true)}>
-            Select POAP
-          </Button>
-          {selectedPoap ? (
-            <Box>
-              <Image src={selectedPoap?.rawMetadata.image_url}></Image>
-              <Text as="b">Only {selectedPoap.title} can answer</Text>
-            </Box>
+          {gateSettingsEnabled ? (
+            <Textarea
+              onChange={e => {
+                updateSettings({
+                  ...settings,
+                  gate: {
+                    allowedAddresses: e.target.value.split(",")
+                  }
+                });
+              }}
+            ></Textarea>
           ) : (
-            <> </>
+            <></>
           )}
           <Text as="i">
             This is an experiment feature that. Please do not use this feature
@@ -87,10 +82,6 @@ const FormSettingsTab: React.FC<Props> = ({ context, onDeleteFormClick }) => {
           </Text>
         </Stack>
       )}
-      <SelectPoapEventModal
-        isOpen={selectPoapModalOpen}
-        onClose={() => setSelectPoapModalOpen(false)}
-      ></SelectPoapEventModal>
     </Stack>
   );
 };

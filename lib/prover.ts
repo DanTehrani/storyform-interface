@@ -8,14 +8,15 @@ import {
   PROOF_OF_MEMBERSHIP_WASM_URI,
   PROOF_OF_MEMBERSHIP_ZKEY_URI,
   ATTESTATION_WASM_URI,
-  ATTESTATION_ZKEY_URI
+  ATTESTATION_ZKEY_URI,
+  MERKLE_TREE_DEPTH
 } from "../config";
 import { getPointPreComputes } from "./wasmPreCompute/wasmPreCompute";
 const elliptic = require("elliptic");
 const ec = elliptic.ec("secp256k1");
 const BN = require("bn.js");
 import { poseidon } from "circomlibjs";
-import { getPoapMerkleTree } from "./poap/poap";
+import { IncrementalMerkleTree } from "@zk-kit/incremental-merkle-tree";
 
 const SECP256K1_N = new BN(
   "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141",
@@ -34,7 +35,15 @@ export const constructMembershipProofInput = async (
 ): Promise<MembershipProofInput> => {
   const msgHash = hashPersonalMessage(Buffer.from(msg));
 
-  const merkleTree = await getPoapMerkleTree(config.poapEventId);
+  const merkleTree = new IncrementalMerkleTree(
+    poseidon,
+    MERKLE_TREE_DEPTH,
+    BigInt(0),
+    2
+  ); // Binary tree.
+
+  config.merkleLeaves.forEach(leaf => merkleTree.insert(leaf));
+
   const merkleProof = merkleTree.createProof(
     merkleTree.indexOf(addr.toLowerCase())
   );

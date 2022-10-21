@@ -36,13 +36,16 @@ import { FormIdPreImage } from "../types";
 import {
   ALPHA_WHITELIST_ADDRESSES,
   APP_ID,
-  MAX_ALLOWED_FORMS_PER_USER
+  MAX_ALLOWED_FORMS_PER_USER,
+  MERKLE_TREE_DEPTH
 } from "../config";
 import { useToast } from "@chakra-ui/react";
 import FormPublishButton from "../components/FormPublishButton";
 import FormSkeleton from "../components/FormSkeleton";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { IncrementalMerkleTree } from "@zk-kit/incremental-merkle-tree";
+import { poseidon } from "circomlibjs";
 
 const CreateFormHeading = () => {
   return (
@@ -93,7 +96,30 @@ const Create: NextPage = () => {
   const { formInput } = useContext(CreateFormContext);
 
   const handleCreateClick = async () => {
-    const { title, description, questions, settings } = formInput;
+    const { title, description, questions } = formInput;
+    let settings = formInput.settings;
+
+    // Set the merkle root of the form
+    const allowedAddresses = settings.gate?.allowedAddresses;
+
+    if (allowedAddresses && allowedAddresses.length > 0) {
+      const tree = new IncrementalMerkleTree(
+        poseidon,
+        MERKLE_TREE_DEPTH,
+        BigInt(0),
+        2
+      ); // Binary tree.
+
+      allowedAddresses.forEach(holder => tree.insert(holder));
+
+      settings = {
+        ...settings,
+        gate: {
+          allowedAddresses,
+          merkleRoot: tree.root.toString()
+        }
+      };
+    }
 
     if (address) {
       const formIdPreImage: FormIdPreImage = {

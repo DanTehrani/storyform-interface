@@ -188,7 +188,7 @@ const FormPage: NextPage = () => {
     };
 
     // Only generate attestation proof if the form is gated anonymous survey
-    if (settings?.gatedAnon) {
+    if (settings?.gate) {
       // Generate message attestation proof (shouldn't take too long)
       await generateAttestationProof(submission);
     }
@@ -251,21 +251,21 @@ const FormPage: NextPage = () => {
             {title}
           </Heading>
           <Text mt={4}>{description}</Text>
-          {settings.gatedAnon && !address ? (
+          {settings.gate && !address ? (
             // User is not signed in, so render sign in button
             <Container mt={10} maxW={[850]}>
               <Center>
                 <ConnectWalletButton label="Sign in to answer"></ConnectWalletButton>
               </Center>
             </Container>
-          ) : settings.gatedAnon && !isBgProvingMembership ? (
+          ) : settings.gate && !isBgProvingMembership ? (
             // User is signed in and the form is gated, so start generating proof
             <Container mt={10} maxW={[850]}>
               <Center>
                 <Button
                   onClick={() => {
                     generateMembershipProofInBg({
-                      poapEventId: settings.poapEventId as number
+                      merkleLeaves: settings.gate?.allowedAddresses as string[]
                     });
                   }}
                 >

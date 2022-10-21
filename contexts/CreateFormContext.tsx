@@ -17,14 +17,11 @@ const defaultState = {
         type: "text"
       }
     ],
-    settings: {
-      gatedAnon: false
-    }
+    settings: {}
   },
   setFormInput: () => null,
   updateQuestion: () => null,
-  updateSettings: () => null,
-  poapEvents: []
+  updateSettings: () => null
 };
 
 const CreateFormContext = createContext<ICreateFormContext>(defaultState);
@@ -80,8 +77,7 @@ export const CreateFormContextProvider = ({ children }) => {
         formInput,
         setFormInput,
         updateQuestion,
-        updateSettings,
-        poapEvents: events
+        updateSettings
       }}
     >
       {children}

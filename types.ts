@@ -105,8 +105,10 @@ export type PageInfo = {
 };
 
 export type FormSettings = {
-  gatedAnon: boolean;
-  poapEventId?: number;
+  gate?: {
+    merkleRoot?: string;
+    allowedAddresses: string[];
+  };
 };
 
 export type FormInput = {
@@ -121,7 +123,6 @@ export interface ICreateFormContext {
   setFormInput: (formInput: FormInput) => void;
   updateQuestion: (question: FormQuestion, questionIndex: number) => void;
   updateSettings: (settings: FormSettings) => void;
-  poapEvents: PoapEvent[];
 }
 
 export interface IEditFormContext {
@@ -183,5 +184,5 @@ export type AttestationProofInput = {
 export type Registers = [bigint, bigint, bigint, bigint];
 
 export type MembershipProofConfig = {
-  poapEventId: number;
+  merkleLeaves: string[];
 };

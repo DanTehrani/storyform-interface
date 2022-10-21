@@ -17,7 +17,7 @@ const Bench: NextPage = () => {
       <Button
         onClick={() => {
           prover.generateMembershipProofInBg({
-            poapEventId: 69
+            merkleLeaves: []
           });
         }}
       >
