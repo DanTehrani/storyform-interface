@@ -26,7 +26,10 @@ const SECP256K1_N = new BN(
 const bufferToBigInt = (buff: Buffer) =>
   BigInt(addHexPrefix(Buffer.from(buff).toString("hex")));
 
-export const constructMembershipProofInput = async (
+/**
+ * Construct the input which will be passed into the circuit.
+ */
+const constructMembershipProofInput = async (
   addr: string,
   sig: string,
   msg: string,
@@ -84,7 +87,7 @@ export const constructMembershipProofInput = async (
 };
 
 /**
- * Runs the proof generation using a web worker.
+ * Runs the membership proof generation using a web worker.
  */
 export const generateMembershipProofInBg = async ({
   address,
